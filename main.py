@@ -882,7 +882,6 @@ def past_projects():
                          lost_proposals=lost_proposals,
                          dead_jobs=dead_jobs,
                          user_email=session.get('user_email'))
-
 @app.route('/mark_proposal_lost/<proposal_number>', methods=['GET', 'POST'])
 @login_required
 def mark_proposal_lost(proposal_number):
@@ -895,10 +894,9 @@ def mark_proposal_lost(proposal_number):
     
     proposal = proposals[proposal_number]
     
-    # Check permissions
-    if (proposal.get('project_manager') != session.get('user_name') and 
-        not session.get('is_admin')):
-        flash('Only the project manager can mark this proposal as lost.', 'error')
+    # Admin can mark any proposal as lost
+    if not user_can_edit(proposal):
+        flash('Only the project manager or admin can mark this proposal as lost.', 'error')
         return redirect(url_for('view_proposal', proposal_number=proposal_number))
     
     if request.method == 'POST':
@@ -975,6 +973,8 @@ def logout():
     session.clear()
     return redirect(url_for('login'))
 
+
+# FIX 5: Update the mark_won_form route
 @app.route('/mark_won_form/<proposal_number>')
 @login_required
 def mark_won_form(proposal_number):
@@ -987,10 +987,9 @@ def mark_won_form(proposal_number):
     
     proposal = proposals[proposal_number]
     
-    # Check permissions
-    if (proposal.get('project_manager') != session.get('user_name') and 
-        not session.get('is_admin')):
-        flash('Only the project manager can mark this proposal as won.', 'error')
+    # Admin can mark any proposal as won
+    if not user_can_edit(proposal):
+        flash('Only the project manager or admin can mark this proposal as won.', 'error')
         return redirect(url_for('index'))
     
     return render_template('mark_won_form.html', proposal=proposal)
@@ -1099,9 +1098,48 @@ def mark_won_form(proposal_number):
 #     return redirect(url_for('index'))
 
     
-
-
+@app.route('/project_info_form/<project_number>')
+@login_required
+def project_info_form(project_number):
+    """Display form to enter additional project information"""
+    projects = load_json(DATABASES['projects'])
     
+    if project_number not in projects:
+        flash('Project not found.', 'error')
+        return redirect(url_for('index'))
+    
+    project = projects[project_number]
+    
+    # Check if project is in correct status
+    if project.get('status') != 'pending_additional_info':
+        # Allow admin to override and edit anyway
+        if not session.get('is_admin'):
+            flash('This project does not require additional information.', 'error')
+            return redirect(url_for('index'))
+    
+    # Get proposal data for pre-filling
+    proposals = load_json(DATABASES['proposals'])
+    proposal = proposals.get(project.get('proposal_number'), {})
+    
+    # Pre-fill some fields from proposal
+    if proposal:
+        project['project_city'] = project.get('project_city') or proposal.get('project_city', '')
+        project['latitude'] = project.get('latitude') or proposal.get('project_latitude', '')
+        project['longitude'] = project.get('longitude') or proposal.get('project_longitude', '')
+        project['project_director'] = project.get('project_director') or proposal.get('project_director', '')
+    
+    return render_template('project_info_form.html',
+                         project=project,
+                         proposal=proposal,
+                         today=datetime.now().strftime('%Y-%m-%d'),
+                         revenue_codes=PROJECT_REVENUE_CODES,
+                         scopes=PROJECT_SCOPES_DETAILED,
+                         types=PROJECT_TYPES_DETAILED,
+                         teams=PROJECT_TEAMS,
+                         states=US_STATES,
+                         counties=CA_COUNTIES)
+
+
 @app.route('/mark_project_complete/<project_number>')
 @login_required
 def mark_project_complete(project_number):
@@ -1114,10 +1152,9 @@ def mark_project_complete(project_number):
     
     project = projects[project_number]
     
-    # Check permissions
-    if (project.get('project_manager') != session.get('user_name') and 
-        not session.get('is_admin')):
-        flash('Only the project manager can mark this project as complete.', 'error')
+    # Admin can complete any project
+    if not user_can_edit(project):
+        flash('Only the project manager or admin can mark this project as complete.', 'error')
         return redirect(url_for('view_project', project_number=project_number))
     
     # Update status
@@ -1161,13 +1198,10 @@ def edit_proposal(proposal_number):
     
     proposal = proposals[proposal_number]
     
-    # Check permissions
-# Check permissions - Admin can edit everything
-    if not session.get('is_admin'):
-        if (proposal.get('created_by') != session['user_email'] and 
-            proposal.get('project_manager') != session.get('user_name')):
-            flash('You do not have permission to edit this proposal.', 'error')
-            return redirect(url_for('view_proposal', proposal_number=proposal_number))
+    # Admin can edit any proposal
+    if not user_can_edit(proposal):
+        flash('You do not have permission to edit this proposal.', 'error')
+        return redirect(url_for('view_proposal', proposal_number=proposal_number))
     
     return render_template('edit_proposal.html',
                          proposal=proposal,
@@ -1539,10 +1573,8 @@ def delete_proposal(proposal_number):
     
     proposal = proposals[proposal_number]
     
-    # Check permissions
-    if (proposal.get('created_by') != session['user_email'] and 
-        proposal.get('project_manager') != session.get('user_name') and 
-        not session.get('is_admin')):
+    # Admin can delete any proposal
+    if not user_can_edit(proposal):
         flash('You do not have permission to delete this proposal.', 'error')
         return redirect(url_for('view_proposal', proposal_number=proposal_number))
     
@@ -1608,9 +1640,8 @@ def delete_project(project_number):
     
     project = projects[project_number]
     
-    # Check permissions
-    if (project.get('project_manager') != session.get('user_name') and 
-        not session.get('is_admin')):
+    # Admin can delete any project
+    if not user_can_edit(project):
         flash('You do not have permission to delete this project.', 'error')
         return redirect(url_for('view_project', project_number=project_number))
     
@@ -2502,6 +2533,21 @@ def get_enhanced_analytics():
 # SECTION 4: REPLACE YOUR EXISTING index() ROUTE (around line 1000)
 # ============================================================================
 
+def user_can_edit(entity, field='project_manager'):
+    """Check if current user can edit an entity - admin can edit everything"""
+    if session.get('is_admin'):
+        return True
+    
+    # Check various permission fields
+    if entity.get(field) == session.get('user_name'):
+        return True
+    if entity.get('created_by') == session.get('user_email'):
+        return True
+    if entity.get('project_manager') == session.get('user_name'):
+        return True
+        
+    return False
+
 @app.route('/')
 @login_required
 def index():
@@ -2519,13 +2565,27 @@ def index():
     pending_additional_info_projects = {}
     
     for k, v in projects.items():
-        # Projects pending legal review
+        # Projects pending legal review - admin sees all
         if v.get('status') == 'pending_legal' or (v.get('legal_status') and v.get('legal_status') != 'signed'):
-            # Filter by user unless admin or Shawn Weedon
+            # Show all to admin, filter for others
             if (session.get('is_admin') or 
-                session.get('user_name') == 'Shawn Weedon' or 
                 v.get('project_manager') == session.get('user_name')):
                 pending_legal_projects[k] = v
+        
+        # Projects pending additional information - admin sees all
+        if v.get('status') == 'pending_additional_info':
+            # Calculate days pending
+            if v.get('legal_approved_date'):
+                try:
+                    approved_date = datetime.strptime(v['legal_approved_date'].split(' ')[0], '%Y-%m-%d')
+                    days_pending = (datetime.now() - approved_date).days
+                    v['days_pending'] = days_pending
+                except:
+                    v['days_pending'] = 0
+            
+            # Admin sees all, others see only their own
+            if session.get('is_admin') or v.get('project_manager') == session.get('user_name'):
+                pending_additional_info_projects[k] = v
         
         # Projects pending additional information (after legal approval)
         if v.get('status') == 'pending_additional_info':
@@ -2667,44 +2727,6 @@ def analytics():
 # SECTION 6: ADD THESE NEW ROUTES (Add after your existing routes, around line 2200)
 # ============================================================================
 
-@app.route('/project_info_form/<project_number>')
-@login_required
-def project_info_form(project_number):
-    """Display form to enter additional project information"""
-    projects = load_json(DATABASES['projects'])
-    
-    if project_number not in projects:
-        flash('Project not found.', 'error')
-        return redirect(url_for('index'))
-    
-    project = projects[project_number]
-    
-    # Check if project is in correct status
-    if project.get('status') != 'pending_additional_info':
-        flash('This project does not require additional information.', 'error')
-        return redirect(url_for('index'))
-    
-    # Get proposal data for pre-filling
-    proposals = load_json(DATABASES['proposals'])
-    proposal = proposals.get(project.get('proposal_number'), {})
-    
-    # Pre-fill some fields from proposal
-    if proposal:
-        project['project_city'] = project.get('project_city') or proposal.get('project_city', '')
-        project['latitude'] = project.get('latitude') or proposal.get('project_latitude', '')
-        project['longitude'] = project.get('longitude') or proposal.get('project_longitude', '')
-        project['project_director'] = project.get('project_director') or proposal.get('project_director', '')
-    
-    return render_template('project_info_form.html',
-                         project=project,
-                         proposal=proposal,
-                         today=datetime.now().strftime('%Y-%m-%d'),
-                         revenue_codes=PROJECT_REVENUE_CODES,
-                         scopes=PROJECT_SCOPES_DETAILED,
-                         types=PROJECT_TYPES_DETAILED,
-                         teams=PROJECT_TEAMS,
-                         states=US_STATES,
-                         counties=CA_COUNTIES)
 
 
 @app.route('/submit_project_info/<project_number>', methods=['POST'])
