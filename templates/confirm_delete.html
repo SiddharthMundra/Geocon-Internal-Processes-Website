@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Confirm Deletion - Geocon Proposal System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+        .header {
+            background-color: #333;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .back-link {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            background-color: #555;
+            border-radius: 4px;
+        }
+        .back-link:hover {
+            background-color: #666;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .warning-box {
+            background-color: #fff3cd;
+            border: 1px solid #ffecb5;
+            color: #856404;
+            padding: 20px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .warning-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        .entity-info {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .info-item {
+            margin-bottom: 10px;
+        }
+        .info-label {
+            font-weight: bold;
+            color: #666;
+        }
+        .info-value {
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 14px;
+            min-height: 80px;
+            resize: vertical;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        .delete-button {
+            background-color: #dc3545;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .delete-button:hover {
+            background-color: #c82333;
+        }
+        .cancel-button {
+            background-color: #6c757d;
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 4px;
+            display: inline-block;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .cancel-button:hover {
+            background-color: #5a6268;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Confirm Deletion</h1>
+        <a href="javascript:history.back()" class="back-link">← Cancel</a>
+    </div>
+    
+    <div class="container">
+        <div class="warning-box">
+            <div class="warning-icon">⚠️</div>
+            <h2>Are you sure you want to delete this {{ entity_type }}?</h2>
+            <p><strong>This action cannot be undone!</strong></p>
+        </div>
+        
+        <div class="entity-info">
+            <h3>{{ entity_type.title() }} Details:</h3>
+            {% if entity_type == 'proposal' %}
+            <div class="info-item">
+                <span class="info-label">Proposal Number:</span>
+                <span class="info-value">{{ entity_data.proposal_number }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Project Name:</span>
+                <span class="info-value">{{ entity_data.project_name }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Client:</span>
+                <span class="info-value">{{ entity_data.client }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Project Manager:</span>
+                <span class="info-value">{{ entity_data.project_manager }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Fee:</span>
+                <span class="info-value">${{ entity_data.fee }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Status:</span>
+                <span class="info-value">{{ entity_data.status.replace('_', ' ').title() }}</span>
+            </div>
+            {% elif entity_type == 'project' %}
+            <div class="info-item">
+                <span class="info-label">Project Number:</span>
+                <span class="info-value">{{ entity_data.project_number }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Project Name:</span>
+                <span class="info-value">{{ entity_data.project_name }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Client:</span>
+                <span class="info-value">{{ entity_data.client }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Project Manager:</span>
+                <span class="info-value">{{ entity_data.project_manager }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Status:</span>
+                <span class="info-value">{{ entity_data.status.replace('_', ' ').title() }}</span>
+            </div>
+            {% endif %}
+        </div>
+        
+        <form method="POST">
+            <div class="form-group">
+                <label for="deletion_note">Reason for Deletion (Optional):</label>
+                <textarea id="deletion_note" name="deletion_note" 
+                          placeholder="Enter the reason for deleting this {{ entity_type }}..."></textarea>
+            </div>
+            
+            <div class="button-group">
+                <button type="submit" class="delete-button">
+                    🗑️ Delete {{ entity_type.title() }}
+                </button>
+                <a href="javascript:history.back()" class="cancel-button">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

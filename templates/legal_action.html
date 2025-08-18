@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Legal Review - {{ project.project_number }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+        .header {
+            background-color: #9c27b0;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .back-link {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            background-color: #7b1fa2;
+            border-radius: 4px;
+        }
+        .back-link:hover {
+            background-color: #6a1b9a;
+        }
+        .container {
+            max-width: 700px;
+            margin: 20px auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .legal-box {
+            background-color: #f3e5f5;
+            border: 1px solid #ce93d8;
+            color: #4a148c;
+            padding: 20px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .legal-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        .project-info {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .info-item {
+            margin-bottom: 10px;
+        }
+        .info-label {
+            font-weight: bold;
+            color: #666;
+            font-size: 14px;
+        }
+        .info-value {
+            color: #333;
+            font-size: 16px;
+        }
+        .action-section {
+            margin-top: 30px;
+            padding: 20px;
+            border: 2px solid #9c27b0;
+            border-radius: 8px;
+            background-color: #fafafa;
+        }
+        .action-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #9c27b0;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        .radio-group {
+            display: flex;
+            gap: 30px;
+            margin-top: 10px;
+            justify-content: center;
+        }
+        .radio-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .radio-item:hover {
+            border-color: #9c27b0;
+            background-color: #f3e5f5;
+        }
+        .radio-item.selected {
+            border-color: #9c27b0;
+            background-color: #f3e5f5;
+        }
+        .radio-item input[type="radio"] {
+            margin: 0;
+            transform: scale(1.2);
+        }
+        .radio-label {
+            font-weight: bold;
+            text-align: center;
+        }
+        .radio-description {
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+        }
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 14px;
+            min-height: 80px;
+            resize: vertical;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #9c27b0;
+        }
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        .submit-button {
+            background-color: #9c27b0;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .submit-button:hover {
+            background-color: #7b1fa2;
+        }
+        .cancel-button {
+            background-color: #6c757d;
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 4px;
+            display: inline-block;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .cancel-button:hover {
+            background-color: #5a6268;
+        }
+        .not-signed-section {
+            display: none;
+            margin-top: 15px;
+        }
+        .signed-icon {
+            color: #4CAF50;
+            font-size: 24px;
+        }
+        .not-signed-icon {
+            color: #f44336;
+            font-size: 24px;
+        }
+    </style>
+    <script>
+        function toggleNotSignedSection() {
+            const notSignedRadio = document.getElementById('not_signed');
+            const notSignedSection = document.querySelector('.not-signed-section');
+            
+            if (notSignedRadio.checked) {
+                notSignedSection.style.display = 'block';
+            } else {
+                notSignedSection.style.display = 'none';
+            }
+        }
+        
+        function updateSelection() {
+            document.querySelectorAll('.radio-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            const selectedRadio = document.querySelector('input[name="action"]:checked');
+            if (selectedRadio) {
+                selectedRadio.closest('.radio-item').classList.add('selected');
+            }
+            
+            toggleNotSignedSection();
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('input[name="action"]').forEach(radio => {
+                radio.addEventListener('change', updateSelection);
+            });
+            
+            document.querySelectorAll('.radio-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const radio = this.querySelector('input[type="radio"]');
+                    radio.checked = true;
+                    updateSelection();
+                });
+            });
+            
+            updateSelection();
+        });
+    </script>
+</head>
+<body>
+    <div class="header">
+        <h1>⚖️ Legal Review Required</h1>
+        <a href="/" class="back-link">← Back to Dashboard</a>
+    </div>
+    
+    <div class="container">
+        <div class="legal-box">
+            <div class="legal-icon">⚖️</div>
+            <h2>Legal Team Action Required</h2>
+            <p>Please review this project and determine if it should be signed or not.</p>
+        </div>
+        
+        <div class="project-info">
+            <h3>Project Details:</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">Project Number</div>
+                    <div class="info-value">{{ project.project_number }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Project Name</div>
+                    <div class="info-value">{{ project.project_name }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Client</div>
+                    <div class="info-value">{{ project.client }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Project Manager</div>
+                    <div class="info-value">{{ project.project_manager }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">COI Needed</div>
+                    <div class="info-value">{{ 'Yes' if project.get('coi_needed') else 'No' }}</div>
+                </div>
+                {% if project.get('project_folder_path') %}
+                <div class="info-item">
+                    <div class="info-label">Project Folder Path</div>
+                    <div class="info-value">{{ project.project_folder_path }}</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <form method="POST">
+            <div class="action-section">
+                <div class="action-title">Legal Decision</div>
+                
+                <div class="radio-group">
+                    <div class="radio-item">
+                        <input type="radio" id="signed" name="action" value="signed">
+                        <div class="radio-label">
+                            <span class="signed-icon">✅</span><br>
+                            Project Signed
+                        </div>
+                        <div class="radio-description">
+                            Approve project and move to active status.<br>
+                            Power Automate script will run.
+                        </div>
+                    </div>
+                    
+                    <div class="radio-item">
+                        <input type="radio" id="not_signed" name="action" value="not_signed">
+                        <div class="radio-label">
+                            <span class="not-signed-icon">❌</span><br>
+                            Not Signed
+                        </div>
+                        <div class="radio-description">
+                            Project will not proceed.<br>
+                            Move to dead jobs section.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="not-signed-section">
+                    <div class="form-group">
+                        <label for="not_signed_reason">Reason for not signing (Optional):</label>
+                        <textarea id="not_signed_reason" name="not_signed_reason" 
+                                  placeholder="Enter the reason why this project was not signed..."></textarea>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="button-group">
+                <button type="submit" class="submit-button">
+                    ⚖️ Submit Legal Decision
+                </button>
+                <a href="/" class="cancel-button">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

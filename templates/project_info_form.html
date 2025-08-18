@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Enter Project Information - {{ project.project_number }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+        .header {
+            background-color: #2196F3;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .back-link {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            background-color: #1976D2;
+            border-radius: 4px;
+        }
+        .back-link:hover {
+            background-color: #1565C0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .info-box {
+            background-color: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        .project-header {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .section-header {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2196F3;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #2196F3;
+            padding-bottom: 5px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        .required::after {
+            content: " *";
+            color: red;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #2196F3;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .form-row-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+        }
+        .submit-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        .submit-button:hover {
+            background-color: #45a049;
+        }
+        .save-draft-button {
+            background-color: #ff9800;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+            margin-left: 10px;
+        }
+        .save-draft-button:hover {
+            background-color: #f57c00;
+        }
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-top: 5px;
+        }
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin-right: 10px;
+        }
+        .readonly {
+            background-color: #f0f0f0;
+            cursor: not-allowed;
+        }
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📋 Complete Project Information</h1>
+        <a href="/" class="back-link">← Back to Dashboard</a>
+    </div>
+    
+    <div class="container">
+        <div class="project-header">
+            Project {{ project.project_number }} - {{ project.project_name }}
+        </div>
+        
+        <div class="info-box">
+            <strong>Important:</strong> This project has been legally approved. Please complete all required information below to finalize the project setup in Geocon's system.
+        </div>
+        
+        <form method="POST" action="/submit_project_info/{{ project.project_number }}">
+            <!-- Basic Information (Pre-filled) -->
+            <div class="section-header">Basic Information</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Project Number</label>
+                    <input type="text" value="{{ project.project_number }}" readonly class="readonly">
+                </div>
+                <div class="form-group">
+                    <label>Client Name</label>
+                    <input type="text" name="client_name" value="{{ project.client }}" readonly class="readonly">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="client_id">Client ID</label>
+                    <input type="text" id="client_id" name="client_id" value="{{ project.get('client_id', '') }}">
+                </div>
+                <div class="form-group">
+                    <label>Project Name</label>
+                    <input type="text" name="project_name" value="{{ project.project_name }}" readonly class="readonly">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="project_setup_date" class="required">Project Setup Date</label>
+                    <input type="date" id="project_setup_date" name="project_setup_date" 
+                           value="{{ project.get('project_setup_date', today) }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="revenue_code" class="required">Revenue Code</label>
+                    <select id="revenue_code" name="revenue_code" required>
+                        <option value="">Select Revenue Code</option>
+                        {% for code in revenue_codes %}
+                        <option value="{{ code }}" {% if project.get('revenue_code') == code %}selected{% endif %}>{{ code }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Project Details -->
+            <div class="section-header">Project Details</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="scope" class="required">Scope</label>
+                    <select id="scope" name="scope" required>
+                        <option value="">Select Scope</option>
+                        {% for scope in scopes %}
+                        <option value="{{ scope }}" {% if project.get('scope') == scope %}selected{% endif %}>{{ scope }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="type" class="required">Type</label>
+                    <select id="type" name="type" required>
+                        <option value="">Select Type</option>
+                        {% for type in types %}
+                        <option value="{{ type }}" {% if project.get('type') == type %}selected{% endif %}>{{ type }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Project Manager</label>
+                    <input type="text" value="{{ project.project_manager }}" readonly class="readonly">
+                </div>
+                <div class="form-group">
+                    <label for="team_number">Team Number</label>
+                    <select id="team_number" name="team_number">
+                        <option value="">Select Team</option>
+                        {% for team in teams %}
+                        <option value="{{ team }}" {% if project.get('team_number') == team %}selected{% endif %}>{{ team }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="project_director">Project Director</label>
+                    <input type="text" id="project_director" name="project_director" 
+                           value="{{ project.get('project_director', '') }}">
+                </div>
+                <div class="form-group">
+                    <label for="property_owner">Property Owner</label>
+                    <input type="text" id="property_owner" name="property_owner" 
+                           value="{{ project.get('property_owner', '') }}">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="client_po">Client PO#</label>
+                    <input type="text" id="client_po" name="client_po" 
+                           value="{{ project.get('client_po', '') }}">
+                </div>
+                <div class="form-group">
+                    <label for="project_client_contact">Project Client Contact</label>
+                    <input type="text" id="project_client_contact" name="project_client_contact" 
+                           value="{{ project.get('client_contact_name', '') }}">
+                </div>
+            </div>
+            
+            <!-- Timeline -->
+            <div class="section-header">Timeline</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="start_date">Start Date</label>
+                    <input type="date" id="start_date" name="start_date" 
+                           value="{{ project.get('start_date', '') }}">
+                </div>
+                <div class="form-group">
+                    <label for="end_date">End Date</label>
+                    <input type="date" id="end_date" name="end_date" 
+                           value="{{ project.get('end_date', '') }}">
+                </div>
+            </div>
+            
+            <!-- Location -->
+            <div class="section-header">Location Information</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="latitude">Latitude</label>
+                    <input type="text" id="latitude" name="latitude" 
+                           value="{{ project.get('latitude', '') }}" placeholder="e.g., 32.7157">
+                </div>
+                <div class="form-group">
+                    <label for="longitude">Longitude</label>
+                    <input type="text" id="longitude" name="longitude" 
+                           value="{{ project.get('longitude', '') }}" placeholder="e.g., -117.1611">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="project_address">Project Address</label>
+                <input type="text" id="project_address" name="project_address" 
+                       value="{{ project.get('project_address', '') }}">
+            </div>
+            
+            <div class="form-row-3">
+                <div class="form-group">
+                    <label for="project_city" class="required">Project City</label>
+                    <input type="text" id="project_city" name="project_city" 
+                           value="{{ project.get('project_city', '') }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="project_state" class="required">Project State</label>
+                    <select id="project_state" name="project_state" required>
+                        <option value="">Select State</option>
+                        {% for state in states %}
+                        <option value="{{ state }}" {% if project.get('project_state') == state %}selected{% endif %}>{{ state }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="project_county">Project County</label>
+                    <select id="project_county" name="project_county">
+                        <option value="">Select County</option>
+                        {% for county in counties %}
+                        <option value="{{ county }}" {% if project.get('project_county') == county %}selected{% endif %}>{{ county }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="project_country">Project Country</label>
+                <input type="text" id="project_country" name="project_country" 
+                       value="{{ project.get('project_country', 'USA') }}">
+            </div>
+            
+            <!-- Project Team -->
+            <div class="section-header">Project Team</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="civil">Civil</label>
+                    <input type="text" id="civil" name="civil" value="{{ project.get('civil', '') }}">
+                </div>
+                <div class="form-group">
+                    <label for="structural">Structural</label>
+                    <input type="text" id="structural" name="structural" value="{{ project.get('structural', '') }}">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="architect">Architect</label>
+                    <input type="text" id="architect" name="architect" value="{{ project.get('architect', '') }}">
+                </div>
+                <div class="form-group">
+                    <label for="general_contractor">General Contractor</label>
+                    <input type="text" id="general_contractor" name="general_contractor" 
+                           value="{{ project.get('general_contractor', '') }}">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="eir">EIR</label>
+                    <input type="text" id="eir" name="eir" value="{{ project.get('eir', '') }}">
+                </div>
+                <div class="form-group">
+                    <label for="developer">Developer</label>
+                    <input type="text" id="developer" name="developer" value="{{ project.get('developer', '') }}">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="cm">CM</label>
+                    <input type="text" id="cm" name="cm" value="{{ project.get('cm', '') }}">
+                </div>
+                <div class="form-group">
+                    <label for="landscape_architect">Landscape Architect</label>
+                    <input type="text" id="landscape_architect" name="landscape_architect" 
+                           value="{{ project.get('landscape_architect', '') }}">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="dsa_number">DSA # for Schools</label>
+                    <input type="text" id="dsa_number" name="dsa_number" value="{{ project.get('dsa_number', '') }}">
+                </div>
+                <div class="form-group">
+                    <label for="ior_number">IOR # for Schools</label>
+                    <input type="text" id="ior_number" name="ior_number" value="{{ project.get('ior_number', '') }}">
+                </div>
+            </div>
+            
+            <!-- Financial Information -->
+            <div class="section-header">Financial Information</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="project_fee_type" class="required">Project Fee Type</label>
+                    <select id="project_fee_type" name="project_fee_type" required>
+                        <option value="">Select Fee Type</option>
+                        <option value="Cost Plus" {% if project.get('project_fee_type') == 'Cost Plus' %}selected{% endif %}>Cost Plus</option>
+                        <option value="Cost Plus Max" {% if project.get('project_fee_type') == 'Cost Plus Max' %}selected{% endif %}>Cost Plus Max</option>
+                        <option value="Lump Sum" {% if project.get('project_fee_type') == 'Lump Sum' %}selected{% endif %}>Lump Sum</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="project_value">Project Value ($)</label>
+                    <input type="number" id="project_value" name="project_value" step="0.01" 
+                           value="{{ project.get('project_value', '') }}">
+                </div>
+            </div>
+            
+            <div class="form-row-3">
+                <div class="form-group">
+                    <label for="labor_budget">Labor Budget ($)</label>
+                    <input type="number" id="labor_budget" name="labor_budget" step="0.01" 
+                           value="{{ project.get('labor_budget', '') }}">
+                </div>
+                <div class="form-group">
+                    <label for="expense_budget">Expense Budget ($)</label>
+                    <input type="number" id="expense_budget" name="expense_budget" step="0.01" 
+                           value="{{ project.get('expense_budget', '') }}">
+                </div>
+                <div class="form-group">
+                    <label for="lab_budget">Lab Budget ($)</label>
+                    <input type="number" id="lab_budget" name="lab_budget" step="0.01" 
+                           value="{{ project.get('lab_budget', '') }}">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="total_budget">Total Budget ($)</label>
+                <input type="number" id="total_budget" name="total_budget" step="0.01" 
+                       value="{{ project.get('total_budget', '') }}">
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="bill_rate_schedule">Bill Rate Schedule</label>
+                    <input type="text" id="bill_rate_schedule" name="bill_rate_schedule" 
+                           value="{{ project.get('bill_rate_schedule', '') }}">
+                </div>
+                <div class="form-group">
+                    <label for="lab_rate_schedule">Lab Rate Schedule (If Different)</label>
+                    <input type="text" id="lab_rate_schedule" name="lab_rate_schedule" 
+                           value="{{ project.get('lab_rate_schedule', '') }}">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="prevailing_wage" name="prevailing_wage" 
+                           {% if project.get('prevailing_wage') %}checked{% endif %}>
+                    <label for="prevailing_wage">Prevailing Wage</label>
+                </div>
+            </div>
+            
+            <!-- Billing Information -->
+            <div class="section-header">Billing Information</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="billing_contact">Billing Contact (if different)</label>
+                    <input type="text" id="billing_contact" name="billing_contact" 
+                           value="{{ project.get('billing_contact', '') }}">
+                </div>
+                <div class="form-group">
+                    <label for="billing_email">Billing Email (if different)</label>
+                    <input type="email" id="billing_email" name="billing_email" 
+                           value="{{ project.get('billing_email', '') }}">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="send_invoice_via">Send Invoice Via</label>
+                <select id="send_invoice_via" name="send_invoice_via">
+                    <option value="">Select Method</option>
+                    <option value="Mail" {% if project.get('send_invoice_via') == 'Mail' %}selected{% endif %}>Mail</option>
+                    <option value="BST Auto Email With Attachments" {% if project.get('send_invoice_via') == 'BST Auto Email With Attachments' %}selected{% endif %}>BST Auto Email With Attachments</option>
+                    <option value="BST Auto Email - No Attachments" {% if project.get('send_invoice_via') == 'BST Auto Email - No Attachments' %}selected{% endif %}>BST Auto Email - No Attachments</option>
+                    <option value="Upload To Client Billing System" {% if project.get('send_invoice_via') == 'Upload To Client Billing System' %}selected{% endif %}>Upload To Client Billing System</option>
+                    <option value="Manual Invoice" {% if project.get('send_invoice_via') == 'Manual Invoice' %}selected{% endif %}>Manual Invoice</option>
+                    <option value="Bill In Client Draw" {% if project.get('send_invoice_via') == 'Bill In Client Draw' %}selected{% endif %}>Bill In Client Draw</option>
+                    <option value="Manual Email" {% if project.get('send_invoice_via') == 'Manual Email' %}selected{% endif %}>Manual Email</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="workfile">Workfile</label>
+                <select id="workfile" name="workfile">
+                    <option value="">Select Workfile</option>
+                    <option value="2 pt" {% if project.get('workfile') == '2 pt' %}selected{% endif %}>2 pt</option>
+                    <option value="4 pt" {% if project.get('workfile') == '4 pt' %}selected{% endif %}>4 pt</option>
+                    <option value="6 pt" {% if project.get('workfile') == '6 pt' %}selected{% endif %}>6 pt</option>
+                    <option value="exp" {% if project.get('workfile') == 'exp' %}selected{% endif %}>exp</option>
+                </select>
+            </div>
+            
+            <!-- Additional Information -->
+            <div class="section-header">Additional Information</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="proposal">Proposal</label>
+                    <input type="text" id="proposal" name="proposal" value="{{ project.get('proposal', '') }}">
+                </div>
+                <div class="form-group">
+                    <label for="contract">Contract</label>
+                    <select id="contract" name="contract">
+                        <option value="">Select</option>
+                        <option value="Client" {% if project.get('contract') == 'Client' %}selected{% endif %}>Client</option>
+                        <option value="Geocon" {% if project.get('contract') == 'Geocon' %}selected{% endif %}>Geocon</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="ins_certificate">Insurance Certificate</label>
+                    <input type="text" id="ins_certificate" name="ins_certificate" 
+                           value="{{ project.get('ins_certificate', '') }}">
+                </div>
+                <div class="form-group">
+                    <label for="preliminary">Preliminary</label>
+                    <input type="text" id="preliminary" name="preliminary" 
+                           value="{{ project.get('preliminary', '') }}">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="need_by_date">Need By Date</label>
+                    <input type="date" id="need_by_date" name="need_by_date" 
+                           value="{{ project.get('need_by_date', '') }}">
+                </div>
+                <div class="form-group">
+                    <label for="co">C/O</label>
+                    <input type="text" id="co" name="co" value="{{ project.get('co', '') }}">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="writeup_worthy" name="writeup_worthy" 
+                           {% if project.get('writeup_worthy') %}checked{% endif %}>
+                    <label for="writeup_worthy">Writeup Worthy</label>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="billing_comments">Billing Comments</label>
+                <textarea id="billing_comments" name="billing_comments">{{ project.get('billing_comments', '') }}</textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="accounting_note">Accounting Note</label>
+                <textarea id="accounting_note" name="accounting_note">{{ project.get('accounting_note', '') }}</textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="project_details">Project Details</label>
+                <textarea id="project_details" name="project_details" style="min-height: 120px;">{{ project.get('project_details', '') }}</textarea>
+            </div>
+            
+            <div class="button-group">
+                <button type="submit" name="action" value="submit" class="submit-button">
+                    ✅ Submit Project to Geocon System
+                </button>
+                <button type="submit" name="action" value="save_draft" class="save-draft-button">
+                    💾 Save Draft
+                </button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

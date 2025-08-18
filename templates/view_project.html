@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Project Details - {{ project.project_number }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+        .header {
+            background-color: #333;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .back-link {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            background-color: #555;
+            border-radius: 4px;
+        }
+        .back-link:hover {
+            background-color: #666;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+        .detail-card {
+            background-color: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        .project-number-display {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+            font-family: monospace;
+        }
+        .status {
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .status-pending_legal { background-color: #9c27b0; color: white; }
+        .status-active { background-color: #4CAF50; color: white; }
+        .status-completed { background-color: #28a745; color: white; }
+        .detail-section {
+            margin-bottom: 25px;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #4CAF50;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 5px;
+        }
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .detail-item {
+            margin-bottom: 10px;
+        }
+        .detail-label {
+            font-weight: bold;
+            color: #666;
+            margin-bottom: 3px;
+            font-size: 14px;
+        }
+        .detail-value {
+            color: #333;
+            font-size: 16px;
+        }
+        .proposal-link {
+            color: #2196F3;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .proposal-link:hover {
+            text-decoration: underline;
+        }
+        .timeline-box {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 4px;
+            border-left: 4px solid #4CAF50;
+        }
+        .timeline-item {
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .timeline-item:last-child {
+            border-bottom: none;
+        }
+        .checkmark {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .complete-button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        .complete-button:hover {
+            background-color: #218838;
+        }
+        .delete-button {
+            background-color: #f44336;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        .delete-button:hover {
+            background-color: #da190b;
+        }
+        .legal-approve-button {
+            background-color: #2196F3;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        .legal-approve-button:hover {
+            background-color: #1976D2;
+        }
+        .completed-notice {
+            background-color: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Project Details</h1>
+        <a href="/" class="back-link">← Back to Dashboard</a>
+    </div>
+    
+    <div class="container">
+        <div class="detail-card">
+            <div class="detail-header">
+                <div class="project-number-display">{{ project.project_number }}</div>
+                <span class="status status-{{ project.status }}">
+                    {% if project.status == 'pending_legal' %}
+                        Pending Legal Review
+                    {% elif project.status == 'active' %}
+                        Active
+                    {% elif project.status == 'completed' %}
+                        Completed
+                    {% else %}
+                        {{ project.status.replace('_', ' ').title() }}
+                    {% endif %}
+                </span>
+            </div>
+            
+            {% if project.status == 'completed' %}
+            <div class="completed-notice">
+                <strong>✅ This project has been completed!</strong><br>
+                Completed on: {{ project.get('completion_date', '').split(' ')[0] }}
+                {% if project.get('completed_by') %}by {{ project.completed_by }}{% endif %}
+            </div>
+            {% endif %}
+            
+            <!-- Action Buttons -->
+            {% if project.status != 'completed' %}
+            <div class="action-buttons">
+                {% if project.status == 'pending_legal' and session.get('is_legal') %}
+                <a href="/legal_action/{{ project.project_number }}" 
+                   class="legal-approve-button">
+                    ⚖️ Legal Review
+                </a>
+                {% endif %}
+                
+                {% if project.status == 'active' and (project.project_manager == session.get('user_name') or session.get('is_admin')) %}
+                <a href="/mark_project_complete/{{ project.project_number }}" 
+                   class="complete-button"
+                   onclick="return confirm('Mark this project as complete? This will move it to Past Projects.')">
+                    ✅ Mark Complete
+                </a>
+                {% endif %}
+                
+                {% if project.project_manager == session.get('user_name') or session.get('is_admin') %}
+                <a href="/delete_project/{{ project.project_number }}" class="delete-button">
+                    🗑️ Delete Project
+                </a>
+                {% endif %}
+            </div>
+            {% endif %}
+            
+            <div class="detail-section">
+                <div class="section-title">Project Information</div>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">Project Name</div>
+                        <div class="detail-value">{{ project.project_name }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Date Created</div>
+                        <div class="detail-value">{{ project.date }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Client</div>
+                        <div class="detail-value">{{ project.client }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Contact</div>
+                        <div class="detail-value">{{ project.contact }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Project Manager</div>
+                        <div class="detail-value">{{ project.project_manager }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Team Number</div>
+                        <div class="detail-value">{{ project.team_number }}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="detail-section">
+                <div class="section-title">Source Proposal</div>
+                <div class="detail-item">
+                    <div class="detail-label">Proposal Number</div>
+                    <div class="detail-value">
+                        <a href="/proposal/{{ project.proposal_number }}" class="proposal-link">
+                            {{ project.proposal_number }} →
+                        </a>
+                    </div>
+                </div>
+                {% if proposal %}
+                <div class="detail-grid" style="margin-top: 15px;">
+                    <div class="detail-item">
+                        <div class="detail-label">Proposal Fee</div>
+                        <div class="detail-value">${{ proposal.fee }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Project Scope</div>
+                        <div class="detail-value">{{ proposal.project_scope }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Project Type</div>
+                        <div class="detail-value">{{ proposal.project_type }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Service Type</div>
+                        <div class="detail-value">{{ proposal.service_type }} - {{ proposal.service_type_name }}</div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="detail-section">
+                <div class="section-title">Project Timeline</div>
+                <div class="timeline-box">
+                    <div class="timeline-item">
+                        <div class="detail-label">Created</div>
+                        <div class="detail-value">{{ project.created_date }} <span class="checkmark">✓</span></div>
+                    </div>
+                    
+                    {% if project.status in ['active', 'completed'] %}
+                    <div class="timeline-item">
+                        <div class="detail-label">Legal Review Completed</div>
+                        <div class="detail-value">
+                            {{ project.get('legal_approved_date', '-') }}
+                            {% if project.legal_approved_by %}
+                                by {{ project.legal_approved_by }}
+                            {% endif %}
+                            <span class="checkmark">✓</span>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if project.geocon_updated %}
+                    <div class="timeline-item">
+                        <div class="detail-label">Geocon Updated</div>
+                        <div class="detail-value">
+                            {{ project.geocon_update_date }}
+                            <span class="checkmark">✓</span>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if project.status == 'completed' %}
+                    <div class="timeline-item">
+                        <div class="detail-label">Project Completed</div>
+                        <div class="detail-value">
+                            {{ project.get('completion_date', '-') }}
+                            {% if project.get('completed_by') %}
+                                by {{ project.completed_by }}
+                            {% endif %}
+                            <span class="checkmark">✓</span>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            {% if proposal %}
+            <div class="detail-section">
+                <div class="section-title">Additional Details from Proposal</div>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">Office</div>
+                        <div class="detail-value">{{ proposal.office }} - {{ proposal.office_name }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Project Director</div>
+                        <div class="detail-value">{{ proposal.project_director }}</div>
+                    </div>
+                    {% if proposal.contact_email %}
+                    <div class="detail-item">
+                        <div class="detail-label">Client Contact Email</div>
+                        <div class="detail-value">{{ proposal.contact_email }}</div>
+                    </div>
+                    {% endif %}
+                    {% if proposal.contact_phone %}
+                    <div class="detail-item">
+                        <div class="detail-label">Client Contact Phone</div>
+                        <div class="detail-value">{{ proposal.contact_phone }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Documents (Shared between Proposal and Project) -->
+            <div class="detail-section">
+                <div class="section-title">Documents</div>
+                {% if all_documents %}
+                <div class="documents-list">
+                    {% for doc in all_documents %}
+                    <div style="margin-bottom: 10px; padding: 10px; background: #f9f9f9; border-radius: 4px;">
+                        <a href="/download_document/{{ doc.filename }}" class="proposal-link">
+                            📄 {{ doc.original_name }}
+                        </a>
+                        <span style="color: #666; font-size: 12px;">
+                            ({{ doc.type }} - uploaded {{ doc.uploaded_date.split(' ')[0] }} by {{ doc.uploaded_by }})
+                            {% if doc.source == 'project' %}
+                                <span style="color: #2196F3; font-weight: bold;">[From Project]</span>
+                            {% else %}
+                                <span style="color: #4CAF50; font-weight: bold;">[From Proposal]</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p style="color: #666;">No documents uploaded yet.</p>
+                {% endif %}
+                
+                <!-- Upload Document Form -->
+                {% if project.status != 'completed' %}
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e0e0e0;">
+                    <form action="/upload_document/project/{{ project.project_number }}" method="POST" enctype="multipart/form-data">
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <input type="file" name="document" required accept=".pdf,.doc,.docx,.xlsx,.xls,.png,.jpg,.jpeg">
+                            <select name="doc_type" style="padding: 5px;">
+                                <option value="contract">Contract</option>
+                                <option value="amendment">Amendment</option>
+                                <option value="report">Report</option>
+                                <option value="other">Other</option>
+                            </select>
+                            <button type="submit" style="background: #4CAF50; color: white; padding: 5px 15px; border: none; border-radius: 4px; cursor: pointer;">
+                                Upload
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>

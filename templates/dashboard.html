@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard - Geocon Proposal System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+        .header {
+            background-color: #333;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 { margin: 0; font-size: 24px; }
+        .user-info { display: flex; align-items: center; gap: 20px; }
+        .logout   { color: white; text-decoration: none; padding: 8px 16px; background: #555; border-radius: 4px; }
+        .logout:hover { background: #666; }
+
+        .proposal-link { color: #2196F3; text-decoration: none; font-weight: bold; }
+        .proposal-link:hover { text-decoration: underline; }
+
+        .project-link { color: #2196F3; text-decoration: none; font-weight: bold; }
+        .project-link:hover { text-decoration: underline; }
+
+        .container { max-width: 1400px; margin: 20px auto; padding: 0 20px; }
+
+        /* Analytics Cards */
+        .analytics-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .analytics-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .analytics-number {
+            font-size: 36px;
+            font-weight: bold;
+            color: #4CAF50;
+            margin: 10px 0;
+        }
+        .analytics-label {
+            color: #666;
+            font-size: 14px;
+        }
+
+        /* Search and Filter Section */
+        .search-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .search-form {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr auto;
+            gap: 15px;
+            align-items: end;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .actions { margin-bottom: 20px; display: flex; gap: 10px; align-items: center; }
+        .button  { background: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block; }
+        .button:hover { background: #45a049; }
+        .button-secondary { background: #2196F3; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block; }
+        .button-secondary:hover { background: #1976D2; }
+        .button-warning { background: #ff9800; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block; }
+        .button-warning:hover { background: #f57c00; }
+
+        .section { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        h2 { color: #333; border-bottom: 2px solid #4CAF50; padding-bottom: 10px; margin-top: 0; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background: #4CAF50; color: white; }
+        tr:nth-child(even) { background: #f9f9f9; }
+
+        .status { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+        .status-pending        { background: #ff9800; color: white; }
+        .status-sent           { background: #03a9f4; color: white; }
+        .status-won            { background: #2196F3; color: white; }
+        .status-lost           { background: #f44336; color: white; }
+        .status-pending_legal  { background: #9c27b0; color: white; }
+        .status-pending_additional_info { background: #ff9800; color: white; }
+        .status-legal_approved { background: #4CAF50; color: white; }
+        .status-active         { background: #4CAF50; color: white; }
+
+        /* Legal status badges */
+        .status-new_request { background: #2196F3; color: white; }
+        .status-under_review { background: #ff9800; color: white; }
+        .status-questions_to_pm { background: #f44336; color: white; }
+        .status-edits_to_client { background: #9c27b0; color: white; }
+        .status-negotiating { background: #ffeb3b; color: black; }
+        .status-signed { background: #4CAF50; color: white; }
+        .status-rfp_reviewed { background: #00bcd4; color: white; }
+        .status-not_signed { background: #795548; color: white; }
+        .status-on_hold { background: #607d8b; color: white; }
+
+        .success { background: #d4edda; color: #155724; padding: 10px; border-radius: 4px; margin-bottom: 20px; }
+        .error   { background: #f8d7da; color: #721c24; padding: 10px; border-radius: 4px; margin-bottom: 20px; }
+
+        /* Make both proposal and project numbers look the same */
+        .proposal-number, .project-number {
+            font-family: monospace;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .sent-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #4CAF50;
+            margin-left: 5px;
+            vertical-align: middle;
+        }
+
+        .clear-filters {
+            color: #666;
+            font-size: 12px;
+            text-decoration: none;
+            margin-left: auto;
+        }
+        .clear-filters:hover {
+            text-decoration: underline;
+        }
+
+        /* Action Dropdown Styles */
+        .action-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .action-button {
+            background: #2196F3;
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .action-button:hover {
+            background: #1976D2;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: white;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+            z-index: 1000;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .dropdown-content a {
+            color: #333;
+            padding: 10px 15px;
+            text-decoration: none;
+            display: block;
+            font-size: 13px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .dropdown-content a:last-child { border-bottom: none; }
+        .dropdown-content a:hover { background-color: #f5f5f5; }
+        .dropdown-content a.mark-won { color: #4CAF50; font-weight: bold; }
+        .dropdown-content a.mark-won:hover { background-color: #e8f5e9; }
+        .dropdown-content a.mark-sent { color: #ff9800; }
+        .dropdown-content a.mark-sent:hover { background-color: #fff3e0; }
+        .dropdown-content a.mark-lost { color: #f44336; }
+        .dropdown-content a.mark-lost:hover { background-color: #ffebee; }
+        .dropdown-content a.view-details { color: #2196F3; }
+        .dropdown-content a.view-details:hover { background-color: #e3f2fd; }
+        .action-dropdown.open .dropdown-content { display: block; }
+        .disabled-action {
+            color: #999 !important;
+            cursor: not-allowed !important;
+            pointer-events: none;
+            opacity: 0.6;
+        }
+        
+        .legal-queue-number { color: #9c27b0; font-weight: bold; }
+        .additional-info-button {
+            background: #ff9800;
+            color: white;
+            padding: 6px 12px;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .additional-info-button:hover { background: #f57c00; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Geocon Proposal Management System</h1>
+        <div class="user-info">
+            <span>Logged in as: {{ user_email }}</span>
+            {% if session.get('is_admin') %}
+            <a href="/admin" style="color: #ffeb3b;">⚙️ Admin</a>
+            {% endif %}
+            <a href="/logout" class="logout">Logout</a>
+        </div>
+    </div>
+
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Analytics Cards -->
+        <div class="analytics-section">
+            <div class="analytics-card">
+                <div class="analytics-label">Proposals Last Month</div>
+                <div class="analytics-number">{{ analytics.last_month_proposals }}</div>
+                <div class="analytics-label">{{ analytics.last_month_name }}</div>
+            </div>
+            <div class="analytics-card">
+                <div class="analytics-label">Active Items</div>
+                <div class="analytics-number">{{ analytics.total_active_items }}</div>
+                <div class="analytics-label">Proposals + Projects</div>
+            </div>
+            <div class="analytics-card">
+                <div class="analytics-label">Win Rate</div>
+                <div class="analytics-number">{{ analytics.win_rate }}%</div>
+                <div class="analytics-label">{{ analytics.won_proposals }} / {{ analytics.won_proposals + analytics.lost_proposals }}</div>
+            </div>
+            <div class="analytics-card">
+                <div class="analytics-label">Legal Queue</div>
+                <div class="analytics-number legal-queue-number">{{ analytics.legal_queue_count }}</div>
+                <div class="analytics-label">Items Pending Review</div>
+            </div>
+        </div>
+
+        <!-- Search and Filter Section -->
+        <div class="search-section">
+            <form method="GET" action="/" class="search-form">
+                <div class="form-group">
+                    <label for="search">Search</label>
+                    <input type="text" id="search" name="search" placeholder="Proposal #, Client, PM" value="{{ search_query }}">
+                </div>
+                <div class="form-group">
+                    <label for="status">Status</label>
+                    <select id="status" name="status">
+                        <option value="">All Status</option>
+                        <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="office">Office</label>
+                    <select id="office" name="office">
+                        <option value="">All Offices</option>
+                        {% for code, name in offices.items() %}
+                        <option value="{{ code }}" {% if office_filter == code %}selected{% endif %}>
+                            {{ code }} - {{ name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="pm_filter">PM/Director</label>
+                    <select id="pm_filter" name="pm_filter">
+                        <option value="">All</option>
+                        {% for pm in project_managers %}
+                        <option value="{{ pm }}" {% if pm_filter == pm %}selected{% endif %}>{{ pm }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="date_from">From Date</label>
+                    <input type="date" id="date_from" name="date_from" value="{{ date_from }}">
+                </div>
+                <div class="form-group">
+                    <label for="date_to">To Date</label>
+                    <input type="date" id="date_to" name="date_to" value="{{ date_to }}">
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="button">Filter</button>
+                </div>
+            </form>
+            {% if search_query or status_filter or office_filter or pm_filter or date_from or date_to %}
+            <a href="/" class="clear-filters">Clear all filters</a>
+            {% endif %}
+        </div>
+
+        <div class="actions">
+            <a href="/new_proposal" class="button">+ New Proposal</a>
+            {% if can_view_analytics %}
+            <a href="/analytics" class="button-secondary">📊 View Full Analytics</a>
+            {% endif %}
+            <a href="/past_projects" class="button-secondary">📁 Past Projects</a>
+            {% if session.get('is_legal') or session.get('is_admin') %}
+            <a href="/legal_queue" class="button-secondary" style="background-color: #9c27b0;">⚖️ Legal Queue</a>
+            {% endif %}
+        </div>
+
+        <!-- Active Proposals -->
+        <div class="section">
+            <h2>Active Proposals</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Proposal Number</th>
+                        <th>Date</th>
+                        <th>Project Name</th>
+                        <th>Client</th>
+                        <th>Project Manager</th>
+                        <th>Fee</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for prop_num, proposal in proposals.items() %}
+                    <tr>
+                        <td class="proposal-number">
+                            <a href="/proposal/{{ proposal.proposal_number }}" class="proposal-link">
+                                {{ proposal.proposal_number }}
+                            </a>
+                            {% if proposal.get('proposal_sent') %}
+                            <span class="sent-indicator" title="Proposal sent to client"></span>
+                            {% endif %}
+                        </td>
+                        <td>{{ proposal.date }}</td>
+                        <td>{{ proposal.project_name }}</td>
+                        <td>{{ proposal.client }}</td>
+                        <td>{{ proposal.project_manager }}</td>
+                        <td>${{ proposal.fee }}</td>
+                        <td>
+                            <span class="status status-{{ 'sent' if proposal.get('proposal_sent') else proposal.status }}">
+                                {% if proposal.get('proposal_sent') %}
+                                    Sent
+                                {% else %}
+                                    {{ proposal.status | replace('_', ' ') | title }}
+                                {% endif %}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="action-dropdown" id="dropdown-{{ loop.index }}">
+                                <button class="action-button" onclick="toggleDropdown('dropdown-{{ loop.index }}')">
+                                    Actions ▼
+                                </button>
+                                <div class="dropdown-content">
+                                    <a href="/proposal/{{ proposal.proposal_number }}" class="view-details">
+                                        👁️ View Details
+                                    </a>
+                                    {% if proposal.status == 'pending' %}
+                                        {% if not proposal.get('proposal_sent') %}
+                                        <a href="/mark_sent/{{ proposal.proposal_number }}" class="mark-sent"
+                                           onclick="return confirm('Mark proposal as sent to client?')">
+                                            📧 Mark as Sent
+                                        </a>
+                                        {% endif %}
+                                        <a href="/mark_won_form/{{ proposal.proposal_number }}" class="mark-won">
+                                            🏆 Mark as Won
+                                        </a>
+                                        <a href="/mark_proposal_lost/{{ proposal.proposal_number }}" class="mark-lost">
+                                            ❌ Mark as Lost
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if pending_additional_info_projects %}
+        <div class="section">
+            <h2 style="border-bottom: 2px solid #ff9800; color: #ff9800;">Projects Pending Additional Information</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Project Number</th>
+                        <th>Project Name</th>
+                        <th>Client</th>
+                        <th>Project Manager</th>
+                        <th>Days Pending</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for proj_num, project in pending_additional_info_projects.items() %}
+                    <tr>
+                        <td class="project-number">
+                            <a href="/project/{{ project.project_number }}" class="project-link">
+                                {{ project.project_number }}
+                            </a>
+                        </td>
+                        <td>{{ project.project_name }}</td>
+                        <td>{{ project.client }}</td>
+                        <td>{{ project.project_manager }}</td>
+                        <td>{{ project.days_pending|default(0) }}</td>
+                        <td>
+                            <span class="status status-pending_additional_info">
+                                Pending Info
+                            </span>
+                        </td>
+                        <td>
+                            <a href="/project_info_form/{{ project.project_number }}" class="additional-info-button">
+                                📝 Enter Info
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
+        {% if pending_legal_projects %}
+        <div class="section">
+            <h2>Projects Pending Legal Review</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Project Number</th>
+                        <th>Proposal Number</th>
+                        <th>Date Created</th>
+                        <th>Project Name</th>
+                        <th>Client</th>
+                        <th>Project Manager</th>
+                        <th>Legal Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for proj_num, project in pending_legal_projects.items() %}
+                    <tr>
+                        <td class="project-number">
+                            <a href="/project/{{ project.project_number }}" class="project-link">
+                                {{ project.project_number }}
+                            </a>
+                        </td>
+                        <td class="proposal-number">
+                            <a href="/proposal/{{ project.proposal_number }}" class="proposal-link">
+                                {{ project.proposal_number }}
+                            </a>
+                        </td>
+                        <td>{{ project.date }}</td>
+                        <td>{{ project.project_name }}</td>
+                        <td>{{ project.client }}</td>
+                        <td>{{ project.project_manager }}</td>
+                        <td>
+                            <span class="status status-{{ project.legal_status|default('new_request')|replace(' ', '_') }}">
+                                {{ project.legal_status|default('New Request')|replace('_', ' ')|title }}
+                            </span>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // Toggle dropdown menu
+        function toggleDropdown(dropdownId) {
+            const dropdown = document.getElementById(dropdownId);
+            dropdown.classList.toggle('open');
+
+            // Close other dropdowns
+            document.querySelectorAll('.action-dropdown').forEach(d => {
+                if (d.id !== dropdownId) {
+                    d.classList.remove('open');
+                }
+            });
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!event.target.matches('.action-button')) {
+                document.querySelectorAll('.action-dropdown').forEach(dropdown => {
+                    dropdown.classList.remove('open');
+                });
+            }
+        });
+    </script>
+</body>
+</html>

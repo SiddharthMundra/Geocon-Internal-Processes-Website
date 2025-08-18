@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mark Proposal as Lost</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+        .header {
+            background-color: #333;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .back-link {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            background-color: #555;
+            border-radius: 4px;
+        }
+        .back-link:hover {
+            background-color: #666;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .warning-box {
+            background-color: #fff3cd;
+            border: 1px solid #ffecb5;
+            color: #856404;
+            padding: 20px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .warning-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        .proposal-info {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .info-item {
+            margin-bottom: 10px;
+        }
+        .info-label {
+            font-weight: bold;
+            color: #666;
+        }
+        .info-value {
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 14px;
+            min-height: 100px;
+            resize: vertical;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #ff9800;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        .lost-button {
+            background-color: #ff9800;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .lost-button:hover {
+            background-color: #f57c00;
+        }
+        .cancel-button {
+            background-color: #6c757d;
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 4px;
+            display: inline-block;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .cancel-button:hover {
+            background-color: #5a6268;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Mark Proposal as Lost</h1>
+        <a href="/proposal/{{ proposal.proposal_number }}" class="back-link">← Back to Proposal</a>
+    </div>
+    
+    <div class="container">
+        <div class="warning-box">
+            <div class="warning-icon">📉</div>
+            <h2>Mark this proposal as lost?</h2>
+            <p>This will move the proposal to Past Projects and mark it as not won.</p>
+        </div>
+        
+        <div class="proposal-info">
+            <h3>Proposal Details:</h3>
+            <div class="info-item">
+                <span class="info-label">Proposal Number:</span>
+                <span class="info-value">{{ proposal.proposal_number }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Project Name:</span>
+                <span class="info-value">{{ proposal.project_name }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Client:</span>
+                <span class="info-value">{{ proposal.client }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Fee:</span>
+                <span class="info-value">${{ proposal.fee }}</span>
+            </div>
+        </div>
+        
+        <form method="POST">
+            <div class="form-group">
+                <label for="loss_note">Reason for Loss (Optional):</label>
+                <textarea id="loss_note" name="loss_note" 
+                          placeholder="Enter the reason why this proposal was lost (e.g., client chose competitor, budget constraints, project cancelled...)"></textarea>
+            </div>
+            
+            <div class="button-group">
+                <button type="submit" class="lost-button">
+                    📉 Mark as Lost
+                </button>
+                <a href="/proposal/{{ proposal.proposal_number }}" class="cancel-button">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

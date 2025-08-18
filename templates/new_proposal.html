@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>New Proposal - Geocon Proposal System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+        .header {
+            background-color: #333;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .back-link {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            background-color: #555;
+            border-radius: 4px;
+        }
+        .back-link:hover {
+            background-color: #666;
+        }
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #333;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        .required::after {
+            content: " *";
+            color: red;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .form-row-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+        }
+        .button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        .button:hover {
+            background-color: #45a049;
+        }
+        .cancel-button {
+            background-color: #f44336;
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 4px;
+            display: inline-block;
+            margin-left: 10px;
+        }
+        .cancel-button:hover {
+            background-color: #da190b;
+        }
+        .section-header {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            color: #4CAF50;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 5px;
+        }
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        .info-box {
+            background-color: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 10px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        .readonly {
+            background-color: #f0f0f0;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Create New Proposal</h1>
+        <a href="/" class="back-link">← Back to Dashboard</a>
+    </div>
+    
+    <div class="container">
+        <div class="info-box">
+            <strong>Note:</strong> Proposal number will be generated automatically in format: Office-Year-Number-Type-Service
+        </div>
+        
+        <form action="/submit_proposal" method="POST" enctype="multipart/form-data">
+            <div class="section-header">Proposal Information</div>
+            
+            <div class="form-row-3">
+                <div class="form-group">
+                    <label for="office" class="required">Office</label>
+                    <select id="office" name="office" required>
+                        <option value="">Select Office</option>
+                        {% for code, name in offices.items() %}
+                        <option value="{{ code }}">{{ code }} - {{ name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="proposal_type" class="required">Proposal Type</label>
+                    <select id="proposal_type" name="proposal_type" required>
+                        <option value="">Select Type</option>
+                        {% for code, name in proposal_types.items() %}
+                        <option value="{{ code }}">{{ code }} - {{ name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="service_type" class="required">Service Type</label>
+                    <select id="service_type" name="service_type" required>
+                        <option value="">Select Service</option>
+                        {% for code, name in service_types.items() %}
+                        <option value="{{ code }}">{{ code }} - {{ name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            
+            <div class="section-header">Project Information</div>
+            
+            <div class="form-group">
+                <label for="project_name" class="required">Project Name</label>
+                <input type="text" id="project_name" name="project_name" required 
+                       placeholder="e.g., Downtown Tower Renovation">
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="project_city" class="required">Project City</label>
+                    <input type="text" id="project_city" name="project_city" required 
+                           placeholder="e.g., San Diego">
+                </div>
+                <div class="form-group">
+                    <label for="project_latitude">Latitude (Decimal Degrees)</label>
+                    <input type="text" id="project_latitude" name="project_latitude" 
+                           placeholder="e.g., 32.7157">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="project_longitude">Longitude (Decimal Degrees)</label>
+                <input type="text" id="project_longitude" name="project_longitude" 
+                       placeholder="e.g., -117.1611">
+            </div>
+            
+            <div class="section-header">Client Information</div>
+            
+            <div class="form-group">
+                <label for="client" class="required">Client Company</label>
+                <input type="text" id="client" name="client" required 
+                       placeholder="e.g., ABC Development Corp">
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="contact_first" class="required">Contact First Name</label>
+                    <input type="text" id="contact_first" name="contact_first" required>
+                </div>
+                <div class="form-group">
+                    <label for="contact_last" class="required">Contact Last Name</label>
+                    <input type="text" id="contact_last" name="contact_last" required>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="contact_email" class="required">Contact Email</label>
+                    <input type="email" id="contact_email" name="contact_email" required 
+                           placeholder="contact@company.com">
+                </div>
+                <div class="form-group">
+                    <label for="contact_phone" class="required">Contact Phone</label>
+                    <input type="tel" id="contact_phone" name="contact_phone" required 
+                           placeholder="(555) 123-4567">
+                </div>
+            </div>
+            
+            <div class="section-header">Project Team</div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="project_manager" class="required">Project Manager</label>
+                    <select id="project_manager" name="project_manager" required>
+                        <option value="">Select Project Manager</option>
+                        {% for pm in project_managers %}
+                        <option value="{{ pm }}">{{ pm }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="project_director" class="required">Project Director</label>
+                    <select id="project_director" name="project_director" required onchange="updateTeamNumber()">
+                        <option value="">Select Project Director</option>
+                        {% for pd in project_directors %}
+                        <option value="{{ pd }}">{{ pd }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="bd_member">BD Member Involved (If Applicable)</label>
+                    <input type="text" id="bd_member" name="bd_member" 
+                           placeholder="Enter BD member name if applicable">
+                </div>
+                <div class="form-group">
+                    <label for="marketing_proposal_manager">Marketing Proposal Manager (If Applicable)</label>
+                    <input type="text" id="marketing_proposal_manager" name="marketing_proposal_manager" 
+                           placeholder="Enter marketing proposal manager if applicable">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="team_number">Team Number</label>
+                <input type="text" id="team_number" name="team_number" 
+                       placeholder="Team number will auto-populate or enter manually">
+            </div>
+            
+            <div class="section-header">Project Details</div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="project_scope" class="required">Project Scope</label>
+                    <select id="project_scope" name="project_scope" required>
+                        <option value="">Select Scope</option>
+                        {% for scope in project_scopes %}
+                        <option value="{{ scope }}">{{ scope }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="project_type" class="required">Project Type</label>
+                    <select id="project_type" name="project_type" required>
+                        <option value="">Select Type</option>
+                        {% for type in project_types %}
+                        <option value="{{ type }}">{{ type }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            
+            <div class="section-header">Financial & Timeline</div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="fee" class="required">Proposed Fee ($)</label>
+                    <input type="number" id="fee" name="fee" step="0.01" required 
+                           placeholder="50000.00">
+                </div>
+                <div class="form-group">
+                    <label for="due_date" class="required">Proposal Due Date</label>
+                    <input type="date" id="due_date" name="due_date" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="follow_up_date">Follow Up Date</label>
+                <input type="date" id="follow_up_date" name="follow_up_date">
+            </div>
+            
+            <div class="section-header">Additional Information</div>
+            
+            <div class="form-group">
+                <label for="notes">Notes</label>
+                <textarea id="notes" name="notes" 
+                          placeholder="Any additional information about this proposal..."></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="proposal_file">Attach Proposal Document (Optional)</label>
+                <input type="file" id="proposal_file" name="proposal_file" 
+                       accept=".pdf,.doc,.docx,.xlsx,.xls">
+                <small style="color: #666;">Accepted formats: PDF, Word, Excel (Max 16MB)</small>
+            </div>
+            
+            <div style="margin-top: 30px; text-align: center;">
+                <button type="submit" class="button">Create Proposal</button>
+                <a href="/" class="cancel-button">Cancel</a>
+            </div>
+        </form>
+    </div>
+    
+    <script>
+        // Team number mapping
+        const teamAssignments = {
+            'Kim Goodrich': '01',
+            'Theresa Bautista': '02',
+            'Mike Johnson': '03',
+            'Sarah Wilson': '04',
+            'Robert Brown': '05'
+        };
+        
+        function updateTeamNumber() {
+            const director = document.getElementById('project_director').value;
+            const teamNumberField = document.getElementById('team_number');
+            
+            // Only auto-populate if the field is empty
+            if (director && teamAssignments[director] && !teamNumberField.value) {
+                teamNumberField.value = teamAssignments[director];
+            }
+        }
+        
+        // Set minimum date to today for date fields
+        window.onload = function() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('due_date').setAttribute('min', today);
+            document.getElementById('follow_up_date').setAttribute('min', today);
+        }
+    </script>
+</body>
+</html>

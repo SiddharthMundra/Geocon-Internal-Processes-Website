@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Panel - Geocon Proposal System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+        .header {
+            background-color: #dc3545;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 { margin: 0; font-size: 24px; }
+        .back-link {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            background-color: #c82333;
+            border-radius: 4px;
+        }
+        .back-link:hover { background-color: #a71e2a; }
+
+        .container { max-width: 1400px; margin: 20px auto; padding: 0 20px; }
+        
+        .admin-warning {
+            background-color: #fff3cd;
+            border: 1px solid #ffecb5;
+            color: #856404;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+        }
+        
+        .setting-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .setting-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #dc3545;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #dc3545;
+            padding-bottom: 5px;
+        }
+        
+        .setting-description {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .json-input {
+            font-family: monospace;
+            min-height: 120px;
+        }
+        
+        .large-textarea {
+            min-height: 200px;
+        }
+        
+        .update-button {
+            background-color: #dc3545;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .update-button:hover {
+            background-color: #c82333;
+        }
+        
+        .current-value {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            border: 1px solid #e9ecef;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        
+        .help-text {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+        
+        .section-header {
+            background-color: #f8f9fa;
+            padding: 15px;
+            margin: 30px 0 20px 0;
+            border-left: 4px solid #dc3545;
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔧 System Administration Panel</h1>
+        <a href="/" class="back-link">← Back to Dashboard</a>
+    </div>
+
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <div class="admin-warning">
+            <strong>⚠️ ADMINISTRATOR ACCESS</strong><br>
+            You are modifying system-wide settings. Changes will affect all users immediately.
+        </div>
+
+        <!-- USER & ACCESS SETTINGS -->
+        <div class="section-header">👤 User & Access Settings</div>
+        <div class="settings-grid">
+            <!-- Authorized Last Names -->
+            <div class="setting-card">
+                <div class="setting-title">Authorized Last Names</div>
+                <div class="setting-description">
+                    Email addresses in format: lastname@geoconinc.com
+                </div>
+                
+                <div class="current-value">
+                    Current: {{ settings.authorized_lastnames | join(', ') }}
+                </div>
+                
+                <form method="POST" action="/admin/update_setting">
+                    <input type="hidden" name="setting_key" value="authorized_lastnames">
+                    <div class="form-group">
+                        <label for="authorized_lastnames">Authorized Last Names (comma-separated)</label>
+                        <textarea name="setting_value" id="authorized_lastnames" placeholder="smith, johnson, williams, brown">{{ settings.authorized_lastnames | join(', ') }}</textarea>
+                        <div class="help-text">Add or remove last names. Users with these names can create accounts.</div>
+                    </div>
+                    <button type="submit" class="update-button">Update Last Names</button>
+                </form>
+            </div>
+
+            <!-- Legal Team Emails -->
+            <div class="setting-card">
+                <div class="setting-title">Legal Team Emails</div>
+                <div class="setting-description">
+                    Users with these emails get legal team permissions
+                </div>
+                
+                <div class="current-value">
+                    Current: {{ settings.legal_team_emails | join(', ') }}
+                </div>
+                
+                <form method="POST" action="/admin/update_setting">
+                    <input type="hidden" name="setting_key" value="legal_team_emails">
+                    <div class="form-group">
+                        <label for="legal_team_emails">Legal Team Emails (comma-separated)</label>
+                        <textarea name="setting_value" id="legal_team_emails" placeholder="legal1@geoconinc.com, legal2@geoconinc.com">{{ settings.legal_team_emails | join(', ') }}</textarea>
+                        <div class="help-text">These users can approve projects for legal review.</div>
+                    </div>
+                    <button type="submit" class="update-button">Update Legal Team</button>
+                </form>
+            </div>
+
+            <!-- Legal Department Email -->
+            <div class="setting-card">
+                <div class="setting-title">Legal Department Email</div>
+                <div class="setting-description">
+                    Email address for legal notifications
+                </div>
+                
+                <div class="current-value">
+                    Current: {{ settings.legal_dept_email }}
+                </div>
+                
+                <form method="POST" action="/admin/update_setting">
+                    <input type="hidden" name="setting_key" value="legal_dept_email">
+                    <div class="form-group">
+                        <label for="legal_dept_email">Legal Department Email</label>
+                        <input type="email" name="setting_value" id="legal_dept_email" value="{{ settings.legal_dept_email }}" placeholder="legal@geoconinc.com">
+                        <div class="help-text">Notifications for project legal reviews are sent here.</div>
+                    </div>
+                    <button type="submit" class="update-button">Update Legal Email</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- PROPOSAL SETTINGS -->
+        <div class="section-header">📋 Proposal Settings</div>
+        <div class="settings-grid">
+            <!-- Office Codes -->
+            <div class="setting-card">
+                <div class="setting-title">Office Codes</div>
+                <div class="setting-description">
+                    Office codes and their full names (JSON format)
+                </div>
+                
+                <div class="current-value">
+                    {{ settings.office_codes | tojson | safe }}
+                </div>
+                
+                <form method="POST" action="/admin/update_setting">
+                    <input type="hidden" name="setting_key" value="office_codes">
+                    <div class="form-group">
+                        <label for="office_codes">Office Codes (JSON format)</label>
+                        <textarea name="setting_value" id="office_codes" class="json-input">{{ settings.office_codes | tojson(indent=2) | safe }}</textarea>
+                        <div class="help-text">JSON format: {"CODE": "Full Name"}. Used in proposal numbers.</div>
+                    </div>
+                    <button type="submit" class="update-button">Update Office Codes</button>
+                </form>
+            </div>
+
+            <!-- Proposal Types -->
+            <div class="setting-card">
+                <div class="setting-title">Proposal Types</div>
+                <div class="setting-description">
+                    Types of proposals (P, S, C, etc.)
+                </div>
+                
+                <div class="current-value">
+                    {{ settings.proposal_types | tojson | safe }}
+                </div>
+                
+                <form method="POST" action="/admin/update_setting">
+                    <input type="hidden" name="setting_key" value="proposal_types">
+                    <div class="form-group">
+                        <label for="proposal_types">Proposal Types (JSON format)</label>
+                        <textarea name="setting_value" id="proposal_types" class="json-input">{{ settings.proposal_types | tojson(indent=2) | safe }}</textarea>
+                        <div class="help-text">JSON format: {"P": "Proposal", "S": "Submittal"}. Used in proposal numbers.</div>
+                    </div>
+                    <button type="submit" class="update-button">Update Proposal Types</button>
+                </form>
+            </div>
+
+            <!-- Service Types -->
+            <div class="setting-card">
+                <div class="setting-title">Service Types</div>
+                <div class="setting-description">
+                    Service categories (GT, EV, SI, etc.)
+                </div>
+                
+                <div class="current-value">
+                    {{ settings.service_types | tojson | safe }}
+                </div>
+                
+                <form method="POST" action="/admin/update_setting">
+                    <input type="hidden" name="setting_key" value="service_types">
+                    <div class="form-group">
+                        <label for="service_types">Service Types (JSON format)</label>
+                        <textarea name="setting_value" id="service_types" class="json-input">{{ settings.service_types | tojson(indent=2) | safe }}</textarea>
+                        <div class="help-text">JSON format: {"GT": "Geotechnical", "EV": "Environmental"}. Used in proposal numbers.</div>
+                    </div>
+                    <button type="submit" class="update-button">Update Service Types</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- TEAM SETTINGS -->
+        <div class="section-header">👥 Team Settings</div>
+        <div class="settings-grid">
+            <!-- Project Managers -->
+            <div class="setting-card">
+                <div class="setting-title">Project Managers</div>
+                <div class="setting-description">
+                    Available project managers for assignment
+                </div>
+                
+                <div class="current-value">
+                    Current: {{ settings.project_managers | join(', ') }}
+                </div>
+                
+                <form method="POST" action="/admin/update_setting">
+                    <input type="hidden" name="setting_key" value="project_managers">
+                    <div class="form-group">
+                        <label for="project_managers">Project Managers (comma-separated)</label>
+                        <textarea name="setting_value" id="project_managers" placeholder="Shawn Weedon, Rebecca Silva">{{ settings.project_managers | join(', ') }}</textarea>
+                        <div class="help-text">These names appear in the project manager dropdown.</div>
+                    </div>
+                    <button type="submit" class="update-button">Update Project Managers</button>
+                </form>
+            </div>
+
+<!-- Replace the Team Assignments (Project Directors) section in admin_panel.html -->
+
+            <!-- Team Assignments (Project Directors) -->
+            <div class="setting-card">
+                <div class="setting-title">Project Directors</div>
+                <div class="setting-description">
+                    List of project directors (for Project Director dropdown)
+                </div>
+                
+                <div class="current-value">
+                    Current Directors: 
+                    {% set directors = settings.team_assignments.keys() | list if settings.team_assignments else [] %}
+                    {{ directors | join(', ') }}
+                </div>
+                
+                <form method="POST" action="/admin/update_project_directors">
+                    <div class="form-group">
+                        <label for="project_directors">Project Directors (comma-separated)</label>
+                        <textarea name="project_directors" id="project_directors" 
+                                placeholder="Jeremy Zorne, Josh Ewart, Kim Goodrich, Shane Rodacker">{{ directors | join(', ') }}</textarea>
+                        <div class="help-text">
+                            Enter project director names separated by commas. Team numbers will be auto-assigned (01, 02, 03, etc.)
+                            <br>Example: Jeremy Zorne, Josh Ewart, Kim Goodrich, Shane Rodacker
+                        </div>
+                    </div>
+                    <button type="submit" class="update-button">Update Project Directors</button>
+                </form>
+            </div>
+
+            <!-- Optional: Keep the advanced JSON editor as a separate card -->
+            <div class="setting-card">
+                <div class="setting-title">Team Assignments (Advanced)</div>
+                <div class="setting-description">
+                    Manual team number assignments (JSON format) - For custom team numbers
+                </div>
+                
+                <div class="current-value">
+                    {{ settings.team_assignments | tojson | safe }}
+                </div>
+                
+                <form method="POST" action="/admin/update_setting">
+                    <input type="hidden" name="setting_key" value="team_assignments">
+                    <div class="form-group">
+                        <label for="team_assignments">Team Assignments (JSON format)</label>
+                        <textarea name="setting_value" id="team_assignments" class="json-input">{{ settings.team_assignments | tojson(indent=2) | safe }}</textarea>
+                        <div class="help-text">Advanced: Manually set team numbers. Format: {"Name": "TeamNumber"}</div>
+                    </div>
+                    <button type="submit" class="update-button">Update Team Assignments (Advanced)</button>
+                </form>
+            </div>
+
+        <!-- PROJECT DETAILS SETTINGS -->
+        <div class="section-header">🏗️ Project Details Settings</div>
+        <div class="settings-grid">
+            <!-- Project Scopes -->
+            <div class="setting-card">
+                <div class="setting-title">Project Scopes</div>
+                <div class="setting-description">
+                    Available project scope options
+                </div>
+                
+                <div class="current-value">
+                    Current: {{ settings.project_scopes | join(', ') }}
+                </div>
+                
+                <form method="POST" action="/admin/update_setting">
+                    <input type="hidden" name="setting_key" value="project_scopes">
+                    <div class="form-group">
+                        <label for="project_scopes">Project Scopes (comma-separated)</label>
+                        <textarea name="setting_value" id="project_scopes" class="large-textarea" placeholder="Geotechnical Investigation, Environmental Site Assessment, Phase I Environmental">{{ settings.project_scopes | join(', ') }}</textarea>
+                        <div class="help-text">These appear in the Project Scope dropdown. Separate each scope with a comma.</div>
+                    </div>
+                    <button type="submit" class="update-button">Update Project Scopes</button>
+                </form>
+            </div>
+
+            <!-- Project Types -->
+            <div class="setting-card">
+                <div class="setting-title">Project Types</div>
+                <div class="setting-description">
+                    Available project type options (building types)
+                </div>
+                
+                <div class="current-value">
+                    Current: {{ settings.project_types | join(', ') }}
+                </div>
+                
+                <form method="POST" action="/admin/update_setting">
+                    <input type="hidden" name="setting_key" value="project_types">
+                    <div class="form-group">
+                        <label for="project_types">Project Types (comma-separated)</label>
+                        <textarea name="setting_value" id="project_types" class="large-textarea" placeholder="Aerospace Facility, Affordable Housing, Commercial Office">{{ settings.project_types | join(', ') }}</textarea>
+                        <div class="help-text">These appear in the Project Type dropdown. Separate each type with a comma.</div>
+                    </div>
+                    <button type="submit" class="update-button">Update Project Types</button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- SYSTEM INFORMATION -->
+        <div style="margin-top: 40px; padding: 20px; background: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            <h3 style="color: #dc3545; margin-top: 0;">📊 System Information</h3>
+            <p><strong>Current User:</strong> {{ session.get('user_email') }}</p>
+            <p><strong>Admin Access:</strong> {{ '✅ Yes' if session.get('is_admin') else '❌ No' }}</p>
+            <p><strong>Legal Access:</strong> {{ '✅ Yes' if session.get('is_legal') else '❌ No' }}</p>
+            <p><strong>System Mode:</strong> Development (Email notifications disabled)</p>
+            
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #dee2e6;">
+                <h4 style="color: #495057;">Quick Reference</h4>
+                <ul style="color: #6c757d; font-size: 14px;">
+                    <li><strong>JSON Format:</strong> Use double quotes for keys and values: {"key": "value"}</li>
+                    <li><strong>Comma-separated:</strong> Separate items with commas, no comma after the last item</li>
+                    <li><strong>Changes:</strong> Take effect immediately after clicking Update</li>
+                    <li><strong>Backup:</strong> System automatically backs up settings before changes</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

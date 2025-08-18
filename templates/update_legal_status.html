@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Update Legal Status - {{ project.project_number }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+        .header {
+            background-color: #9c27b0;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .back-link {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            background-color: #7b1fa2;
+            border-radius: 4px;
+        }
+        .back-link:hover {
+            background-color: #6a1b9a;
+        }
+        .container {
+            max-width: 700px;
+            margin: 20px auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .project-info {
+            background-color: #f3e5f5;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border-left: 4px solid #9c27b0;
+        }
+        .current-status {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .current-status-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #555;
+        }
+        .status-options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+        .status-option {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+        .status-option:hover {
+            border-color: #9c27b0;
+            background-color: #faf5fb;
+        }
+        .status-option.selected {
+            border-color: #9c27b0;
+            background-color: #f3e5f5;
+        }
+        .status-option input[type="radio"] {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .status-name {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        .status-description {
+            font-size: 14px;
+            color: #666;
+        }
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 14px;
+            min-height: 100px;
+            resize: vertical;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #9c27b0;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        .submit-button {
+            background-color: #9c27b0;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .submit-button:hover {
+            background-color: #7b1fa2;
+        }
+        .cancel-button {
+            background-color: #6c757d;
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 4px;
+            display: inline-block;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .cancel-button:hover {
+            background-color: #5a6268;
+        }
+        
+        /* Status colors */
+        .status-new_request { background: #2196F3; color: white; }
+        .status-under_review { background: #ff9800; color: white; }
+        .status-questions_to_pm { background: #f44336; color: white; }
+        .status-edits_to_client { background: #9c27b0; color: white; }
+        .status-negotiating { background: #ffeb3b; color: black; }
+        .status-signed { background: #4CAF50; color: white; }
+        .status-rfp_reviewed { background: #00bcd4; color: white; }
+        .status-not_signed { background: #795548; color: white; }
+        .status-on_hold { background: #607d8b; color: white; }
+    </style>
+    <script>
+        function selectStatus(element) {
+            // Remove selected class from all options
+            document.querySelectorAll('.status-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked option
+            element.classList.add('selected');
+            
+            // Check the radio button
+            const radio = element.querySelector('input[type="radio"]');
+            if (radio) {
+                radio.checked = true;
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add click handlers to status options
+            document.querySelectorAll('.status-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    selectStatus(this);
+                });
+            });
+            
+            // Set initial selection
+            const checkedRadio = document.querySelector('input[name="new_status"]:checked');
+            if (checkedRadio) {
+                const parentOption = checkedRadio.closest('.status-option');
+                if (parentOption) {
+                    parentOption.classList.add('selected');
+                }
+            }
+        });
+    </script>
+</head>
+<body>
+    <div class="header">
+        <h1>⚖️ Update Legal Status</h1>
+        <a href="/legal_queue" class="back-link">← Back to Legal Queue</a>
+    </div>
+    
+    <div class="container">
+        <div class="project-info">
+            <h3 style="margin-top: 0;">Project Information</h3>
+            <strong>Project Number:</strong> {{ project.project_number }}<br>
+            <strong>Project Name:</strong> {{ project.project_name }}<br>
+            <strong>Client:</strong> {{ project.client }}<br>
+            <strong>Project Manager:</strong> {{ project.project_manager }}
+        </div>
+        
+        <div class="current-status">
+            <h3>Current Status</h3>
+            <span class="current-status-badge status-{{ project.legal_status|default('new_request')|replace(' ', '_') }}">
+                {{ project.legal_status|default('New Request')|replace('_', ' ')|title }}
+            </span>
+        </div>
+        
+        <form method="POST" action="/update_legal_status/{{ project.project_number }}">
+            <div class="form-group">
+                <label>Select New Status:</label>
+                <div class="status-options">
+                    <div class="status-option">
+                        <input type="radio" name="new_status" value="new_request" id="new_request"
+                               {% if project.legal_status == 'new_request' or not project.legal_status %}checked{% endif %}>
+                        <div class="status-name">New Request</div>
+                        <div class="status-description">Initial submission, waiting for legal review to begin</div>
+                    </div>
+                    
+                    <div class="status-option">
+                        <input type="radio" name="new_status" value="under_review" id="under_review"
+                               {% if project.legal_status == 'under_review' %}checked{% endif %}>
+                        <div class="status-name">Under Review</div>
+                        <div class="status-description">Legal team is actively reviewing the contract</div>
+                    </div>
+                    
+                    <div class="status-option">
+                        <input type="radio" name="new_status" value="questions_to_pm" id="questions_to_pm"
+                               {% if project.legal_status == 'questions_to_pm' %}checked{% endif %}>
+                        <div class="status-name">Questions to PM</div>
+                        <div class="status-description">Legal team needs clarification from the Project Manager</div>
+                    </div>
+                    
+                    <div class="status-option">
+                        <input type="radio" name="new_status" value="edits_to_client" id="edits_to_client"
+                               {% if project.legal_status == 'edits_to_client' %}checked{% endif %}>
+                        <div class="status-name">Edits to Client</div>
+                        <div class="status-description">Proposed edits have been sent to the client</div>
+                    </div>
+                    
+                    <div class="status-option">
+                        <input type="radio" name="new_status" value="negotiating" id="negotiating"
+                               {% if project.legal_status == 'negotiating' %}checked{% endif %}>
+                        <div class="status-name">Negotiating</div>
+                        <div class="status-description">In active negotiation with the client</div>
+                    </div>
+                    
+                    <div class="status-option">
+                        <input type="radio" name="new_status" value="signed" id="signed"
+                               {% if project.legal_status == 'signed' %}checked{% endif %}>
+                        <div class="status-name">Signed</div>
+                        <div class="status-description">Contract has been signed and executed</div>
+                    </div>
+                    
+                    <div class="status-option">
+                        <input type="radio" name="new_status" value="rfp_reviewed" id="rfp_reviewed"
+                               {% if project.legal_status == 'rfp_reviewed' %}checked{% endif %}>
+                        <div class="status-name">RFP Reviewed</div>
+                        <div class="status-description">RFP has been reviewed (for proposal stage)</div>
+                    </div>
+                    
+                    <div class="status-option">
+                        <input type="radio" name="new_status" value="not_signed" id="not_signed"
+                               {% if project.legal_status == 'not_signed' %}checked{% endif %}>
+                        <div class="status-name">Not Signed</div>
+                        <div class="status-description">Contract will not be signed, project not proceeding</div>
+                    </div>
+                    
+                    <div class="status-option">
+                        <input type="radio" name="new_status" value="on_hold" id="on_hold"
+                               {% if project.legal_status == 'on_hold' %}checked{% endif %}>
+                        <div class="status-name">On Hold</div>
+                        <div class="status-description">Review is temporarily paused</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="status_notes">Status Notes/Comments:</label>
+                <textarea name="status_notes" id="status_notes" 
+                          placeholder="Add any notes about this status change..."></textarea>
+            </div>
+            
+            <div class="button-group">
+                <button type="submit" class="submit-button">
+                    📝 Update Status
+                </button>
+                <a href="/legal_queue" class="cancel-button">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
