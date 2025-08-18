@@ -1162,11 +1162,12 @@ def edit_proposal(proposal_number):
     proposal = proposals[proposal_number]
     
     # Check permissions
-    if (proposal.get('created_by') != session['user_email'] and 
-        proposal.get('project_manager') != session.get('user_name') and 
-        not session.get('is_admin')):
-        flash('You do not have permission to edit this proposal.', 'error')
-        return redirect(url_for('view_proposal', proposal_number=proposal_number))
+# Check permissions - Admin can edit everything
+    if not session.get('is_admin'):
+        if (proposal.get('created_by') != session['user_email'] and 
+            proposal.get('project_manager') != session.get('user_name')):
+            flash('You do not have permission to edit this proposal.', 'error')
+            return redirect(url_for('view_proposal', proposal_number=proposal_number))
     
     return render_template('edit_proposal.html',
                          proposal=proposal,
@@ -2947,4 +2948,5 @@ def run_startup_tasks():
 
 if __name__ == '__main__':
     run_startup_tasks()
+
     app.run(debug=True, port=5000)
