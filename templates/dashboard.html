@@ -377,7 +377,7 @@
                                         👁️ View Details
                                     </a>
                                     {% if proposal.status == 'pending' %}
-                                        {% if not proposal.get('proposal_sent') %}
+                                        {% if session.get('is_admin') or (not proposal.get('proposal_sent') and proposal.project_manager == session.get('user_name')) %}
                                         <a href="/mark_sent/{{ proposal.proposal_number }}" class="mark-sent"
                                            onclick="return confirm('Mark proposal as sent to client?')">
                                             📧 Mark as Sent
