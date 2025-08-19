@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Legal Queue - Geocon Proposal System</title>
+    <title>Legal Department - Geocon Proposal System</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -31,6 +31,71 @@
             margin: 20px; 
         }
         
+        /* Tab styles */
+        .tabs {
+            background: white;
+            border-radius: 8px 8px 0 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-bottom: 0;
+        }
+        
+        .tab-buttons {
+            display: flex;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .tab-button {
+            padding: 15px 30px;
+            background: white;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .tab-button:hover {
+            background: #f5f5f5;
+        }
+        
+        .tab-button.active {
+            color: #9c27b0;
+            border-bottom-color: #9c27b0;
+            background: #faf5fb;
+        }
+        
+        .tab-count {
+            display: inline-block;
+            background: #e0e0e0;
+            color: #666;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-left: 8px;
+        }
+        
+        .tab-button.active .tab-count {
+            background: #9c27b0;
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+            background: white;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-radius: 0 0 8px 8px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Stats cards */
         .queue-stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -57,11 +122,8 @@
             font-size: 12px;
         }
         
+        /* Table styles */
         .queue-table-container {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             overflow-x: auto;
         }
         
@@ -112,6 +174,9 @@
         .status-edits_to_client { background: #9c27b0; color: white; }
         .status-negotiating { background: #ffeb3b; color: black; }
         .status-signed { background: #4CAF50; color: white; }
+        .status-executed { background: #4CAF50; color: white; }
+        .status-pending { background: #ff9800; color: white; }
+        .status-issued { background: #2196F3; color: white; }
         .status-rfp_reviewed { background: #00bcd4; color: white; }
         .status-not_signed { background: #795548; color: white; }
         .status-on_hold { background: #607d8b; color: white; }
@@ -198,11 +263,33 @@
             border-radius: 4px;
             margin-bottom: 20px;
         }
+        
+        .add-button {
+            background: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        .add-button:hover { background: #45a049; }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+        
+        .empty-state h3 {
+            color: #666;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>⚖️ Legal Queue Management</h1>
+        <h1>⚖️ Legal Department Management</h1>
         <a href="/" class="back-link">← Back to Dashboard</a>
     </div>
 
@@ -215,136 +302,350 @@
             {% endif %}
         {% endwith %}
         
-        <!-- Queue Statistics -->
-        <div class="queue-stats">
-            <div class="stat-card">
-                <div class="stat-label">New Requests</div>
-                <div class="stat-number" style="color: #2196F3;">{{ stats.new_request|default(0) }}</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Under Review</div>
-                <div class="stat-number" style="color: #ff9800;">{{ stats.under_review|default(0) }}</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Questions to PM</div>
-                <div class="stat-number" style="color: #f44336;">{{ stats.questions_to_pm|default(0) }}</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Negotiating</div>
-                <div class="stat-number" style="color: #ffeb3b;">{{ stats.negotiating|default(0) }}</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Signed</div>
-                <div class="stat-number" style="color: #4CAF50;">{{ stats.signed|default(0) }}</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">On Hold</div>
-                <div class="stat-number" style="color: #607d8b;">{{ stats.on_hold|default(0) }}</div>
+        <!-- Tabs -->
+        <div class="tabs">
+            <div class="tab-buttons">
+                <button class="tab-button active" onclick="switchTab('review-queue')">
+                    Legal Review Queue
+                    <span class="tab-count">{{ review_queue|length }}</span>
+                </button>
+                <button class="tab-button" onclick="switchTab('executed-contracts')">
+                    Fully Executed Contracts
+                    <span class="tab-count">{{ executed_contracts|length }}</span>
+                </button>
+                <button class="tab-button" onclick="switchTab('insurance-requests')">
+                    Insurance Requests
+                    <span class="tab-count">{{ insurance_requests|length }}</span>
+                </button>
             </div>
         </div>
         
-        <!-- Filters -->
-        <div class="filters">
-            <form method="GET" action="/legal_queue">
-                <div class="filter-group">
-                    <label for="status_filter">Status:</label>
-                    <select name="status" id="status_filter" onchange="this.form.submit()">
-                        <option value="">All Status</option>
-                        <option value="new_request" {% if request.args.get('status') == 'new_request' %}selected{% endif %}>New Request</option>
-                        <option value="under_review" {% if request.args.get('status') == 'under_review' %}selected{% endif %}>Under Review</option>
-                        <option value="questions_to_pm" {% if request.args.get('status') == 'questions_to_pm' %}selected{% endif %}>Questions to PM</option>
-                        <option value="edits_to_client" {% if request.args.get('status') == 'edits_to_client' %}selected{% endif %}>Edits to Client</option>
-                        <option value="negotiating" {% if request.args.get('status') == 'negotiating' %}selected{% endif %}>Negotiating</option>
-                        <option value="signed" {% if request.args.get('status') == 'signed' %}selected{% endif %}>Signed</option>
-                        <option value="rfp_reviewed" {% if request.args.get('status') == 'rfp_reviewed' %}selected{% endif %}>RFP Reviewed</option>
-                        <option value="not_signed" {% if request.args.get('status') == 'not_signed' %}selected{% endif %}>Not Signed</option>
-                        <option value="on_hold" {% if request.args.get('status') == 'on_hold' %}selected{% endif %}>On Hold</option>
-                    </select>
+        <!-- Legal Review Queue Tab -->
+        <div id="review-queue" class="tab-content active">
+            <!-- Queue Statistics -->
+            <div class="queue-stats">
+                <div class="stat-card">
+                    <div class="stat-label">New Requests</div>
+                    <div class="stat-number" style="color: #2196F3;">{{ stats.new_request|default(0) }}</div>
                 </div>
-                
-                <div class="filter-group">
-                    <label for="office_filter">Office:</label>
-                    <select name="office" id="office_filter" onchange="this.form.submit()">
-                        <option value="">All Offices</option>
-                        {% for code, name in offices.items() %}
-                        <option value="{{ code }}" {% if request.args.get('office') == code %}selected{% endif %}>{{ name }}</option>
-                        {% endfor %}
-                    </select>
+                <div class="stat-card">
+                    <div class="stat-label">Under Review</div>
+                    <div class="stat-number" style="color: #ff9800;">{{ stats.under_review|default(0) }}</div>
                 </div>
-                
-                <div class="filter-group">
-                    <label for="pm_filter">Project Manager:</label>
-                    <select name="pm" id="pm_filter" onchange="this.form.submit()">
-                        <option value="">All PMs</option>
-                        {% for pm in project_managers %}
-                        <option value="{{ pm }}" {% if request.args.get('pm') == pm %}selected{% endif %}>{{ pm }}</option>
-                        {% endfor %}
-                    </select>
+                <div class="stat-card">
+                    <div class="stat-label">Questions to PM</div>
+                    <div class="stat-number" style="color: #f44336;">{{ stats.questions_to_pm|default(0) }}</div>
                 </div>
-            </form>
+                <div class="stat-card">
+                    <div class="stat-label">Negotiating</div>
+                    <div class="stat-number" style="color: #ffeb3b;">{{ stats.negotiating|default(0) }}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Signed</div>
+                    <div class="stat-number" style="color: #4CAF50;">{{ stats.signed|default(0) }}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">On Hold</div>
+                    <div class="stat-number" style="color: #607d8b;">{{ stats.on_hold|default(0) }}</div>
+                </div>
+            </div>
+            
+            <!-- Filters -->
+            <div class="filters">
+                <form method="GET" action="/legal_queue">
+                    <input type="hidden" name="tab" value="review-queue">
+                    <div class="filter-group">
+                        <label for="status_filter">Status:</label>
+                        <select name="status" id="status_filter" onchange="this.form.submit()">
+                            <option value="">All Status</option>
+                            <option value="new_request" {% if request.args.get('status') == 'new_request' %}selected{% endif %}>New Request</option>
+                            <option value="under_review" {% if request.args.get('status') == 'under_review' %}selected{% endif %}>Under Review</option>
+                            <option value="questions_to_pm" {% if request.args.get('status') == 'questions_to_pm' %}selected{% endif %}>Questions to PM</option>
+                            <option value="edits_to_client" {% if request.args.get('status') == 'edits_to_client' %}selected{% endif %}>Edits to Client</option>
+                            <option value="negotiating" {% if request.args.get('status') == 'negotiating' %}selected{% endif %}>Negotiating</option>
+                            <option value="signed" {% if request.args.get('status') == 'signed' %}selected{% endif %}>Signed</option>
+                            <option value="on_hold" {% if request.args.get('status') == 'on_hold' %}selected{% endif %}>On Hold</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="office_filter">Office:</label>
+                        <select name="office" id="office_filter" onchange="this.form.submit()">
+                            <option value="">All Offices</option>
+                            {% for code, name in offices.items() %}
+                            <option value="{{ code }}" {% if request.args.get('office') == code %}selected{% endif %}>{{ name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="pm_filter">Project Manager:</label>
+                        <select name="pm" id="pm_filter" onchange="this.form.submit()">
+                            <option value="">All PMs</option>
+                            {% for pm in project_managers %}
+                            <option value="{{ pm }}" {% if request.args.get('pm') == pm %}selected{% endif %}>{{ pm }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Legal Queue Table -->
+            <div class="queue-table-container">
+                <h2>Legal Review Queue</h2>
+                {% if review_queue %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Queue #</th>
+                            <th>Status</th>
+                            <th>Date Submitted</th>
+                            <th>Review By</th>
+                            <th>Office</th>
+                            <th>Project #</th>
+                            <th>Project Name</th>
+                            <th>Contract Type</th>
+                            <th>Client</th>
+                            <th>Contact</th>
+                            <th>Previous?</th>
+                            <th>Subs?</th>
+                            <th>COI?</th>
+                            <th>Lien?</th>
+                            <th>Reviewed By</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for project_num, project in review_queue.items() %}
+                        <tr>
+                            <td class="queue-number">{{ loop.index }}</td>
+                            <td>
+                                <span class="status-badge status-{{ project.legal_status|default('new_request')|replace(' ', '_') }}">
+                                    {{ project.legal_status|default('New Request')|replace('_', ' ')|title }}
+                                </span>
+                            </td>
+                            <td>{{ project.created_date.split(' ')[0] if project.created_date else project.date }}</td>
+                            <td>{{ project.requested_review_date|default('-') }}</td>
+                            <td>{{ project.office|default('-') }}</td>
+                            <td>
+                                <a href="/project/{{ project.project_number }}" class="project-link">
+                                    {{ project.project_number }}
+                                </a>
+                            </td>
+                            <td class="truncate" title="{{ project.project_name }}">{{ project.project_name }}</td>
+                            <td>{{ project.contract_type|default('-') }}</td>
+                            <td class="truncate" title="{{ project.client }}">{{ project.client }}</td>
+                            <td class="truncate" title="{{ project.client_contact_name|default(project.contact) }}">
+                                {{ project.client_contact_name|default(project.contact) }}
+                            </td>
+                            <td>{{ project.contracted_before|default('No')|title }}</td>
+                            <td>{{ project.need_subcontractors|default('No')|title }}</td>
+                            <td>{{ 'Yes' if project.coi_needed else 'No' }}</td>
+                            <td>{{ project.file_lien_notice|default('No')|title }}</td>
+                            <td>{{ project.reviewed_by|default('-') }}</td>
+                            <td>
+                                <a href="/legal_queue_detail/{{ project.project_number }}" class="view-button">View</a>
+                                <a href="/update_legal_status/{{ project.project_number }}" class="action-button">Update</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state">
+                    <h3>No items in review queue</h3>
+                    <p>All legal reviews have been completed</p>
+                </div>
+                {% endif %}
+            </div>
         </div>
         
-        <!-- Legal Queue Table -->
-        <div class="queue-table-container">
-            <h2>Legal Review Queue</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Queue #</th>
-                        <th>Status</th>
-                        <th>Date Submitted</th>
-                        <th>Review By</th>
-                        <th>Office</th>
-                        <th>Project #</th>
-                        <th>Project Name</th>
-                        <th>Contract Type</th>
-                        <th>Client</th>
-                        <th>Contact</th>
-                        <th>Previous?</th>
-                        <th>Subs?</th>
-                        <th>COI?</th>
-                        <th>Lien?</th>
-                        <th>Reviewed By</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                {% for project_num, project in projects.items() %}
-                    <tr>
-                        <td class="queue-number">{{ loop.index }}</td>
-                        <td>
-                            <span class="status-badge status-{{ project.legal_status|default('new_request')|replace(' ', '_') }}">
-                                {{ project.legal_status|default('New Request')|replace('_', ' ')|title }}
-                            </span>
-                        </td>
-                        <td>{{ project.created_date.split(' ')[0] if project.created_date else project.date }}</td>
-                        <td>{{ project.requested_review_date|default('-') }}</td>
-                        <td>{{ project.office|default('-') }}</td>
-                        <td>
-                            <a href="/project/{{ project.project_number }}" class="project-link">
-                                {{ project.project_number }}
-                            </a>
-                        </td>
-                        <td class="truncate" title="{{ project.project_name }}">{{ project.project_name }}</td>
-                        <td>{{ project.contract_type|default('-') }}</td>
-                        <td class="truncate" title="{{ project.client }}">{{ project.client }}</td>
-                        <td class="truncate" title="{{ project.client_contact_name|default(project.contact) }}">
-                            {{ project.client_contact_name|default(project.contact) }}
-                        </td>
-                        <td>{{ project.contracted_before|default('No')|title }}</td>
-                        <td>{{ project.need_subcontractors|default('No')|title }}</td>
-                        <td>{{ 'Yes' if project.coi_needed else 'No' }}</td>
-                        <td>{{ project.file_lien_notice|default('No')|title }}</td>
-                        <td>{{ project.reviewed_by|default('-') }}</td>
-                        <td>
-                            <a href="/legal_queue_detail/{{ project.project_number }}" class="view-button">View</a>
-                            <a href="/update_legal_status/{{ project.project_number }}" class="action-button">Update</a>
-                        </td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+        <!-- Fully Executed Contracts Tab -->
+        <div id="executed-contracts" class="tab-content">
+            <div class="queue-table-container">
+                <h2>Fully Executed Contracts</h2>
+                <a href="/add_executed_contract" class="add-button">+ Add Executed Contract</a>
+                
+                {% if executed_contracts %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Queue #</th>
+                            <th>Date Added</th>
+                            <th>Project #</th>
+                            <th>Project Name</th>
+                            <th>Client</th>
+                            <th>Contract Type</th>
+                            <th>Documents Location</th>
+                            <th>Notes/Comments</th>
+                            <th>Added By</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for contract_id, contract in executed_contracts.items() %}
+                        <tr>
+                            <td class="queue-number">{{ loop.index }}</td>
+                            <td>{{ contract.date_added }}</td>
+                            <td>
+                                {% if contract.project_number %}
+                                <a href="/project/{{ contract.project_number }}" class="project-link">
+                                    {{ contract.project_number }}
+                                </a>
+                                {% else %}
+                                -
+                                {% endif %}
+                            </td>
+                            <td class="truncate" title="{{ contract.project_name }}">{{ contract.project_name }}</td>
+                            <td class="truncate" title="{{ contract.client }}">{{ contract.client }}</td>
+                            <td>{{ contract.contract_type }}</td>
+                            <td class="truncate" title="{{ contract.documents_location }}">{{ contract.documents_location }}</td>
+                            <td class="truncate" title="{{ contract.notes }}">{{ contract.notes|default('-') }}</td>
+                            <td>{{ contract.added_by }}</td>
+                            <td>
+                                <a href="/edit_executed_contract/{{ contract_id }}" class="view-button">Edit</a>
+                                <a href="/delete_executed_contract/{{ contract_id }}" class="action-button" 
+                                   onclick="return confirm('Delete this executed contract record?')">Delete</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state">
+                    <h3>No executed contracts recorded</h3>
+                    <p>Click "Add Executed Contract" to add a new record</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Insurance Requests Tab -->
+        <div id="insurance-requests" class="tab-content">
+            <div class="queue-table-container">
+                <h2>Insurance Requests</h2>
+                <a href="/add_insurance_request" class="add-button">+ Add Insurance Request</a>
+                
+                {% if insurance_requests %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Queue #</th>
+                            <th>Status</th>
+                            <th>Date Requested</th>
+                            <th>Completion Date</th>
+                            <th>Requested By</th>
+                            <th>Office</th>
+                            <th>Project #</th>
+                            <th>Project Name</th>
+                            <th>Certificate Holder</th>
+                            <th>Client Contact</th>
+                            <th>Email</th>
+                            <th>Can Contact?</th>
+                            <th>Handled By</th>
+                            <th>Documents</th>
+                            <th>Notes</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for request_id, request in insurance_requests.items() %}
+                        <tr>
+                            <td class="queue-number">{{ loop.index }}</td>
+                            <td>
+                                <span class="status-badge status-{{ request.status|default('pending')|replace(' ', '_') }}">
+                                    {{ request.status|default('Pending')|title }}
+                                </span>
+                            </td>
+                            <td>{{ request.date_requested }}</td>
+                            <td>{{ request.completion_date|default('-') }}</td>
+                            <td>{{ request.requested_by }}</td>
+                            <td>{{ request.office }}</td>
+                            <td>
+                                {% if request.project_number %}
+                                <a href="/project/{{ request.project_number }}" class="project-link">
+                                    {{ request.project_number }}
+                                </a>
+                                {% else %}
+                                -
+                                {% endif %}
+                            </td>
+                            <td class="truncate" title="{{ request.project_name }}">{{ request.project_name }}</td>
+                            <td class="truncate" title="{{ request.certificate_holder }}">{{ request.certificate_holder }}</td>
+                            <td>{{ request.client_contact_name }}</td>
+                            <td class="truncate" title="{{ request.client_contact_email }}">{{ request.client_contact_email }}</td>
+                            <td>{{ request.can_legal_contact|default('Yes') }}</td>
+                            <td>{{ request.handled_by|default('-') }}</td>
+                            <td class="truncate" title="{{ request.documents_location }}">{{ request.documents_location|default('-') }}</td>
+                            <td class="truncate" title="{{ request.notes }}">{{ request.notes|default('-') }}</td>
+                            <td>
+                                <a href="/edit_insurance_request/{{ request_id }}" class="view-button">Edit</a>
+                                {% if request.status != 'issued' %}
+                                <a href="/mark_insurance_issued/{{ request_id }}" class="action-button">Mark Issued</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state">
+                    <h3>No insurance requests</h3>
+                    <p>Click "Add Insurance Request" to add a new request</p>
+                </div>
+                {% endif %}
+            </div>
         </div>
     </div>
+    
+    <script>
+        function switchTab(tabName) {
+            // Update URL with tab parameter
+            const url = new URL(window.location);
+            url.searchParams.set('tab', tabName);
+            window.history.pushState({}, '', url);
+            
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all buttons
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            
+            // Mark button as active
+            event.target.classList.add('active');
+        }
+        
+        // Check URL parameter on load
+        window.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const tab = urlParams.get('tab');
+            if (tab && document.getElementById(tab)) {
+                // Hide all tabs
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                document.querySelectorAll('.tab-button').forEach(button => {
+                    button.classList.remove('active');
+                });
+                
+                // Show requested tab
+                document.getElementById(tab).classList.add('active');
+                
+                // Mark correct button as active
+                document.querySelectorAll('.tab-button').forEach(button => {
+                    if (button.textContent.toLowerCase().includes(tab.replace('-', ' '))) {
+                        button.classList.add('active');
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>

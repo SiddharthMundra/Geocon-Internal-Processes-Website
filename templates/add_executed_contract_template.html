@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Executed Contract - Geocon Legal</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+        .header {
+            background-color: #9c27b0;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .back-link {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            background-color: #7b1fa2;
+            border-radius: 4px;
+        }
+        .back-link:hover {
+            background-color: #6a1b9a;
+        }
+        .container {
+            max-width: 700px;
+            margin: 20px auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        .required::after {
+            content: " *";
+            color: red;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #9c27b0;
+        }
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        .submit-button {
+            background-color: #9c27b0;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .submit-button:hover {
+            background-color: #7b1fa2;
+        }
+        .cancel-button {
+            background-color: #6c757d;
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 4px;
+            display: inline-block;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .cancel-button:hover {
+            background-color: #5a6268;
+        }
+        .help-text {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📄 Add Executed Contract</h1>
+        <a href="/legal_queue?tab=executed-contracts" class="back-link">← Back to Legal Queue</a>
+    </div>
+    
+    <div class="container">
+        <form method="POST">
+            <div class="form-group">
+                <label for="project_number">Project Number</label>
+                <input type="text" id="project_number" name="project_number" 
+                       placeholder="e.g., G-000001-01-01">
+                <div class="help-text">Leave blank if not associated with a project</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="project_name" class="required">Project Name</label>
+                <input type="text" id="project_name" name="project_name" required
+                       placeholder="e.g., Downtown Tower Renovation">
+            </div>
+            
+            <div class="form-group">
+                <label for="client" class="required">Client</label>
+                <input type="text" id="client" name="client" required
+                       placeholder="e.g., ABC Development Corp">
+            </div>
+            
+            <div class="form-group">
+                <label for="contract_type">Contract Type</label>
+                <select id="contract_type" name="contract_type">
+                    <option value="">Select Type</option>
+                    <option value="Master Agreement">Master Agreement</option>
+                    <option value="Client Contract">Client Contract</option>
+                    <option value="Subconsultant Agreement">Subconsultant Agreement</option>
+                    <option value="Purchase Order">Purchase Order</option>
+                    <option value="Task Order">Task Order</option>
+                    <option value="Amendment">Amendment</option>
+                    <option value="NDA">NDA</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="documents_location" class="required">Documents File Location</label>
+                <textarea id="documents_location" name="documents_location" required
+                          placeholder="Must Include: Fully Executed Contract, Geocon's Proposal/Schedule of Fees&#10;&#10;Example:&#10;R:\GEOCON WORKING FILES\S9850-S9899\S9850 DTSC\43_Benicia Arsenal Complex 50\_Admin\Contract"></textarea>
+                <div class="help-text">Include the full path to the executed contract and related documents</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="notes">Notes/Comments</label>
+                <textarea id="notes" name="notes" 
+                          placeholder="Any additional notes or comments..."></textarea>
+            </div>
+            
+            <div class="button-group">
+                <button type="submit" class="submit-button">
+                    ✅ Add Executed Contract
+                </button>
+                <a href="/legal_queue?tab=executed-contracts" class="cancel-button">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

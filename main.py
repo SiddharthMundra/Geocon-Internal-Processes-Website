@@ -48,7 +48,9 @@ DATABASES = {
     'deletion_log': 'data/audit/deletion_log.json',
     'documents': 'data/documents/documents_db.json',
     'email_log': 'data/system/email_log.json',
-    'activity_log': 'data/audit/activity_log.json'
+    'activity_log': 'data/audit/activity_log.json',
+    'executed_contracts': 'data/legal/executed_contracts.json',  # NEW
+    'insurance_requests': 'data/legal/insurance_requests.json'   # NEW
 }
 
 # Default system settings with expanded options
@@ -410,7 +412,13 @@ DEFAULT_SETTINGS['analytics_users'] = [
 ]
 
 # Initialize database files
+
+# 2. Update the init_databases function to include the new databases
 def init_databases():
+    # Create legal directory if it doesn't exist
+    if not os.path.exists('data/legal'):
+        os.makedirs('data/legal')
+    
     for db_name, db_path in DATABASES.items():
         if not os.path.exists(db_path):
             with open(db_path, 'w') as f:
@@ -1976,11 +1984,11 @@ def inject_settings():
 
 # Add these routes to main.py after the existing routes
 
-# Updated mark_won route to capture all legal queue fields
+# 3. Update the mark_won route to properly handle projects that don't need legal review
 @app.route('/mark_won/<proposal_number>', methods=['POST'])
 @login_required
 def mark_won(proposal_number):
-    """Mark proposal as won and create project with legal queue info"""
+    """Mark proposal as won and create project - FIXED VERSION"""
     proposals = load_json(DATABASES['proposals'])
     
     if proposal_number not in proposals:
@@ -2011,8 +2019,12 @@ def mark_won(proposal_number):
     proposal['won_by'] = session['user_email']
     proposal['project_folder_path'] = project_folder_path
     
-    # Create project with all legal queue fields
-    project_status = 'pending_legal' if needs_legal_review else 'active'
+    # FIXED: Set correct status based on legal review need
+    if needs_legal_review:
+        project_status = 'pending_legal'
+    else:
+        # If no legal review needed, go to pending_additional_info
+        project_status = 'pending_additional_info'
     
     project_data = {
         'project_number': project_number,
@@ -2051,24 +2063,54 @@ def mark_won(proposal_number):
         'legal_status_history': []
     }
     
-    # Add initial status to history
-    if needs_legal_review:
+    # FIXED: Handle projects that don't need legal review
+    if not needs_legal_review:
+        project_data['legal_approved_date'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        project_data['legal_approved_by'] = 'Auto-approved (No legal review required)'
+        
+        # Send notification to PM
+        pm_email = f"{proposal['project_manager'].lower().replace(' ', '.')}@geoconinc.com"
+        subject = f"Action Required: Complete Project Information for {project_number}"
+        body = f"""
+        Project {project_number} has been created and requires additional information.
+        
+        Project: {proposal.get('project_name', 'Unknown')}
+        Client: {proposal.get('client', 'Unknown')}
+        
+        ACTION REQUIRED: Please complete the additional project information in the system
+        to finalize the project setup in Geocon's system.
+        
+        Login to the system and look for the project in "Projects Pending Additional Information" section.
+        """
+        send_email(pm_email, subject, body)
+        
+        flash(f'Proposal marked as won! Project {project_number} created. Please complete additional information.', 'success')
+    else:
+        # Add initial status to history for legal review
         project_data['legal_status_history'].append({
             'date': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             'status': 'new_request',
             'user': session['user_email'],
             'notes': 'Project submitted for legal review'
         })
-    
-    # Auto-approve if no legal review needed
-    if not needs_legal_review:
-        project_data['legal_approved_date'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        project_data['legal_approved_by'] = 'Auto-approved (No legal review required)'
-        project_data['geocon_updated'] = True
-        project_data['geocon_update_date'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         
-        print(f"\n🚀 POWER AUTOMATE SCRIPT RUN - Project: {project_number}")
-        print(f"Project moved directly to active (no legal review required)")
+        legal_email = get_system_setting('legal_dept_email', 'legal@geoconinc.com')
+        subject = f"Legal Review Required: Project {project_number}"
+        body = f"""
+        Legal Review Required for Project {project_number}
+        
+        Project: {proposal.get('project_name', 'Unknown')}
+        Client: {proposal.get('client', 'Unknown')}
+        PM: {proposal.get('project_manager', 'Unknown')}
+        Fee: ${proposal.get('fee', 0)}
+        Contract Type: {project_data.get('contract_type', 'Not specified')}
+        Review By Date: {project_data.get('requested_review_date', 'Not specified')}
+        Project Folder: {project_folder_path}
+        
+        Please review in the Legal Queue system.
+        """
+        send_email(legal_email, subject, body)
+        flash(f'Proposal marked as won! Project {project_number} created and sent for legal review.', 'success')
     
     # Save updates
     proposals[proposal_number] = proposal
@@ -2087,51 +2129,36 @@ def mark_won(proposal_number):
         'needs_legal': needs_legal_review
     })
     
-    # Send notifications
-    if needs_legal_review:
-        legal_email = get_system_setting('legal_dept_email', 'legal@geoconinc.com')
-        subject = f"Legal Review Required: Project {project_number}"
-        body = f"""
-        Legal Review Required for Project {project_number}
-        
-        Project: {proposal.get('project_name', 'Unknown')}
-        Client: {proposal.get('client', 'Unknown')}
-        PM: {proposal.get('project_manager', 'Unknown')}
-        Fee: ${proposal.get('fee', 0)}
-        Contract Type: {project_data.get('contract_type', 'Not specified')}
-        Review By Date: {project_data.get('requested_review_date', 'Not specified')}
-        Project Folder: {project_folder_path}
-        
-        Please review in the Legal Queue system.
-        """
-        send_email(legal_email, subject, body)
-        flash(f'Proposal marked as won! Project {project_number} created and sent for legal review.', 'success')
-    else:
-        flash(f'Proposal marked as won! Project {project_number} created and moved to Active Projects.', 'success')
-    
     return redirect(url_for('index'))
 
 
-# Legal Queue view
+# 5. Updated legal_queue route with multiple tabs support
 @app.route('/legal_queue')
 @legal_required
 def legal_queue():
-    """View legal review queue"""
+    """View legal department tabs - review queue, executed contracts, insurance requests"""
     log_activity('legal_queue_view', {})
     
     projects = load_json(DATABASES['projects'])
     proposals = load_json(DATABASES['proposals'])
+    executed_contracts = load_json(DATABASES['executed_contracts'])
+    insurance_requests = load_json(DATABASES['insurance_requests'])
     
     # Get filter parameters
     status_filter = request.args.get('status', '')
     office_filter = request.args.get('office', '')
     pm_filter = request.args.get('pm', '')
+    tab = request.args.get('tab', 'review-queue')
     
-    # Filter projects that need legal review
-    legal_projects = {}
+    # Filter projects for review queue
+    review_queue = {}
     for proj_num, project in projects.items():
         # Include projects that need legal review or have legal status
         if project.get('needs_legal_review') or project.get('legal_status'):
+            # Exclude signed projects from review queue
+            if project.get('legal_status') == 'signed':
+                continue
+                
             # Apply filters
             if status_filter and project.get('legal_status', 'new_request') != status_filter:
                 continue
@@ -2144,28 +2171,117 @@ def legal_queue():
             if project.get('proposal_number') in proposals:
                 project['fee'] = proposals[project['proposal_number']].get('fee', 0)
             
-            legal_projects[proj_num] = project
+            review_queue[proj_num] = project
     
     # Calculate statistics
     stats = {
-        'new_request': sum(1 for p in legal_projects.values() if p.get('legal_status', 'new_request') == 'new_request'),
-        'under_review': sum(1 for p in legal_projects.values() if p.get('legal_status') == 'under_review'),
-        'questions_to_pm': sum(1 for p in legal_projects.values() if p.get('legal_status') == 'questions_to_pm'),
-        'edits_to_client': sum(1 for p in legal_projects.values() if p.get('legal_status') == 'edits_to_client'),
-        'negotiating': sum(1 for p in legal_projects.values() if p.get('legal_status') == 'negotiating'),
-        'signed': sum(1 for p in legal_projects.values() if p.get('legal_status') == 'signed'),
-        'on_hold': sum(1 for p in legal_projects.values() if p.get('legal_status') == 'on_hold'),
+        'new_request': sum(1 for p in review_queue.values() if p.get('legal_status', 'new_request') == 'new_request'),
+        'under_review': sum(1 for p in review_queue.values() if p.get('legal_status') == 'under_review'),
+        'questions_to_pm': sum(1 for p in review_queue.values() if p.get('legal_status') == 'questions_to_pm'),
+        'edits_to_client': sum(1 for p in review_queue.values() if p.get('legal_status') == 'edits_to_client'),
+        'negotiating': sum(1 for p in review_queue.values() if p.get('legal_status') == 'negotiating'),
+        'signed': sum(1 for p in projects.values() if p.get('legal_status') == 'signed'),
+        'on_hold': sum(1 for p in review_queue.values() if p.get('legal_status') == 'on_hold'),
     }
     
     # Get list of project managers for filter
     project_managers = get_system_setting('project_managers', [])
     
     return render_template('legal_queue.html',
-                         projects=legal_projects,
+                         review_queue=review_queue,
+                         executed_contracts=executed_contracts,
+                         insurance_requests=insurance_requests,
                          stats=stats,
                          offices=get_system_setting('office_codes', {}),
-                         project_managers=project_managers)
+                         project_managers=project_managers,
+                         tab=tab)
 
+
+# 6. Add route for adding executed contracts
+@app.route('/add_executed_contract', methods=['GET', 'POST'])
+@legal_required
+def add_executed_contract():
+    """Add a new executed contract record"""
+    if request.method == 'POST':
+        contracts = load_json(DATABASES['executed_contracts'])
+        
+        contract_id = str(uuid.uuid4())
+        contract_data = {
+            'id': contract_id,
+            'date_added': datetime.now().strftime('%Y-%m-%d'),
+            'project_number': request.form.get('project_number', ''),
+            'project_name': request.form.get('project_name', ''),
+            'client': request.form.get('client', ''),
+            'contract_type': request.form.get('contract_type', ''),
+            'documents_location': request.form.get('documents_location', ''),
+            'notes': request.form.get('notes', ''),
+            'added_by': session['user_email']
+        }
+        
+        contracts[contract_id] = contract_data
+        save_json(DATABASES['executed_contracts'], contracts)
+        
+        log_activity('executed_contract_added', {'contract_id': contract_id})
+        flash('Executed contract record added successfully!', 'success')
+        return redirect(url_for('legal_queue', tab='executed-contracts'))
+    
+    return render_template('add_executed_contract.html')
+
+# 7. Add route for adding insurance requests
+@app.route('/add_insurance_request', methods=['GET', 'POST'])
+@legal_required
+def add_insurance_request():
+    """Add a new insurance request"""
+    if request.method == 'POST':
+        requests = load_json(DATABASES['insurance_requests'])
+        
+        request_id = str(uuid.uuid4())
+        request_data = {
+            'id': request_id,
+            'status': 'pending',
+            'date_requested': request.form.get('date_requested', datetime.now().strftime('%Y-%m-%d')),
+            'completion_date': request.form.get('completion_date', ''),
+            'requested_by': request.form.get('requested_by', ''),
+            'office': request.form.get('office', ''),
+            'project_number': request.form.get('project_number', ''),
+            'project_name': request.form.get('project_name', ''),
+            'certificate_holder': request.form.get('certificate_holder', ''),
+            'client_contact_name': request.form.get('client_contact_name', ''),
+            'client_contact_email': request.form.get('client_contact_email', ''),
+            'can_legal_contact': request.form.get('can_legal_contact', 'Yes'),
+            'handled_by': request.form.get('handled_by', ''),
+            'documents_location': request.form.get('documents_location', ''),
+            'notes': request.form.get('notes', ''),
+            'added_by': session['user_email']
+        }
+        
+        requests[request_id] = request_data
+        save_json(DATABASES['insurance_requests'], requests)
+        
+        log_activity('insurance_request_added', {'request_id': request_id})
+        flash('Insurance request added successfully!', 'success')
+        return redirect(url_for('legal_queue', tab='insurance-requests'))
+    
+    return render_template('add_insurance_request.html',
+                         offices=get_system_setting('office_codes', {}))
+
+# 8. Mark insurance request as issued
+@app.route('/mark_insurance_issued/<request_id>')
+@legal_required
+def mark_insurance_issued(request_id):
+    """Mark an insurance request as issued"""
+    requests = load_json(DATABASES['insurance_requests'])
+    
+    if request_id in requests:
+        requests[request_id]['status'] = 'issued'
+        requests[request_id]['issued_date'] = datetime.now().strftime('%Y-%m-%d')
+        requests[request_id]['issued_by'] = session['user_email']
+        save_json(DATABASES['insurance_requests'], requests)
+        
+        log_activity('insurance_request_issued', {'request_id': request_id})
+        flash('Insurance request marked as issued!', 'success')
+    
+    return redirect(url_for('legal_queue', tab='insurance-requests'))
 
 # Legal Queue Detail view
 @app.route('/legal_queue_detail/<project_number>')
@@ -2551,7 +2667,7 @@ def user_can_edit(entity, field='project_manager'):
 @app.route('/')
 @login_required
 def index():
-    """Main dashboard with enhanced filters and analytics"""
+    """Main dashboard with enhanced filters and analytics - FIXED VERSION"""
     log_activity('dashboard_view', {})
     
     proposals = load_json(DATABASES['proposals'])
@@ -2563,14 +2679,35 @@ def index():
     # Filter projects by different statuses
     pending_legal_projects = {}
     pending_additional_info_projects = {}
+    active_projects = {}  # ADD THIS
     
     for k, v in projects.items():
-        # Projects pending legal review - admin sees all
-        if v.get('status') == 'pending_legal' or (v.get('legal_status') and v.get('legal_status') != 'signed'):
-            # Show all to admin, filter for others
-            if (session.get('is_admin') or 
-                v.get('project_manager') == session.get('user_name')):
+        # Projects pending legal review
+        if v.get('status') == 'pending_legal':
+            # Show to admin or project manager
+            if session.get('is_admin') or v.get('project_manager') == session.get('user_name'):
                 pending_legal_projects[k] = v
+        
+        # Projects pending additional information - FIXED: Admin can see all
+        elif v.get('status') == 'pending_additional_info':
+            # Calculate days pending
+            if v.get('legal_approved_date'):
+                try:
+                    approved_date = datetime.strptime(v['legal_approved_date'].split(' ')[0], '%Y-%m-%d')
+                    days_pending = (datetime.now() - approved_date).days
+                    v['days_pending'] = days_pending
+                except:
+                    v['days_pending'] = 0
+            
+            # Admin sees all, others see only their own
+            if session.get('is_admin') or v.get('project_manager') == session.get('user_name'):
+                pending_additional_info_projects[k] = v
+        
+        # Active projects (marked as won but no legal review needed) - FIXED
+        elif v.get('status') == 'active' and not v.get('needs_legal_review'):
+            # Show active projects that went straight to active
+            if session.get('is_admin') or v.get('project_manager') == session.get('user_name'):
+                active_projects[k] = v
         
         # Projects pending additional information - admin sees all
         if v.get('status') == 'pending_additional_info':
