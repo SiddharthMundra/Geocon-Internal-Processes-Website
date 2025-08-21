@@ -443,3 +443,11 @@ def mark_proposal_lost(proposal_number):
         return redirect(url_for('index'))
     
     return render_template('mark_lost.html', proposal=proposal)
+
+
+
+@proposals_bp.route('/delete/<proposal_number>', methods=['GET', 'POST'])
+@login_required
+def delete_proposal_route(proposal_number):
+    from routes.delete import delete_proposal
+    return delete_proposal(proposal_number)

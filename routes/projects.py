@@ -400,3 +400,13 @@ def past_projects():
                          lost_proposals=lost_proposals,
                          dead_jobs=dead_jobs,
                          user_email=session.get('user_email'))
+
+
+
+
+
+@projects_bp.route('/delete/<project_number>', methods=['GET', 'POST'])
+@login_required
+def delete_project_route(project_number):
+    from routes.delete import delete_project
+    return delete_project(project_number)
