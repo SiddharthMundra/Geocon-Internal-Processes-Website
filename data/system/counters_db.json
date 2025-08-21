@@ -1,1 +1,15 @@
-{"total_projects": 0, "office_counters": {"SD": 0, "OC": 0, "MU": 0, "RD": 0, "LA": 0, "EB": 0, "SA": 0, "FA": 0, "CV": 0}, "last_reset": "2025-08-19"}
+{
+  "total_projects": 1,
+  "office_counters": {
+    "SD": 0,
+    "OC": 0,
+    "MU": 0,
+    "RD": 0,
+    "LA": 0,
+    "EB": 0,
+    "SA": 0,
+    "FA": 0,
+    "CV": 0
+  },
+  "last_reset": "2025-08-19"
+}

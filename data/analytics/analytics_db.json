@@ -1,1 +1,26 @@
-{"monthly_proposals": {}, "monthly_wins": {}, "monthly_revenue": {}, "office_performance": {}, "pm_performance": {}}
+{
+  "monthly_proposals": {
+    "2025-08": 1
+  },
+  "monthly_wins": {
+    "2025-08": 1
+  },
+  "monthly_revenue": {
+    "2025-08": 0.0
+  },
+  "office_performance": {
+    "OC": {
+      "proposals": {
+        "2025-08": 1
+      },
+      "wins": 1,
+      "revenue": 0.0
+    }
+  },
+  "pm_performance": {
+    "Rebecca Silva": {
+      "wins": 1,
+      "revenue": 0.0
+    }
+  }
+}

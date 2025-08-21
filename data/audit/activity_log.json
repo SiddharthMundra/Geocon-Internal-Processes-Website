@@ -411,5 +411,110 @@
     "action": "dashboard_view",
     "details": {},
     "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-21 09:08:40",
+    "user": "system",
+    "action": "server_startup",
+    "details": {
+      "version": "2.0.0",
+      "mode": "development"
+    },
+    "ip_address": null
+  },
+  {
+    "timestamp": "2025-08-21 09:08:40",
+    "user": "system",
+    "action": "server_startup",
+    "details": {
+      "version": "2.0.0",
+      "mode": "development"
+    },
+    "ip_address": null
+  },
+  {
+    "timestamp": "2025-08-21 09:08:45",
+    "user": "admin@geoconinc.com",
+    "action": "dashboard_view",
+    "details": {},
+    "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-21 09:09:10",
+    "user": "admin@geoconinc.com",
+    "action": "proposal_created",
+    "details": {
+      "proposal_number": "OC-2025-0001-S-SI",
+      "client": "ABC Company and CO"
+    },
+    "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-21 09:09:10",
+    "user": "admin@geoconinc.com",
+    "action": "dashboard_view",
+    "details": {},
+    "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-21 09:09:17",
+    "user": "admin@geoconinc.com",
+    "action": "project_number_generated",
+    "details": {
+      "number": "G-000001-02-01"
+    },
+    "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-21 09:09:17",
+    "user": "admin@geoconinc.com",
+    "action": "proposal_won",
+    "details": {
+      "proposal_number": "OC-2025-0001-S-SI",
+      "project_number": "G-000001-02-01",
+      "needs_legal": false
+    },
+    "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-21 09:09:17",
+    "user": "admin@geoconinc.com",
+    "action": "dashboard_view",
+    "details": {},
+    "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-21 09:09:22",
+    "user": "admin@geoconinc.com",
+    "action": "dashboard_view",
+    "details": {},
+    "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-21 09:09:36",
+    "user": "system",
+    "action": "server_startup",
+    "details": {
+      "version": "2.0.0",
+      "mode": "development"
+    },
+    "ip_address": null
+  },
+  {
+    "timestamp": "2025-08-21 09:09:36",
+    "user": "system",
+    "action": "server_startup",
+    "details": {
+      "version": "2.0.0",
+      "mode": "development"
+    },
+    "ip_address": null
+  },
+  {
+    "timestamp": "2025-08-21 09:09:38",
+    "user": "admin@geoconinc.com",
+    "action": "dashboard_view",
+    "details": {},
+    "ip_address": "127.0.0.1"
   }
 ]

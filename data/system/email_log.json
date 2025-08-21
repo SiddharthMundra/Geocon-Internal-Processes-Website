@@ -1,1 +1,9 @@
-[]
+[
+  {
+    "timestamp": "2025-08-21 09:09:17",
+    "to": "rebecca.silva@geoconinc.com",
+    "subject": "Action Required: Complete Project Information for G-000001-02-01",
+    "status": "sent",
+    "mode": "development"
+  }
+]
