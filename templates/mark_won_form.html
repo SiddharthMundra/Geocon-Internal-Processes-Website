@@ -52,6 +52,37 @@
             font-size: 48px;
             margin-bottom: 10px;
         }
+        .project-number-preview {
+            background: linear-gradient(135deg, #e8f5e9 0%, #e0f2f1 100%);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            border: 2px solid #4CAF50;
+        }
+        .project-number-preview h3 {
+            margin: 0 0 10px 0;
+            color: #2e7d32;
+            font-size: 14px;
+            font-weight: normal;
+        }
+        .project-number-display {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2e7d32;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 1px;
+        }
+        .custom-number-input {
+            margin-top: 10px;
+        }
+        .custom-number-input input {
+            padding: 8px;
+            border: 1px solid #4CAF50;
+            border-radius: 4px;
+            width: 300px;
+            font-family: 'Courier New', monospace;
+        }
         .proposal-info {
             background-color: #f8f9fa;
             padding: 15px;
@@ -183,6 +214,26 @@
         }
     </style>
     <script>
+        // Get the next project number via AJAX
+        function getNextProjectNumber() {
+            const teamNumber = '{{ proposal.team_number|default("00") }}';
+            
+            fetch('/get_next_project_number?team=' + teamNumber)
+                .then(response => response.json())
+                .then(data => {
+                    const projectNumber = data.next_number;
+                    document.getElementById('projectNumberDisplay').textContent = projectNumber;
+                    document.getElementById('generatedProjectNumber').value = projectNumber;
+                })
+                .catch(error => {
+                    console.error('Error fetching project number:', error);
+                    // Fallback to a default format if fetch fails
+                    const fallbackNumber = 'G-' + Date.now().toString().slice(-6) + '-' + teamNumber + '-01';
+                    document.getElementById('projectNumberDisplay').textContent = fallbackNumber;
+                    document.getElementById('generatedProjectNumber').value = fallbackNumber;
+                });
+        }
+        
         function toggleSelection(element, radioName) {
             document.querySelectorAll(`.option-card[data-group="${radioName}"]`).forEach(card => {
                 card.classList.remove('selected');
@@ -222,6 +273,20 @@
         }
         
         document.addEventListener('DOMContentLoaded', function() {
+            // Load project number on page load
+            getNextProjectNumber();
+            
+            // Allow custom project number input
+            document.getElementById('customProjectNumber').addEventListener('input', function() {
+                const customNumber = this.value.trim();
+                if (customNumber) {
+                    document.getElementById('projectNumberDisplay').textContent = customNumber;
+                    document.getElementById('generatedProjectNumber').value = customNumber;
+                } else {
+                    getNextProjectNumber();
+                }
+            });
+            
             // Option cards click handlers
             document.querySelectorAll('.option-card').forEach(card => {
                 card.addEventListener('click', function() {
@@ -264,247 +329,3 @@
             // Initial state - set to Yes by default and show legal fields
             toggleLegalFields();
         });
-    </script>
-</head>
-<body>
-    <div class="header">
-        <h1>Mark Proposal as Won</h1>
-        <a href="/proposal/{{ proposal.proposal_number }}" class="back-link">← Back to Proposal</a>
-    </div>
-    
-    <div class="container">
-        <div class="success-box">
-            <div class="success-icon">🎉</div>
-            <h2>Congratulations! Marking proposal as won</h2>
-            <p>Please provide project details and legal review information.</p>
-        </div>
-        
-        <div class="proposal-info">
-            <h3>Proposal Details:</h3>
-            <div class="info-item">
-                <span class="info-label">Proposal Number:</span>
-                <span class="info-value">{{ proposal.proposal_number }}</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Project Name:</span>
-                <span class="info-value">{{ proposal.project_name }}</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Client:</span>
-                <span class="info-value">{{ proposal.client }}</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Fee:</span>
-                <span class="info-value">${{ "{:,.2f}".format(proposal.fee|float) }}</span>
-            </div>
-        </div>
-        
-        <form method="POST" action="/mark_won/{{ proposal.proposal_number }}">
-            <div class="section-header">Project Setup</div>
-            
-            <div class="form-group">
-                <label for="project_folder_path" class="required">Project Folder Path</label>
-                <input type="text" id="project_folder_path" name="project_folder_path" required
-                       value="{{ proposal.get('project_folder_path', '') }}"
-                       placeholder="e.g., R:\GEOCON WORKING FILES\PROJECTS\2024\SD-24-1234">
-                <div class="help-text">
-                    Enter the full network path where project files are stored.
-                </div>
-            </div>
-            
-            <div class="section-header">Legal Review Requirements</div>
-            
-            <div class="form-group">
-                <label>Does this project need legal review?</label>
-                
-                <div class="option-card selected" data-group="legal">
-                    <input type="radio" id="legal_yes" name="needs_legal_review" value="yes" checked style="float: right;">
-                    <div style="font-weight: bold;">Yes - Send for legal review</div>
-                    <div style="font-size: 14px; color: #666; margin-top: 5px;">
-                        Project will be added to legal queue with all required information.
-                    </div>
-                </div>
-                
-                <div class="option-card" data-group="legal">
-                    <input type="radio" id="legal_no" name="needs_legal_review" value="no" style="float: right;">
-                    <div style="font-weight: bold;">No - Skip legal review</div>
-                    <div style="font-size: 14px; color: #666; margin-top: 5px;">
-                        Project will move to pending additional information.
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Legal Queue Fields - Only show when legal review is needed -->
-            <div id="legal-fields-section">
-                <div class="legal-notice">
-                    <strong>📋 Legal Queue Information</strong><br>
-                    The following information will be sent to the legal team for contract review.
-                </div>
-                
-                <div class="section-header">Contract Information</div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="contract_type" class="required">Contract Type</label>
-                        <select id="contract_type" name="contract_type" class="legal-required">
-                            <option value="">Select Contract Type</option>
-                            <option value="Master Agreement">Master Agreement</option>
-                            <option value="Client Contract">Client Contract</option>
-                            <option value="Subconsultant Agreement">Subconsultant Agreement</option>
-                            <option value="Purchase Order">Purchase Order</option>
-                            <option value="Task Order">Task Order</option>
-                            <option value="Amendment">Amendment</option>
-                            <option value="NDA">NDA</option>
-                            <option value="Other">Other</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="requested_review_date" class="required">Requested Review By Date</label>
-                        <input type="date" id="requested_review_date" name="requested_review_date" class="legal-required">
-                    </div>
-                </div>
-                
-                <div class="section-header">Client Information</div>
-                
-                <div class="form-group">
-                    <label for="contract_entity" class="required">Contract Entity (Client/Firm Name)</label>
-                    <input type="text" id="contract_entity" name="contract_entity" class="legal-required"
-                           value="{{ proposal.client }}">
-                    <div class="help-text">The legal entity name that will appear on the contract</div>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="client_contact_name" class="required">Client Contact Name</label>
-                        <input type="text" id="client_contact_name" name="client_contact_name" class="legal-required"
-                               value="{{ proposal.contact_first }} {{ proposal.contact_last }}">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="client_contact_email" class="required">Client Contact Email</label>
-                        <input type="email" id="client_contact_email" name="client_contact_email" class="legal-required"
-                               value="{{ proposal.contact_email }}">
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="client_contact_phone" class="required">Client Contact Phone</label>
-                    <input type="tel" id="client_contact_phone" name="client_contact_phone" class="legal-required"
-                           value="{{ proposal.contact_phone }}">
-                </div>
-                
-                <div class="section-header">Contract History & Requirements</div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="required">Have we contracted with this client before?</label>
-                        <div class="radio-group">
-                            <div class="radio-item">
-                                <input type="radio" id="contracted_before_yes" name="contracted_before" value="yes">
-                                <label for="contracted_before_yes">Yes</label>
-                            </div>
-                            <div class="radio-item">
-                                <input type="radio" id="contracted_before_no" name="contracted_before" value="no" checked>
-                                <label for="contracted_before_no">No</label>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="previous_project_number">Previous Project Number (if applicable)</label>
-                        <input type="text" id="previous_project_number" name="previous_project_number"
-                               placeholder="e.g., G-123456-01-01">
-                    </div>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="required">Will you need subcontractors?</label>
-                        <div class="radio-group">
-                            <div class="radio-item">
-                                <input type="radio" id="need_subs_yes" name="need_subcontractors" value="yes">
-                                <label for="need_subs_yes">Yes</label>
-                            </div>
-                            <div class="radio-item">
-                                <input type="radio" id="need_subs_no" name="need_subcontractors" value="no" checked>
-                                <label for="need_subs_no">No</label>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="required">Can legal contact client directly?</label>
-                        <div class="radio-group">
-                            <div class="radio-item">
-                                <input type="radio" id="legal_contact_yes" name="legal_can_contact" value="yes" checked>
-                                <label for="legal_contact_yes">Yes</label>
-                            </div>
-                            <div class="radio-item">
-                                <input type="radio" id="legal_contact_no" name="legal_can_contact" value="no">
-                                <label for="legal_contact_no">No</label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="required">File Preliminary Lien Notice?</label>
-                        <div class="radio-group">
-                            <div class="radio-item">
-                                <input type="radio" id="lien_yes" name="file_lien_notice" value="yes">
-                                <label for="lien_yes">Yes</label>
-                            </div>
-                            <div class="radio-item">
-                                <input type="radio" id="lien_no" name="file_lien_notice" value="no" checked>
-                                <label for="lien_no">No</label>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="required">Is COI (Certificate of Insurance) needed?</label>
-                        <div class="radio-group">
-                            <div class="radio-item">
-                                <input type="radio" id="coi_yes" name="coi_needed" value="yes">
-                                <label for="coi_yes">Yes</label>
-                            </div>
-                            <div class="radio-item">
-                                <input type="radio" id="coi_no" name="coi_needed" value="no" checked>
-                                <label for="coi_no">No</label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="section-header">Additional Information</div>
-                
-                <div class="form-group">
-                    <label for="documents_location">Documents File Location</label>
-                    <textarea id="documents_location" name="documents_location" 
-                              placeholder="Include: Contract document to be reviewed, Geocon's Proposal/Schedule of Fees, Client Email (where client provided contract for review), and if applicable, the Prime Agreement">{{ proposal.get('project_folder_path', '') }}</textarea>
-                    <div class="help-text">
-                        Specify the location of all documents needed for legal review
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="notes_comments">Notes/Comments for Legal Team</label>
-                    <textarea id="notes_comments" name="notes_comments" 
-                              placeholder="Any special instructions or notes for the legal team..."></textarea>
-                </div>
-            </div>
-            
-            <div class="button-group">
-                <button type="submit" class="won-button">
-                    🏆 Mark as Won & Create Project
-                </button>
-                <a href="/proposal/{{ proposal.proposal_number }}" class="cancel-button">
-                    Cancel
-                </a>
-            </div>
-        </form>
-    </div>
-</body>
-</html>

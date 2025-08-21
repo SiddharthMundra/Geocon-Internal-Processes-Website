@@ -134,11 +134,15 @@ def update_legal_status(project_number):
         
         # If marked as signed, update project status
         if new_status == 'signed':
-            project['status'] = 'pending_additional_info'
+            project['status'] = 'pending_additional_info'  # Ensure this is set
+            project['legal_status'] = 'signed'
             project['legal_approved_date'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             project['legal_approved_by'] = session['user_email']
             project['legal_signed'] = True
             project['legal_signed_date'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            
+            # Make sure the project is visible to the PM
+            project['needs_additional_info'] = True  # Add this flag
             
             # Send notification to PM
             pm_email = f"{project['project_manager'].lower().replace(' ', '.')}@geoconinc.com"
@@ -316,6 +320,7 @@ def legal_action(project_number):
             project['legal_approved_by'] = session['user_email']
             project['legal_signed'] = True
             project['legal_signed_date'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            project['needs_additional_info'] = True  # Add this flag
             
             # Send notification to PM
             pm_email = f"{project['project_manager'].lower().replace(' ', '.')}@geoconinc.com"

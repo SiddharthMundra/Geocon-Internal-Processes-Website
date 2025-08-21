@@ -332,6 +332,27 @@ def run_startup_tasks():
         'mode': 'development'
     }, 'system')
 
+
+def get_next_project_number(team_number='00'):
+    """Generate next project number in format G-XXXXXX-TT-01"""
+    counters = load_json(Config.DATABASES['counters'])
+    
+    # Get the current total projects count
+    total_projects = counters.get('total_projects', 0) + 1
+    
+    # Update the counter
+    counters['total_projects'] = total_projects
+    save_json(Config.DATABASES['counters'], counters)
+    
+    # Format: G-XXXXXX-TT-01
+    # G = Geocon prefix
+    # XXXXXX = 6-digit sequential number
+    # TT = Team number (e.g., 01, 02, etc.)
+    # 01 = Sub-project number (always 01 for new projects)
+    project_number = f"G-{total_projects:06d}-{team_number}-01"
+    
+    return project_number
+
 def inject_settings():
     """Inject common settings into all templates"""
     return {

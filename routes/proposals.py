@@ -38,7 +38,7 @@ def index():
         
         # Projects pending additional information - FIXED: Admin can see all
         elif v.get('status') == 'pending_additional_info':
-            # Calculate days pending
+    # Calculate days pending
             if v.get('legal_approved_date'):
                 try:
                     approved_date = datetime.strptime(v['legal_approved_date'].split(' ')[0], '%Y-%m-%d')
@@ -46,6 +46,9 @@ def index():
                     v['days_pending'] = days_pending
                 except:
                     v['days_pending'] = 0
+            else:
+                # For projects that went straight to pending_additional_info without legal
+                v['days_pending'] = 0
             
             # Admin sees all, others see only their own
             if session.get('is_admin') or v.get('project_manager') == session.get('user_name'):
@@ -372,6 +375,8 @@ def get_next_proposal_number_ajax():
     
     return jsonify({'next_number': max_counter + 1})
 
+
+
 @proposals_bp.route('/mark_sent/<proposal_number>')
 @login_required
 def mark_sent(proposal_number):
@@ -384,8 +389,8 @@ def mark_sent(proposal_number):
     
     proposal = proposals[proposal_number]
     
-    # Update proposal status to 'sent'
-    proposal['status'] = 'sent'
+    # Keep status as 'pending' but add sent flag
+    # Don't change the main status to 'sent' as that might break other logic
     proposal['proposal_sent'] = True
     proposal['proposal_sent_date'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     proposal['proposal_sent_by'] = session['user_email']

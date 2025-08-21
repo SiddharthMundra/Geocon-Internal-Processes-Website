@@ -25,9 +25,13 @@ def mark_won(proposal_number):
     needs_legal_review = request.form.get('needs_legal_review') == 'yes'
     project_folder_path = request.form.get('project_folder_path', '')
     
-    # Generate project number
-    team_number = proposal.get('team_number', '00')
-    project_number = get_next_project_number(team_number)
+    # Get project number from form (either auto-generated or custom)
+    project_number = request.form.get('project_number', '')
+    
+    # If no project number provided, generate one
+    if not project_number:
+        team_number = proposal.get('team_number', '00')
+        project_number = get_next_project_number(team_number)
     
     # Update proposal
     proposal['status'] = 'converted_to_project'
@@ -403,7 +407,13 @@ def past_projects():
 
 
 
-
+@projects_bp.route('/get_next_project_number')
+@login_required
+def get_next_project_number_ajax():
+    """Get the next project number for display in form"""
+    team_number = request.args.get('team', '00')
+    next_number = get_next_project_number(team_number)
+    return jsonify({'next_number': next_number})
 
 @projects_bp.route('/delete/<project_number>', methods=['GET', 'POST'])
 @login_required
