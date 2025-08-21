@@ -2216,6 +2216,7 @@ def add_executed_contract():
         return redirect(url_for('legal_queue', tab='executed-contracts'))
     
     return render_template('add_executed_contract.html')
+
 @app.route('/add_insurance_request', methods=['GET', 'POST'])
 @legal_required
 def add_insurance_request():
