@@ -4,12 +4,12 @@
     <title>New Proposal - Geocon Proposal System</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
-            background-color: #f5f5f5;
+            background-color: #f5f7fa;
         }
         .header {
-            background-color: #333;
+            background: linear-gradient(135deg, #005f5f 0%, #008080 100%);
             color: white;
             padding: 15px 20px;
             display: flex;
@@ -24,11 +24,11 @@
             color: white;
             text-decoration: none;
             padding: 8px 16px;
-            background-color: #555;
+            background: rgba(255,255,255,0.2);
             border-radius: 4px;
         }
         .back-link:hover {
-            background-color: #666;
+            background: rgba(255,255,255,0.3);
         }
         .container {
             max-width: 900px;
@@ -39,10 +39,31 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         h2 {
-            color: #333;
-            border-bottom: 2px solid #4CAF50;
+            color: #005f5f;
+            border-bottom: 2px solid #008080;
             padding-bottom: 10px;
             margin-top: 0;
+        }
+        .proposal-number-preview {
+            background: linear-gradient(135deg, #e0f2f1 0%, #e8f5e9 100%);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            border: 2px solid #008080;
+        }
+        .proposal-number-preview h3 {
+            margin: 0 0 10px 0;
+            color: #005f5f;
+            font-size: 14px;
+            font-weight: normal;
+        }
+        .proposal-number-display {
+            font-size: 24px;
+            font-weight: bold;
+            color: #005f5f;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 1px;
         }
         .form-group {
             margin-bottom: 15px;
@@ -57,6 +78,12 @@
             content: " *";
             color: red;
         }
+        .optional-label {
+            font-weight: normal;
+            font-size: 12px;
+            color: #888;
+            font-style: italic;
+        }
         input, select, textarea {
             width: 100%;
             padding: 8px;
@@ -67,7 +94,7 @@
         }
         input:focus, select:focus, textarea:focus {
             outline: none;
-            border-color: #4CAF50;
+            border-color: #008080;
         }
         .form-row {
             display: grid;
@@ -80,7 +107,7 @@
             gap: 15px;
         }
         .button {
-            background-color: #4CAF50;
+            background: linear-gradient(135deg, #008080 0%, #00a0a0 100%);
             color: white;
             padding: 12px 30px;
             border: none;
@@ -90,10 +117,10 @@
             margin-top: 20px;
         }
         .button:hover {
-            background-color: #45a049;
+            background: linear-gradient(135deg, #00a0a0 0%, #00c0c0 100%);
         }
         .cancel-button {
-            background-color: #f44336;
+            background: #6c757d;
             color: white;
             padding: 12px 30px;
             text-decoration: none;
@@ -102,14 +129,14 @@
             margin-left: 10px;
         }
         .cancel-button:hover {
-            background-color: #da190b;
+            background: #5a6268;
         }
         .section-header {
             font-size: 18px;
             font-weight: bold;
             margin-top: 25px;
             margin-bottom: 15px;
-            color: #4CAF50;
+            color: #008080;
             border-bottom: 1px solid #e0e0e0;
             padding-bottom: 5px;
         }
@@ -128,6 +155,14 @@
             background-color: #f0f0f0;
             cursor: not-allowed;
         }
+        .fee-input {
+            font-family: 'Courier New', monospace;
+        }
+        .help-text {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
@@ -137,17 +172,20 @@
     </div>
     
     <div class="container">
-        <div class="info-box">
-            <strong>Note:</strong> Proposal number will be generated automatically in format: Office-Year-Number-Type-Service
+        <div class="proposal-number-preview">
+            <h3>Your Proposal Number Will Be:</h3>
+            <div id="proposalNumberDisplay" class="proposal-number-display">-</div>
         </div>
         
         <form action="/submit_proposal" method="POST" enctype="multipart/form-data">
+            <input type="hidden" id="generatedProposalNumber" name="proposal_number" value="">
+            
             <div class="section-header">Proposal Information</div>
             
             <div class="form-row-3">
                 <div class="form-group">
                     <label for="office" class="required">Office</label>
-                    <select id="office" name="office" required>
+                    <select id="office" name="office" required onchange="updateProposalNumber()">
                         <option value="">Select Office</option>
                         {% for code, name in offices.items() %}
                         <option value="{{ code }}">{{ code }} - {{ name }}</option>
@@ -156,7 +194,7 @@
                 </div>
                 <div class="form-group">
                     <label for="proposal_type" class="required">Proposal Type</label>
-                    <select id="proposal_type" name="proposal_type" required>
+                    <select id="proposal_type" name="proposal_type" required onchange="updateProposalNumber()">
                         <option value="">Select Type</option>
                         {% for code, name in proposal_types.items() %}
                         <option value="{{ code }}">{{ code }} - {{ name }}</option>
@@ -165,7 +203,7 @@
                 </div>
                 <div class="form-group">
                     <label for="service_type" class="required">Service Type</label>
-                    <select id="service_type" name="service_type" required>
+                    <select id="service_type" name="service_type" required onchange="updateProposalNumber()">
                         <option value="">Select Service</option>
                         {% for code, name in service_types.items() %}
                         <option value="{{ code }}">{{ code }} - {{ name }}</option>
@@ -182,6 +220,13 @@
                        placeholder="e.g., Downtown Tower Renovation">
             </div>
             
+            <div class="form-group">
+                <label for="project_folder_path">Project Folder Path <span class="optional-label">(optional)</span></label>
+                <input type="text" id="project_folder_path" name="project_folder_path" 
+                       placeholder="e.g., R:\GEOCON WORKING FILES\PROJECTS\2024\SD-24-1234">
+                <div class="help-text">Enter the network path where project files will be stored</div>
+            </div>
+            
             <div class="form-row">
                 <div class="form-group">
                     <label for="project_city" class="required">Project City</label>
@@ -189,14 +234,14 @@
                            placeholder="e.g., San Diego">
                 </div>
                 <div class="form-group">
-                    <label for="project_latitude">Latitude (Decimal Degrees)</label>
+                    <label for="project_latitude">Latitude <span class="optional-label">(optional)</span></label>
                     <input type="text" id="project_latitude" name="project_latitude" 
                            placeholder="e.g., 32.7157">
                 </div>
             </div>
             
             <div class="form-group">
-                <label for="project_longitude">Longitude (Decimal Degrees)</label>
+                <label for="project_longitude">Longitude <span class="optional-label">(optional)</span></label>
                 <input type="text" id="project_longitude" name="project_longitude" 
                        placeholder="e.g., -117.1611">
             </div>
@@ -258,12 +303,12 @@
             
             <div class="form-row">
                 <div class="form-group">
-                    <label for="bd_member">BD Member Involved (If Applicable)</label>
+                    <label for="bd_member">BD Member Involved <span class="optional-label">(optional)</span></label>
                     <input type="text" id="bd_member" name="bd_member" 
                            placeholder="Enter BD member name if applicable">
                 </div>
                 <div class="form-group">
-                    <label for="marketing_proposal_manager">Marketing Proposal Manager (If Applicable)</label>
+                    <label for="marketing_proposal_manager">Marketing Proposal Manager <span class="optional-label">(optional)</span></label>
                     <input type="text" id="marketing_proposal_manager" name="marketing_proposal_manager" 
                            placeholder="Enter marketing proposal manager if applicable">
                 </div>
@@ -302,9 +347,10 @@
             
             <div class="form-row">
                 <div class="form-group">
-                    <label for="fee" class="required">Proposed Fee ($)</label>
-                    <input type="number" id="fee" name="fee" step="0.01" required 
-                           placeholder="50000.00">
+                    <label for="fee">Proposed Fee ($) <span class="optional-label">(optional)</span></label>
+                    <input type="text" id="fee" name="fee" class="fee-input"
+                           placeholder="50,000.00" onkeyup="formatCurrency(this)">
+                    <div class="help-text">Enter amount with commas for thousands</div>
                 </div>
                 <div class="form-group">
                     <label for="due_date" class="required">Proposal Due Date</label>
@@ -313,20 +359,20 @@
             </div>
             
             <div class="form-group">
-                <label for="follow_up_date">Follow Up Date</label>
+                <label for="follow_up_date">Follow Up Date <span class="optional-label">(optional)</span></label>
                 <input type="date" id="follow_up_date" name="follow_up_date">
             </div>
             
             <div class="section-header">Additional Information</div>
             
             <div class="form-group">
-                <label for="notes">Notes</label>
+                <label for="notes">Notes <span class="optional-label">(optional)</span></label>
                 <textarea id="notes" name="notes" 
                           placeholder="Any additional information about this proposal..."></textarea>
             </div>
             
             <div class="form-group">
-                <label for="proposal_file">Attach Proposal Document (Optional)</label>
+                <label for="proposal_file">Attach Proposal Document <span class="optional-label">(optional)</span></label>
                 <input type="file" id="proposal_file" name="proposal_file" 
                        accept=".pdf,.doc,.docx,.xlsx,.xls">
                 <small style="color: #666;">Accepted formats: PDF, Word, Excel (Max 16MB)</small>
@@ -340,23 +386,48 @@
     </div>
     
     <script>
+        // Proposal number counter (simulated - in production this would come from server)
+        let proposalCounter = {{ next_proposal_number }};
+        
         // Team number mapping
-        const teamAssignments = {
-            'Kim Goodrich': '01',
-            'Theresa Bautista': '02',
-            'Mike Johnson': '03',
-            'Sarah Wilson': '04',
-            'Robert Brown': '05'
-        };
+        const teamAssignments = {{ team_assignments|tojson|safe }};
+        
+        function updateProposalNumber() {
+            const office = document.getElementById('office').value;
+            const proposalType = document.getElementById('proposal_type').value;
+            const serviceType = document.getElementById('service_type').value;
+            const year = new Date().getFullYear();
+            
+            if (office && proposalType && serviceType) {
+                const proposalNumber = `${office}-${year}-${String(proposalCounter).padStart(4, '0')}-${proposalType}-${serviceType}`;
+                document.getElementById('proposalNumberDisplay').textContent = proposalNumber;
+                document.getElementById('generatedProposalNumber').value = proposalNumber;
+            } else {
+                document.getElementById('proposalNumberDisplay').textContent = 'Please select all required fields';
+            }
+        }
         
         function updateTeamNumber() {
             const director = document.getElementById('project_director').value;
             const teamNumberField = document.getElementById('team_number');
             
-            // Only auto-populate if the field is empty
             if (director && teamAssignments[director] && !teamNumberField.value) {
                 teamNumberField.value = teamAssignments[director];
             }
+        }
+        
+        function formatCurrency(input) {
+            // Remove non-numeric characters except decimal
+            let value = input.value.replace(/[^0-9.]/g, '');
+            
+            // Split into integer and decimal parts
+            let parts = value.split('.');
+            
+            // Add commas to integer part
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            
+            // Rejoin and set value
+            input.value = parts.join('.');
         }
         
         // Set minimum date to today for date fields

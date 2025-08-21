@@ -414,6 +414,8 @@ DEFAULT_SETTINGS['analytics_users'] = [
 # Initialize database files
 
 # 2. Update the init_databases function to include the new databases
+
+# 2. Update the init_databases function to include the new databases
 def init_databases():
     # Create legal directory if it doesn't exist
     if not os.path.exists('data/legal'):
@@ -890,10 +892,14 @@ def past_projects():
                          lost_proposals=lost_proposals,
                          dead_jobs=dead_jobs,
                          user_email=session.get('user_email'))
+
+
+
+
 @app.route('/mark_proposal_lost/<proposal_number>', methods=['GET', 'POST'])
 @login_required
 def mark_proposal_lost(proposal_number):
-    """Mark proposal as lost"""
+    """Mark proposal as lost - anyone can do this"""
     proposals = load_json(DATABASES['proposals'])
     
     if proposal_number not in proposals:
@@ -901,11 +907,6 @@ def mark_proposal_lost(proposal_number):
         return redirect(url_for('index'))
     
     proposal = proposals[proposal_number]
-    
-    # Admin can mark any proposal as lost
-    if not user_can_edit(proposal):
-        flash('Only the project manager or admin can mark this proposal as lost.', 'error')
-        return redirect(url_for('view_proposal', proposal_number=proposal_number))
     
     if request.method == 'POST':
         loss_note = request.form.get('loss_note', '')
@@ -1147,11 +1148,10 @@ def project_info_form(project_number):
                          states=US_STATES,
                          counties=CA_COUNTIES)
 
-
 @app.route('/mark_project_complete/<project_number>')
 @login_required
 def mark_project_complete(project_number):
-    """Mark project as complete"""
+    """Mark project as complete - anyone can do this"""
     projects = load_json(DATABASES['projects'])
     
     if project_number not in projects:
@@ -1159,11 +1159,6 @@ def mark_project_complete(project_number):
         return redirect(url_for('index'))
     
     project = projects[project_number]
-    
-    # Admin can complete any project
-    if not user_can_edit(project):
-        flash('Only the project manager or admin can mark this project as complete.', 'error')
-        return redirect(url_for('view_project', project_number=project_number))
     
     # Update status
     project['status'] = 'completed'
@@ -1173,7 +1168,7 @@ def mark_project_complete(project_number):
     projects[project_number] = project
     save_json(DATABASES['projects'], projects)
     
-    # ADD THIS LINE - Update analytics when project is completed
+    # Update analytics
     update_analytics('project_completed', project)
     
     log_activity('project_completed', {'project_number': project_number})
@@ -1184,7 +1179,18 @@ def mark_project_complete(project_number):
 @app.route('/new_proposal')
 @login_required
 def new_proposal():
-    """New proposal form"""
+    """New proposal form with proposal number preview"""
+    counters = load_json(DATABASES['counters'])
+    
+    # Get the next proposal number
+    max_counter = 0
+    if 'office_counters' in counters:
+        for office, count in counters['office_counters'].items():
+            if count > max_counter:
+                max_counter = count
+    
+    next_number = max_counter + 1
+    
     return render_template('new_proposal.html',
                          offices=get_system_setting('office_codes', {}),
                          proposal_types=get_system_setting('proposal_types', {}),
@@ -1192,12 +1198,17 @@ def new_proposal():
                          project_scopes=get_system_setting('project_scopes', []),
                          project_types=get_system_setting('project_types', []),
                          project_managers=get_system_setting('project_managers', []),
-                         project_directors=list(get_system_setting('team_assignments', {}).keys()))
+                         project_directors=list(get_system_setting('team_assignments', {}).keys()),
+                         team_assignments=get_system_setting('team_assignments', {}),
+                         next_proposal_number=next_number)
 
+
+
+# 5. Updated routes without permission checks
 @app.route('/edit_proposal/<proposal_number>')
 @login_required
 def edit_proposal(proposal_number):
-    """Edit proposal form"""
+    """Edit proposal form - anyone can edit"""
     proposals = load_json(DATABASES['proposals'])
     
     if proposal_number not in proposals:
@@ -1205,11 +1216,6 @@ def edit_proposal(proposal_number):
         return redirect(url_for('index'))
     
     proposal = proposals[proposal_number]
-    
-    # Admin can edit any proposal
-    if not user_can_edit(proposal):
-        flash('You do not have permission to edit this proposal.', 'error')
-        return redirect(url_for('view_proposal', proposal_number=proposal_number))
     
     return render_template('edit_proposal.html',
                          proposal=proposal,
@@ -1220,6 +1226,7 @@ def edit_proposal(proposal_number):
                          project_types=get_system_setting('project_types', []),
                          project_managers=get_system_setting('project_managers', []),
                          project_directors=list(get_system_setting('team_assignments', {}).keys()))
+
 
 
 
@@ -1246,7 +1253,7 @@ def update_project_directors():
 @app.route('/update_proposal/<proposal_number>', methods=['POST'])
 @login_required
 def update_proposal(proposal_number):
-    """Update existing proposal"""
+    """Update existing proposal - anyone can update"""
     proposals = load_json(DATABASES['proposals'])
     
     if proposal_number not in proposals:
@@ -1255,18 +1262,16 @@ def update_proposal(proposal_number):
     
     proposal = proposals[proposal_number]
     
-    # Check permissions
-    if (proposal.get('created_by') != session['user_email'] and 
-        proposal.get('project_manager') != session.get('user_name') and 
-        not session.get('is_admin')):
-        flash('You do not have permission to edit this proposal.', 'error')
-        return redirect(url_for('view_proposal', proposal_number=proposal_number))
+    # Get fee and remove commas for storage
+    fee_input = request.form.get('fee', '0')
+    fee = fee_input.replace(',', '') if fee_input else '0'
     
     # Update fields
     proposal.update({
         'project_name': request.form.get('project_name', ''),
         'project_latitude': request.form.get('project_latitude', ''),
         'project_longitude': request.form.get('project_longitude', ''),
+        'project_folder_path': request.form.get('project_folder_path', ''),
         'client': request.form.get('client', ''),
         'contact_first': request.form.get('contact_first', ''),
         'contact_last': request.form.get('contact_last', ''),
@@ -1275,9 +1280,11 @@ def update_proposal(proposal_number):
         'project_manager': request.form.get('project_manager', ''),
         'project_director': request.form.get('project_director', ''),
         'team_number': request.form.get('team_number', ''),
+        'bd_member': request.form.get('bd_member', ''),
+        'marketing_proposal_manager': request.form.get('marketing_proposal_manager', ''),
         'project_scope': request.form.get('project_scope', ''),
         'project_type': request.form.get('project_type', ''),
-        'fee': request.form.get('fee', 0),
+        'fee': fee,  # Store without commas
         'due_date': request.form.get('due_date', ''),
         'follow_up_date': request.form.get('follow_up_date', ''),
         'notes': request.form.get('notes', ''),
@@ -1296,19 +1303,28 @@ def update_proposal(proposal_number):
 
 
 
+# 1. Updated submit_proposal route - with proposal number generation and no permissions
 @app.route('/submit_proposal', methods=['POST'])
 @login_required
 def submit_proposal():
-    """Submit new proposal - FIXED VERSION"""
+    """Submit new proposal - no permissions, anyone can create"""
     # Get form data
     office = request.form.get('office', '')
     proposal_type = request.form.get('proposal_type', '')
     service_type = request.form.get('service_type', '')
     
-    # Generate proposal number
-    proposal_number = get_next_proposal_number(office, proposal_type, service_type)
+    # Get pre-generated proposal number from form
+    proposal_number = request.form.get('proposal_number', '')
     
-    # Get project director and team number - FIXED: Get these BEFORE using them
+    # If no proposal number provided, generate one
+    if not proposal_number:
+        proposal_number = get_next_proposal_number(office, proposal_type, service_type)
+    
+    # Get fee and remove commas for storage
+    fee_input = request.form.get('fee', '0')
+    fee = fee_input.replace(',', '') if fee_input else '0'
+    
+    # Get project director and team number
     project_director = request.form.get('project_director', '')
     team_number = request.form.get('team_number', '')
     
@@ -1328,19 +1344,23 @@ def submit_proposal():
         'service_type': service_type,
         'service_type_name': get_system_setting('service_types', {}).get(service_type, service_type),
         'project_name': request.form.get('project_name', ''),
+        'project_city': request.form.get('project_city', ''),
         'project_latitude': request.form.get('project_latitude', ''),
         'project_longitude': request.form.get('project_longitude', ''),
+        'project_folder_path': request.form.get('project_folder_path', ''),
         'client': request.form.get('client', ''),
         'contact_first': request.form.get('contact_first', ''),
         'contact_last': request.form.get('contact_last', ''),
         'contact_email': request.form.get('contact_email', ''),
         'contact_phone': request.form.get('contact_phone', ''),
         'project_manager': request.form.get('project_manager', ''),
-        'project_director': project_director,  # Now properly defined
-        'team_number': team_number,  # Now properly defined
+        'project_director': project_director,
+        'team_number': team_number,
+        'bd_member': request.form.get('bd_member', ''),
+        'marketing_proposal_manager': request.form.get('marketing_proposal_manager', ''),
         'project_scope': request.form.get('project_scope', ''),
         'project_type': request.form.get('project_type', ''),
-        'fee': request.form.get('fee', 0),
+        'fee': fee,  # Store without commas
         'due_date': request.form.get('due_date', ''),
         'follow_up_date': request.form.get('follow_up_date', ''),
         'notes': request.form.get('notes', ''),
@@ -1380,27 +1400,30 @@ def submit_proposal():
         'client': proposal_data.get('client', 'Unknown')
     })
     
-    # Send notification
-    pm = proposal_data.get('project_manager', '')
-    if pm:
-        pm_email = f"{pm.lower().replace(' ', '.')}@geoconinc.com"
-        subject = f"New Proposal Created: {proposal_number}"
-        body = f"""
-        New Proposal Created: {proposal_number}
-        Project: {proposal_data.get('project_name', 'Unknown')}
-        Client: {proposal_data.get('client', 'Unknown')}
-        Due Date: {proposal_data.get('due_date', 'Not specified')}
-        Fee: ${proposal_data.get('fee', 0)}
-        """
-        send_email(pm_email, subject, body)
-    
     flash(f'Proposal {proposal_number} created successfully!', 'success')
     return redirect(url_for('index'))
 
+
+
+# 2. Add route to get next proposal number for AJAX
+@app.route('/get_next_proposal_number')
+@login_required
+def get_next_proposal_number_ajax():
+    """Get the next proposal number for display in form"""
+    counters = load_json(DATABASES['counters'])
+    
+    # Get the highest counter across all offices
+    max_counter = 0
+    if 'office_counters' in counters:
+        for office, count in counters['office_counters'].items():
+            if count > max_counter:
+                max_counter = count
+    
+    return jsonify({'next_number': max_counter + 1})
 @app.route('/mark_sent/<proposal_number>')
 @login_required
 def mark_sent(proposal_number):
-    """Mark proposal as sent to client"""
+    """Mark proposal as sent to client - anyone can do this"""
     proposals = load_json(DATABASES['proposals'])
     
     if proposal_number not in proposals:
@@ -1409,13 +1432,8 @@ def mark_sent(proposal_number):
     
     proposal = proposals[proposal_number]
     
-    # Check permissions
-    if (proposal.get('project_manager') != session.get('user_name') and 
-        not session.get('is_admin')):
-        flash('Only the project manager can mark this proposal as sent.', 'error')
-        return redirect(url_for('index'))
-    
-    # Update proposal
+    # Update proposal status to 'sent'
+    proposal['status'] = 'sent'  # Change status to sent
     proposal['proposal_sent'] = True
     proposal['proposal_sent_date'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     proposal['proposal_sent_by'] = session['user_email']
@@ -1438,7 +1456,7 @@ def mark_sent(proposal_number):
     log_activity('proposal_sent', {'proposal_number': proposal_number})
     
     flash(f'Proposal {proposal_number} marked as sent to client.', 'success')
-    return redirect(url_for('view_proposal', proposal_number=proposal_number))
+    return redirect(url_for('index'))
 
 @app.route('/proposal/<proposal_number>')
 @login_required
@@ -1568,11 +1586,10 @@ def download_document(filename):
     except Exception as e:
         flash('Error downloading file.', 'error')
         return redirect(request.referrer or url_for('index'))
-
 @app.route('/delete_proposal/<proposal_number>', methods=['GET', 'POST'])
 @login_required
 def delete_proposal(proposal_number):
-    """Delete proposal with confirmation"""
+    """Delete proposal with confirmation - anyone can delete"""
     proposals = load_json(DATABASES['proposals'])
     
     if proposal_number not in proposals:
@@ -1580,11 +1597,6 @@ def delete_proposal(proposal_number):
         return redirect(url_for('index'))
     
     proposal = proposals[proposal_number]
-    
-    # Admin can delete any proposal
-    if not user_can_edit(proposal):
-        flash('You do not have permission to delete this proposal.', 'error')
-        return redirect(url_for('view_proposal', proposal_number=proposal_number))
     
     # Check for associated project
     if proposal.get('project_number'):
@@ -1981,14 +1993,10 @@ def inject_settings():
         'company_name': 'Geocon Inc.'
     }
 
-
-# Add these routes to main.py after the existing routes
-
-# 3. Update the mark_won route to properly handle projects that don't need legal review
 @app.route('/mark_won/<proposal_number>', methods=['POST'])
 @login_required
 def mark_won(proposal_number):
-    """Mark proposal as won and create project - FIXED VERSION"""
+    """Mark proposal as won and create project - anyone can do this"""
     proposals = load_json(DATABASES['proposals'])
     
     if proposal_number not in proposals:
@@ -1996,12 +2004,6 @@ def mark_won(proposal_number):
         return redirect(url_for('index'))
     
     proposal = proposals[proposal_number]
-    
-    # Check permissions
-    if (proposal.get('project_manager') != session.get('user_name') and 
-        not session.get('is_admin')):
-        flash('Only the project manager can mark this proposal as won.', 'error')
-        return redirect(url_for('index'))
     
     # Get form data
     needs_legal_review = request.form.get('needs_legal_review') == 'yes'
@@ -2019,11 +2021,11 @@ def mark_won(proposal_number):
     proposal['won_by'] = session['user_email']
     proposal['project_folder_path'] = project_folder_path
     
-    # FIXED: Set correct status based on legal review need
+    # IMPORTANT: Set correct status based on legal review need
     if needs_legal_review:
         project_status = 'pending_legal'
     else:
-        # If no legal review needed, go to pending_additional_info
+        # If no legal review needed, go directly to pending_additional_info
         project_status = 'pending_additional_info'
     
     project_data = {
@@ -2044,7 +2046,7 @@ def mark_won(proposal_number):
         'office': proposal.get('office', ''),
         'fee': proposal.get('fee', 0),
         
-        # Legal Queue Fields
+        # Legal Queue Fields (if needed)
         'legal_status': 'new_request' if needs_legal_review else None,
         'contract_type': request.form.get('contract_type', ''),
         'requested_review_date': request.form.get('requested_review_date', ''),
@@ -2063,7 +2065,7 @@ def mark_won(proposal_number):
         'legal_status_history': []
     }
     
-    # FIXED: Handle projects that don't need legal review
+    # Handle projects that don't need legal review
     if not needs_legal_review:
         project_data['legal_approved_date'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         project_data['legal_approved_by'] = 'Auto-approved (No legal review required)'
@@ -2077,10 +2079,7 @@ def mark_won(proposal_number):
         Project: {proposal.get('project_name', 'Unknown')}
         Client: {proposal.get('client', 'Unknown')}
         
-        ACTION REQUIRED: Please complete the additional project information in the system
-        to finalize the project setup in Geocon's system.
-        
-        Login to the system and look for the project in "Projects Pending Additional Information" section.
+        ACTION REQUIRED: Please complete the additional project information in the system.
         """
         send_email(pm_email, subject, body)
         
@@ -2103,11 +2102,6 @@ def mark_won(proposal_number):
         Client: {proposal.get('client', 'Unknown')}
         PM: {proposal.get('project_manager', 'Unknown')}
         Fee: ${proposal.get('fee', 0)}
-        Contract Type: {project_data.get('contract_type', 'Not specified')}
-        Review By Date: {project_data.get('requested_review_date', 'Not specified')}
-        Project Folder: {project_folder_path}
-        
-        Please review in the Legal Queue system.
         """
         send_email(legal_email, subject, body)
         flash(f'Proposal marked as won! Project {project_number} created and sent for legal review.', 'success')
@@ -2131,8 +2125,6 @@ def mark_won(proposal_number):
     
     return redirect(url_for('index'))
 
-
-# 5. Updated legal_queue route with multiple tabs support
 @app.route('/legal_queue')
 @legal_required
 def legal_queue():
@@ -2196,8 +2188,6 @@ def legal_queue():
                          project_managers=project_managers,
                          tab=tab)
 
-
-# 6. Add route for adding executed contracts
 @app.route('/add_executed_contract', methods=['GET', 'POST'])
 @legal_required
 def add_executed_contract():
@@ -2226,8 +2216,6 @@ def add_executed_contract():
         return redirect(url_for('legal_queue', tab='executed-contracts'))
     
     return render_template('add_executed_contract.html')
-
-# 7. Add route for adding insurance requests
 @app.route('/add_insurance_request', methods=['GET', 'POST'])
 @legal_required
 def add_insurance_request():
@@ -2265,7 +2253,7 @@ def add_insurance_request():
     return render_template('add_insurance_request.html',
                          offices=get_system_setting('office_codes', {}))
 
-# 8. Mark insurance request as issued
+
 @app.route('/mark_insurance_issued/<request_id>')
 @legal_required
 def mark_insurance_issued(request_id):

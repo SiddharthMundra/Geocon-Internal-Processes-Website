@@ -74,5 +74,314 @@
     "action": "dashboard_view",
     "details": {},
     "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-21 08:51:15",
+    "user": "system",
+    "action": "server_startup",
+    "details": {
+      "version": "2.0.0",
+      "mode": "development"
+    },
+    "ip_address": null
+  },
+  {
+    "timestamp": "2025-08-21 08:51:47",
+    "user": "system",
+    "action": "server_startup",
+    "details": {
+      "version": "2.0.0",
+      "mode": "development"
+    },
+    "ip_address": null
+  },
+  {
+    "timestamp": "2025-08-21 08:52:15",
+    "user": "system",
+    "action": "server_startup",
+    "details": {
+      "version": "2.0.0",
+      "mode": "development"
+    },
+    "ip_address": null
+  },
+  {
+    "timestamp": "2025-08-21 08:52:36",
+    "user": "system",
+    "action": "server_startup",
+    "details": {
+      "version": "2.0.0",
+      "mode": "development"
+    },
+    "ip_address": null
+  },
+  {
+    "timestamp": "2025-08-21 08:52:48",
+    "user": "system",
+    "action": "server_startup",
+    "details": {
+      "version": "2.0.0",
+      "mode": "development"
+    },
+    "ip_address": null
+  },
+  {
+    "timestamp": "2025-08-21 08:53:02",
+    "user": "system",
+    "action": "server_startup",
+    "details": {
+      "version": "2.0.0",
+      "mode": "development"
+    },
+    "ip_address": null
+  },
+  {
+    "timestamp": "2025-08-21 08:53:17",
+    "user": "system",
+    "action": "server_startup",
+    "details": {
+      "version": "2.0.0",
+      "mode": "development"
+    },
+    "ip_address": null
+  },
+  {
+    "timestamp": "2025-08-21 08:53:34",
+    "user": "system",
+    "action": "server_startup",
+    "details": {
+      "version": "2.0.0",
+      "mode": "development"
+    },
+    "ip_address": null
+  },
+  {
+    "timestamp": "2025-08-21 08:53:45",
+    "user": "system",
+    "action": "server_startup",
+    "details": {
+      "version": "2.0.0",
+      "mode": "development"
+    },
+    "ip_address": null
+  },
+  {
+    "timestamp": "2025-08-21 08:53:56",
+    "user": "system",
+    "action": "server_startup",
+    "details": {
+      "version": "2.0.0",
+      "mode": "development"
+    },
+    "ip_address": null
+  },
+  {
+    "timestamp": "2025-08-21 08:55:21",
+    "user": "system",
+    "action": "server_startup",
+    "details": {
+      "version": "2.0.0",
+      "mode": "development"
+    },
+    "ip_address": null
+  },
+  {
+    "timestamp": "2025-08-21 08:55:36",
+    "user": "system",
+    "action": "server_startup",
+    "details": {
+      "version": "2.0.0",
+      "mode": "development"
+    },
+    "ip_address": null
+  },
+  {
+    "timestamp": "2025-08-21 08:55:52",
+    "user": "system",
+    "action": "server_startup",
+    "details": {
+      "version": "2.0.0",
+      "mode": "development"
+    },
+    "ip_address": null
+  },
+  {
+    "timestamp": "2025-08-21 08:56:13",
+    "user": "system",
+    "action": "server_startup",
+    "details": {
+      "version": "2.0.0",
+      "mode": "development"
+    },
+    "ip_address": null
+  },
+  {
+    "timestamp": "2025-08-21 08:56:25",
+    "user": "system",
+    "action": "server_startup",
+    "details": {
+      "version": "2.0.0",
+      "mode": "development"
+    },
+    "ip_address": null
+  },
+  {
+    "timestamp": "2025-08-21 08:56:43",
+    "user": "system",
+    "action": "server_startup",
+    "details": {
+      "version": "2.0.0",
+      "mode": "development"
+    },
+    "ip_address": null
+  },
+  {
+    "timestamp": "2025-08-21 08:58:19",
+    "user": "system",
+    "action": "server_startup",
+    "details": {
+      "version": "2.0.0",
+      "mode": "development"
+    },
+    "ip_address": null
+  },
+  {
+    "timestamp": "2025-08-21 08:58:20",
+    "user": "system",
+    "action": "server_startup",
+    "details": {
+      "version": "2.0.0",
+      "mode": "development"
+    },
+    "ip_address": null
+  },
+  {
+    "timestamp": "2025-08-21 08:59:49",
+    "user": "system",
+    "action": "server_startup",
+    "details": {
+      "version": "2.0.0",
+      "mode": "development"
+    },
+    "ip_address": null
+  },
+  {
+    "timestamp": "2025-08-21 08:59:51",
+    "user": "admin@geoconinc.com",
+    "action": "dashboard_view",
+    "details": {},
+    "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-21 09:00:07",
+    "user": "admin@geoconinc.com",
+    "action": "dashboard_view",
+    "details": {},
+    "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-21 09:00:12",
+    "user": "admin@geoconinc.com",
+    "action": "dashboard_view",
+    "details": {},
+    "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-21 09:00:14",
+    "user": "admin@geoconinc.com",
+    "action": "past_projects_view",
+    "details": {},
+    "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-21 09:00:14",
+    "user": "admin@geoconinc.com",
+    "action": "dashboard_view",
+    "details": {},
+    "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-21 09:00:17",
+    "user": "admin@geoconinc.com",
+    "action": "legal_queue_view",
+    "details": {},
+    "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-21 09:00:18",
+    "user": "admin@geoconinc.com",
+    "action": "dashboard_view",
+    "details": {},
+    "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-21 09:00:19",
+    "user": "admin@geoconinc.com",
+    "action": "past_projects_view",
+    "details": {},
+    "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-21 09:00:20",
+    "user": "admin@geoconinc.com",
+    "action": "dashboard_view",
+    "details": {},
+    "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-21 09:00:20",
+    "user": "admin@geoconinc.com",
+    "action": "analytics_view",
+    "details": {},
+    "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-21 09:00:24",
+    "user": "admin@geoconinc.com",
+    "action": "dashboard_view",
+    "details": {},
+    "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-21 09:00:24",
+    "user": "admin@geoconinc.com",
+    "action": "admin_panel_view",
+    "details": {},
+    "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-21 09:00:25",
+    "user": "admin@geoconinc.com",
+    "action": "dashboard_view",
+    "details": {},
+    "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-21 09:00:27",
+    "user": "admin@geoconinc.com",
+    "action": "legal_queue_view",
+    "details": {},
+    "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-21 09:00:46",
+    "user": "admin@geoconinc.com",
+    "action": "legal_queue_view",
+    "details": {},
+    "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-21 09:01:01",
+    "user": "admin@geoconinc.com",
+    "action": "legal_queue_view",
+    "details": {},
+    "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-21 09:01:02",
+    "user": "admin@geoconinc.com",
+    "action": "dashboard_view",
+    "details": {},
+    "ip_address": "127.0.0.1"
   }
 ]

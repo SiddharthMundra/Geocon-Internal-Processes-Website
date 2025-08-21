@@ -4,32 +4,76 @@
     <title>Dashboard - Geocon Proposal System</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
-            background-color: #f5f5f5;
+            background-color: #f5f7fa;
         }
         .header {
-            background-color: #333;
+            background: linear-gradient(135deg, #005f5f 0%, #008080 100%);
             color: white;
             padding: 15px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        .header h1 { margin: 0; font-size: 24px; }
-        .user-info { display: flex; align-items: center; gap: 20px; }
-        .logout   { color: white; text-decoration: none; padding: 8px 16px; background: #555; border-radius: 4px; }
-        .logout:hover { background: #666; }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .logo {
+            height: 45px;
+            width: auto;
+        }
+        .header h1 { 
+            margin: 0; 
+            font-size: 24px;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+        .user-info { 
+            display: flex; 
+            align-items: center; 
+            gap: 20px; 
+        }
+        .logout { 
+            color: white; 
+            text-decoration: none; 
+            padding: 8px 16px; 
+            background: rgba(255,255,255,0.2); 
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+        .logout:hover { 
+            background: rgba(255,255,255,0.3); 
+        }
 
-        .proposal-link { color: #2196F3; text-decoration: none; font-weight: bold; }
-        .proposal-link:hover { text-decoration: underline; }
+        .proposal-link { 
+            color: #008080; 
+            text-decoration: none; 
+            font-weight: bold; 
+        }
+        .proposal-link:hover { 
+            text-decoration: underline; 
+        }
 
-        .project-link { color: #2196F3; text-decoration: none; font-weight: bold; }
-        .project-link:hover { text-decoration: underline; }
+        .project-link { 
+            color: #008080; 
+            text-decoration: none; 
+            font-weight: bold; 
+        }
+        .project-link:hover { 
+            text-decoration: underline; 
+        }
 
-        .container { max-width: 1400px; margin: 20px auto; padding: 0 20px; }
+        .container { 
+            max-width: 1400px; 
+            margin: 20px auto; 
+            padding: 0 20px; 
+        }
 
-        /* Analytics Cards */
+        /* Analytics Cards with Geocon Theme */
         .analytics-section {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -40,13 +84,19 @@
             background: white;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
             text-align: center;
+            border-top: 3px solid #008080;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .analytics-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.12);
         }
         .analytics-number {
             font-size: 36px;
             font-weight: bold;
-            color: #4CAF50;
+            color: #005f5f;
             margin: 10px 0;
         }
         .analytics-label {
@@ -59,8 +109,9 @@
             background: white;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
             margin-bottom: 20px;
+            border-left: 4px solid #008080;
         }
         .search-form {
             display: grid;
@@ -76,39 +127,119 @@
             font-size: 12px;
             color: #666;
             margin-bottom: 5px;
+            font-weight: 600;
         }
         .form-group input, .form-group select {
             padding: 8px;
             border: 1px solid #ddd;
             border-radius: 4px;
             font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #008080;
         }
 
-        .actions { margin-bottom: 20px; display: flex; gap: 10px; align-items: center; }
-        .button  { background: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block; }
-        .button:hover { background: #45a049; }
-        .button-secondary { background: #2196F3; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block; }
-        .button-secondary:hover { background: #1976D2; }
-        .button-warning { background: #ff9800; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block; }
-        .button-warning:hover { background: #f57c00; }
+        .actions { 
+            margin-bottom: 20px; 
+            display: flex; 
+            gap: 10px; 
+            align-items: center; 
+        }
+        .button { 
+            background: linear-gradient(135deg, #008080 0%, #00a0a0 100%);
+            color: white; 
+            padding: 10px 20px; 
+            text-decoration: none; 
+            border-radius: 4px; 
+            display: inline-block;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .button:hover { 
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        .button-secondary { 
+            background: linear-gradient(135deg, #5a9fd4 0%, #6db3e0 100%);
+            color: white; 
+            padding: 10px 20px; 
+            text-decoration: none; 
+            border-radius: 4px; 
+            display: inline-block;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .button-secondary:hover { 
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        .button-warning { 
+            background: linear-gradient(135deg, #ff9800 0%, #ffab00 100%);
+            color: white; 
+            padding: 10px 20px; 
+            text-decoration: none; 
+            border-radius: 4px; 
+            display: inline-block;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .button-warning:hover { 
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
 
-        .section { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        h2 { color: #333; border-bottom: 2px solid #4CAF50; padding-bottom: 10px; margin-top: 0; }
+        .section { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08); 
+            margin-bottom: 20px; 
+        }
+        h2 { 
+            color: #005f5f; 
+            border-bottom: 2px solid #008080; 
+            padding-bottom: 10px; 
+            margin-top: 0; 
+        }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background: #4CAF50; color: white; }
-        tr:nth-child(even) { background: #f9f9f9; }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 10px; 
+        }
+        th, td { 
+            border: 1px solid #e0e0e0; 
+            padding: 10px; 
+            text-align: left; 
+        }
+        th { 
+            background: linear-gradient(135deg, #008080 0%, #00a0a0 100%);
+            color: white;
+            font-weight: 500;
+        }
+        tr:nth-child(even) { 
+            background: #f9f9f9; 
+        }
+        tr:hover {
+            background: #f0f8f8;
+        }
 
-        .status { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
-        .status-pending        { background: #ff9800; color: white; }
-        .status-sent           { background: #03a9f4; color: white; }
-        .status-won            { background: #2196F3; color: white; }
-        .status-lost           { background: #f44336; color: white; }
-        .status-pending_legal  { background: #9c27b0; color: white; }
+        .status { 
+            padding: 4px 8px; 
+            border-radius: 4px; 
+            font-size: 12px; 
+            font-weight: bold; 
+        }
+        .status-pending { background: #ff9800; color: white; }
+        .status-sent { background: #03a9f4; color: white; }
+        .status-won { background: #2196F3; color: white; }
+        .status-lost { background: #f44336; color: white; }
+        .status-pending_legal { background: #9c27b0; color: white; }
         .status-pending_additional_info { background: #ff9800; color: white; }
         .status-legal_approved { background: #4CAF50; color: white; }
-        .status-active         { background: #4CAF50; color: white; }
+        .status-active { background: #4CAF50; color: white; }
 
         /* Legal status badges */
         .status-new_request { background: #2196F3; color: white; }
@@ -121,14 +252,28 @@
         .status-not_signed { background: #795548; color: white; }
         .status-on_hold { background: #607d8b; color: white; }
 
-        .success { background: #d4edda; color: #155724; padding: 10px; border-radius: 4px; margin-bottom: 20px; }
-        .error   { background: #f8d7da; color: #721c24; padding: 10px; border-radius: 4px; margin-bottom: 20px; }
+        .success { 
+            background: #d4edda; 
+            color: #155724; 
+            padding: 10px; 
+            border-radius: 4px; 
+            margin-bottom: 20px;
+            border-left: 4px solid #4CAF50;
+        }
+        .error { 
+            background: #f8d7da; 
+            color: #721c24; 
+            padding: 10px; 
+            border-radius: 4px; 
+            margin-bottom: 20px;
+            border-left: 4px solid #f44336;
+        }
 
         /* Make both proposal and project numbers look the same */
         .proposal-number, .project-number {
-            font-family: monospace;
+            font-family: 'Courier New', monospace;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 13px;
         }
 
         .sent-indicator {
@@ -142,10 +287,11 @@
         }
 
         .clear-filters {
-            color: #666;
+            color: #008080;
             font-size: 12px;
             text-decoration: none;
             margin-left: auto;
+            font-weight: 600;
         }
         .clear-filters:hover {
             text-decoration: underline;
@@ -157,7 +303,7 @@
             display: inline-block;
         }
         .action-button {
-            background: #2196F3;
+            background: linear-gradient(135deg, #5a9fd4 0%, #6db3e0 100%);
             color: white;
             padding: 6px 12px;
             border: none;
@@ -165,9 +311,10 @@
             cursor: pointer;
             font-size: 12px;
             font-weight: bold;
+            transition: transform 0.2s;
         }
         .action-button:hover {
-            background: #1976D2;
+            transform: translateY(-1px);
         }
         .dropdown-content {
             display: none;
@@ -189,39 +336,63 @@
             border-bottom: 1px solid #f0f0f0;
         }
         .dropdown-content a:last-child { border-bottom: none; }
-        .dropdown-content a:hover { background-color: #f5f5f5; }
+        .dropdown-content a:hover { background-color: #f0f8f8; }
         .dropdown-content a.mark-won { color: #4CAF50; font-weight: bold; }
         .dropdown-content a.mark-won:hover { background-color: #e8f5e9; }
         .dropdown-content a.mark-sent { color: #ff9800; }
         .dropdown-content a.mark-sent:hover { background-color: #fff3e0; }
         .dropdown-content a.mark-lost { color: #f44336; }
         .dropdown-content a.mark-lost:hover { background-color: #ffebee; }
-        .dropdown-content a.view-details { color: #2196F3; }
-        .dropdown-content a.view-details:hover { background-color: #e3f2fd; }
+        .dropdown-content a.view-details { color: #008080; }
+        .dropdown-content a.view-details:hover { background-color: #e0f2f1; }
         .action-dropdown.open .dropdown-content { display: block; }
-        .disabled-action {
-            color: #999 !important;
-            cursor: not-allowed !important;
-            pointer-events: none;
-            opacity: 0.6;
-        }
         
         .legal-queue-number { color: #9c27b0; font-weight: bold; }
         .additional-info-button {
-            background: #ff9800;
+            background: linear-gradient(135deg, #ff9800 0%, #ffab00 100%);
             color: white;
             padding: 6px 12px;
             text-decoration: none;
             border-radius: 4px;
             font-size: 12px;
             font-weight: bold;
+            display: inline-block;
+            transition: transform 0.2s;
         }
-        .additional-info-button:hover { background: #f57c00; }
+        .additional-info-button:hover { 
+            transform: translateY(-1px);
+        }
+        
+        /* Logo styles */
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .logo-svg {
+            height: 40px;
+            width: auto;
+        }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>Geocon Proposal Management System</h1>
+        <div class="header-left">
+            <div class="logo-container">
+                <!-- Geocon Logo SVG -->
+                <svg class="logo-svg" viewBox="0 0 200 50" xmlns="http://www.w3.org/2000/svg">
+                    <g>
+                        <!-- Diamond shapes -->
+                        <path d="M25 10 L40 25 L25 40 L10 25 Z" fill="#008080" opacity="0.9"/>
+                        <path d="M20 15 L35 25 L20 35 L15 25 Z" fill="#5a9fd4" opacity="0.8"/>
+                        <path d="M30 15 L45 25 L30 35 L25 25 Z" fill="#6c757d" opacity="0.7"/>
+                    </g>
+                    <!-- GEOCON Text -->
+                    <text x="55" y="32" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#005f5f">GEOCON</text>
+                </svg>
+            </div>
+            <h1>Proposal Management System</h1>
+        </div>
         <div class="user-info">
             <span>Logged in as: {{ user_email }}</span>
             {% if session.get('is_admin') %}
@@ -276,6 +447,9 @@
                     <select id="status" name="status">
                         <option value="">All Status</option>
                         <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+                        <option value="sent" {% if status_filter == 'sent' %}selected{% endif %}>Sent</option>
+                        <option value="won" {% if status_filter == 'won' %}selected{% endif %}>Won</option>
+                        <option value="lost" {% if status_filter == 'lost' %}selected{% endif %}>Lost</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -322,7 +496,7 @@
             {% endif %}
             <a href="/past_projects" class="button-secondary">📁 Past Projects</a>
             {% if session.get('is_legal') or session.get('is_admin') %}
-            <a href="/legal_queue" class="button-secondary" style="background-color: #9c27b0;">⚖️ Legal Queue</a>
+            <a href="/legal_queue" class="button-secondary" style="background: linear-gradient(135deg, #9c27b0 0%, #ba68c8 100%);">⚖️ Legal Queue</a>
             {% endif %}
         </div>
 
@@ -357,7 +531,7 @@
                         <td>{{ proposal.project_name }}</td>
                         <td>{{ proposal.client }}</td>
                         <td>{{ proposal.project_manager }}</td>
-                        <td>${{ proposal.fee }}</td>
+                        <td>${{ "{:,.2f}".format(proposal.fee|float) }}</td>
                         <td>
                             <span class="status status-{{ 'sent' if proposal.get('proposal_sent') else proposal.status }}">
                                 {% if proposal.get('proposal_sent') %}
@@ -377,18 +551,18 @@
                                         👁️ View Details
                                     </a>
                                     {% if proposal.status == 'pending' %}
-                                        {% if session.get('is_admin') or (not proposal.get('proposal_sent') and proposal.project_manager == session.get('user_name')) %}
+                                        {% if session.get('is_admin') or proposal.project_manager == session.get('user_name') %}
                                         <a href="/mark_sent/{{ proposal.proposal_number }}" class="mark-sent"
                                            onclick="return confirm('Mark proposal as sent to client?')">
                                             📧 Mark as Sent
                                         </a>
-                                        {% endif %}
                                         <a href="/mark_won_form/{{ proposal.proposal_number }}" class="mark-won">
                                             🏆 Mark as Won
                                         </a>
                                         <a href="/mark_proposal_lost/{{ proposal.proposal_number }}" class="mark-lost">
                                             ❌ Mark as Lost
                                         </a>
+                                        {% endif %}
                                     {% endif %}
                                 </div>
                             </div>
@@ -398,6 +572,50 @@
                 </tbody>
             </table>
         </div>
+
+        {% if pending_legal_projects %}
+        <div class="section">
+            <h2 style="border-bottom: 2px solid #9c27b0; color: #9c27b0;">Projects Pending Legal Review</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Project Number</th>
+                        <th>Proposal Number</th>
+                        <th>Date Created</th>
+                        <th>Project Name</th>
+                        <th>Client</th>
+                        <th>Project Manager</th>
+                        <th>Legal Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for proj_num, project in pending_legal_projects.items() %}
+                    <tr>
+                        <td class="project-number">
+                            <a href="/project/{{ project.project_number }}" class="project-link">
+                                {{ project.project_number }}
+                            </a>
+                        </td>
+                        <td class="proposal-number">
+                            <a href="/proposal/{{ project.proposal_number }}" class="proposal-link">
+                                {{ project.proposal_number }}
+                            </a>
+                        </td>
+                        <td>{{ project.date }}</td>
+                        <td>{{ project.project_name }}</td>
+                        <td>{{ project.client }}</td>
+                        <td>{{ project.project_manager }}</td>
+                        <td>
+                            <span class="status status-{{ project.legal_status|default('new_request')|replace(' ', '_') }}">
+                                {{ project.legal_status|default('New Request')|replace('_', ' ')|title }}
+                            </span>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
 
         {% if pending_additional_info_projects %}
         <div class="section">
@@ -442,50 +660,6 @@
             </table>
         </div>
         {% endif %}
-
-        {% if pending_legal_projects %}
-        <div class="section">
-            <h2>Projects Pending Legal Review</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Project Number</th>
-                        <th>Proposal Number</th>
-                        <th>Date Created</th>
-                        <th>Project Name</th>
-                        <th>Client</th>
-                        <th>Project Manager</th>
-                        <th>Legal Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                {% for proj_num, project in pending_legal_projects.items() %}
-                    <tr>
-                        <td class="project-number">
-                            <a href="/project/{{ project.project_number }}" class="project-link">
-                                {{ project.project_number }}
-                            </a>
-                        </td>
-                        <td class="proposal-number">
-                            <a href="/proposal/{{ project.proposal_number }}" class="proposal-link">
-                                {{ project.proposal_number }}
-                            </a>
-                        </td>
-                        <td>{{ project.date }}</td>
-                        <td>{{ project.project_name }}</td>
-                        <td>{{ project.client }}</td>
-                        <td>{{ project.project_manager }}</td>
-                        <td>
-                            <span class="status status-{{ project.legal_status|default('new_request')|replace(' ', '_') }}">
-                                {{ project.legal_status|default('New Request')|replace('_', ' ')|title }}
-                            </span>
-                        </td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {% endif %}
     </div>
 
     <script>
@@ -510,6 +684,26 @@
                 });
             }
         });
+
+        // Prevent duplicate submissions
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                const submitButton = this.querySelector('button[type="submit"]');
+                if (submitButton) {
+                    if (submitButton.disabled) {
+                        e.preventDefault();
+                        return false;
+                    }
+                    submitButton.disabled = true;
+                    submitButton.textContent = 'Processing...';
+                }
+            });
+        });
+
+        // Prevent back button issues
+        if (window.history.replaceState) {
+            window.history.replaceState(null, null, window.location.href);
+        }
     </script>
 </body>
 </html>
