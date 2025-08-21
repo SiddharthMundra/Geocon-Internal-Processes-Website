@@ -536,5 +536,26 @@
       "mode": "development"
     },
     "ip_address": null
+  },
+  {
+    "timestamp": "2025-08-21 09:30:13",
+    "user": "admin@geoconinc.com",
+    "action": "dashboard_view",
+    "details": {},
+    "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-21 09:30:14",
+    "user": "admin@geoconinc.com",
+    "action": "analytics_view",
+    "details": {},
+    "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-21 09:30:23",
+    "user": "admin@geoconinc.com",
+    "action": "dashboard_view",
+    "details": {},
+    "ip_address": "127.0.0.1"
   }
 ]
