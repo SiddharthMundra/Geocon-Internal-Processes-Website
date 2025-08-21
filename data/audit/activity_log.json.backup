@@ -376,5 +376,33 @@
     "action": "legal_queue_view",
     "details": {},
     "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-21 09:01:02",
+    "user": "admin@geoconinc.com",
+    "action": "dashboard_view",
+    "details": {},
+    "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-21 09:01:11",
+    "user": "admin@geoconinc.com",
+    "action": "user_logout",
+    "details": {},
+    "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-21 09:01:17",
+    "user": "admin@geoconinc.com",
+    "action": "admin_login",
+    "details": {},
+    "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-21 09:01:17",
+    "user": "admin@geoconinc.com",
+    "action": "admin_panel_view",
+    "details": {},
+    "ip_address": "127.0.0.1"
   }
 ]
