@@ -1479,5 +1479,25 @@
       "mode": "development"
     },
     "ip_address": null
+  },
+  {
+    "timestamp": "2025-08-22 16:18:04",
+    "user": "system",
+    "action": "server_startup",
+    "details": {
+      "version": "2.0.0",
+      "mode": "development"
+    },
+    "ip_address": null
+  },
+  {
+    "timestamp": "2025-08-22 16:18:05",
+    "user": "system",
+    "action": "server_startup",
+    "details": {
+      "version": "2.0.0",
+      "mode": "development"
+    },
+    "ip_address": null
   }
 ]
