@@ -4,18 +4,17 @@
     <title>Mark Proposal as Won - {{ proposal.proposal_number }}</title>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: Arial, sans-serif;
             margin: 0;
-            background-color: #f5f7fa;
+            background-color: #f5f5f5;
         }
         .header {
-            background: linear-gradient(135deg, #005f5f 0%, #008080 100%);
+            background-color: #4CAF50;
             color: white;
             padding: 15px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .header h1 {
             margin: 0;
@@ -25,14 +24,14 @@
             color: white;
             text-decoration: none;
             padding: 8px 16px;
-            background: rgba(255,255,255,0.2);
+            background-color: #45a049;
             border-radius: 4px;
         }
         .back-link:hover {
-            background: rgba(255,255,255,0.3);
+            background-color: #367c39;
         }
         .container {
-            max-width: 900px;
+            max-width: 800px;
             margin: 20px auto;
             background-color: white;
             padding: 30px;
@@ -40,9 +39,9 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .success-box {
-            background-color: #d4edda;
-            border: 1px solid #c3e6cb;
-            color: #155724;
+            background-color: #e8f5e9;
+            border: 1px solid #4CAF50;
+            color: #2e7d32;
             padding: 20px;
             border-radius: 4px;
             margin-bottom: 20px;
@@ -52,42 +51,16 @@
             font-size: 48px;
             margin-bottom: 10px;
         }
-        .project-number-preview {
-            background: linear-gradient(135deg, #e8f5e9 0%, #e0f2f1 100%);
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            text-align: center;
-            border: 2px solid #4CAF50;
-        }
-        .project-number-preview h3 {
-            margin: 0 0 10px 0;
-            color: #2e7d32;
-            font-size: 14px;
-            font-weight: normal;
-        }
-        .project-number-display {
-            font-size: 24px;
-            font-weight: bold;
-            color: #2e7d32;
-            font-family: 'Courier New', monospace;
-            letter-spacing: 1px;
-        }
-        .custom-number-input {
-            margin-top: 10px;
-        }
-        .custom-number-input input {
-            padding: 8px;
-            border: 1px solid #4CAF50;
-            border-radius: 4px;
-            width: 300px;
-            font-family: 'Courier New', monospace;
-        }
         .proposal-info {
             background-color: #f8f9fa;
             padding: 15px;
             border-radius: 4px;
             margin-bottom: 20px;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
         }
         .info-item {
             margin-bottom: 10px;
@@ -95,9 +68,20 @@
         .info-label {
             font-weight: bold;
             color: #666;
+            font-size: 14px;
         }
         .info-value {
             color: #333;
+            font-size: 16px;
+        }
+        .section-header {
+            font-size: 18px;
+            font-weight: bold;
+            color: #4CAF50;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 5px;
         }
         .form-group {
             margin-bottom: 20px;
@@ -112,7 +96,7 @@
             content: " *";
             color: red;
         }
-        input[type="text"], input[type="email"], input[type="tel"], input[type="date"], select, textarea {
+        input, select, textarea {
             width: 100%;
             padding: 10px;
             border: 1px solid #ddd;
@@ -122,12 +106,21 @@
         }
         input:focus, select:focus, textarea:focus {
             outline: none;
-            border-color: #008080;
+            border-color: #4CAF50;
         }
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        .radio-group {
+            display: flex;
+            gap: 30px;
+            margin-top: 10px;
+        }
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
         .button-group {
             display: flex;
@@ -135,8 +128,8 @@
             justify-content: center;
             margin-top: 30px;
         }
-        .won-button {
-            background: linear-gradient(135deg, #008080 0%, #00a0a0 100%);
+        .submit-button {
+            background-color: #4CAF50;
             color: white;
             padding: 12px 30px;
             border: none;
@@ -145,8 +138,8 @@
             font-size: 16px;
             font-weight: bold;
         }
-        .won-button:hover {
-            background: linear-gradient(135deg, #00a0a0 0%, #00c0c0 100%);
+        .submit-button:hover {
+            background-color: #45a049;
         }
         .cancel-button {
             background-color: #6c757d;
@@ -161,171 +154,387 @@
         .cancel-button:hover {
             background-color: #5a6268;
         }
+        .conditional-section {
+            display: none;
+            background-color: #f0f8ff;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 15px;
+            border: 1px solid #2196f3;
+        }
+        .conditional-section.active {
+            display: block;
+        }
         .help-text {
             font-size: 12px;
             color: #6c757d;
             margin-top: 5px;
         }
-        .section-header {
-            font-size: 18px;
-            font-weight: bold;
-            color: #008080;
-            margin-top: 30px;
-            margin-bottom: 15px;
-            border-bottom: 2px solid #008080;
-            padding-bottom: 5px;
-        }
-        .option-card {
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 15px;
-            transition: all 0.3s;
-            cursor: pointer;
-        }
-        .option-card:hover {
-            border-color: #008080;
-            background-color: #f0f8f8;
-        }
-        .option-card.selected {
-            border-color: #008080;
-            background-color: #f0f8f8;
-        }
-        .radio-group {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-        .radio-item {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        textarea {
-            min-height: 80px;
-            resize: vertical;
-        }
-        .legal-notice {
+        .project-number-preview {
             background-color: #e3f2fd;
-            border-left: 4px solid #2196F3;
-            padding: 15px;
-            margin: 20px 0;
+            padding: 10px;
             border-radius: 4px;
+            margin-top: 10px;
+            font-family: monospace;
+            font-size: 16px;
+            text-align: center;
+        }
+        .coi-section {
+            display: none;
+            background-color: #fff3e0;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 15px;
+            border: 1px solid #ff9800;
+        }
+        .coi-section.active {
+            display: block;
+        }
+        .contract-section {
+            display: none;
+            background-color: #f3e5f5;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 15px;
+            border: 1px solid #9c27b0;
+        }
+        .contract-section.active {
+            display: block;
         }
     </style>
     <script>
-        // Get the next project number via AJAX
-        function getNextProjectNumber() {
-            const teamNumber = '{{ proposal.team_number|default("00") }}';
+        function toggleLegalReview() {
+            const needsLegalReview = document.querySelector('input[name="needs_legal_review"]:checked').value;
+            const legalSection = document.getElementById('legal-section');
+            const contractSection = document.getElementById('contract-section');
+            const coiSection = document.getElementById('coi-section');
             
-            fetch('/get_next_project_number?team=' + teamNumber)
+            if (needsLegalReview === 'yes') {
+                legalSection.classList.add('active');
+                contractSection.classList.remove('active');
+                
+                // Check if COI is needed
+                const coiNeeded = document.querySelector('input[name="coi_needed"]:checked');
+                if (coiNeeded && coiNeeded.value === 'yes') {
+                    coiSection.classList.add('active');
+                }
+            } else {
+                legalSection.classList.remove('active');
+                contractSection.classList.add('active');
+                coiSection.classList.remove('active');
+            }
+        }
+        
+        function toggleCOI() {
+            const coiNeeded = document.querySelector('input[name="coi_needed"]:checked').value;
+            const coiSection = document.getElementById('coi-section');
+            
+            if (coiNeeded === 'yes') {
+                coiSection.classList.add('active');
+            } else {
+                coiSection.classList.remove('active');
+            }
+        }
+        
+        function generateProjectNumber() {
+            const teamNumber = '{{ proposal.team_number|default("00") }}';
+            fetch(`/get_next_project_number?team=${teamNumber}`)
                 .then(response => response.json())
                 .then(data => {
-                    const projectNumber = data.next_number;
-                    document.getElementById('projectNumberDisplay').textContent = projectNumber;
-                    document.getElementById('generatedProjectNumber').value = projectNumber;
-                })
-                .catch(error => {
-                    console.error('Error fetching project number:', error);
-                    // Fallback to a default format if fetch fails
-                    const fallbackNumber = 'G-' + Date.now().toString().slice(-6) + '-' + teamNumber + '-01';
-                    document.getElementById('projectNumberDisplay').textContent = fallbackNumber;
-                    document.getElementById('generatedProjectNumber').value = fallbackNumber;
+                    document.getElementById('project_number').value = data.next_number;
+                    document.getElementById('project-number-preview').textContent = data.next_number;
                 });
-        }
-        
-        function toggleSelection(element, radioName) {
-            document.querySelectorAll(`.option-card[data-group="${radioName}"]`).forEach(card => {
-                card.classList.remove('selected');
-            });
-            element.classList.add('selected');
-            const radio = element.querySelector('input[type="radio"]');
-            if (radio) {
-                radio.checked = true;
-            }
-        }
-        
-        function toggleLegalFields() {
-            const needsLegal = document.querySelector('input[name="needs_legal_review"]:checked').value;
-            const legalFieldsSection = document.getElementById('legal-fields-section');
-            
-            // Get all inputs and selects within the legal fields section
-            const legalInputs = legalFieldsSection.querySelectorAll('input, select, textarea');
-            
-            if (needsLegal === 'yes') {
-                legalFieldsSection.style.display = 'block';
-                // Enable and make required the legal fields
-                legalInputs.forEach(input => {
-                    input.disabled = false;
-                    // Only add required to fields that should be required
-                    if (input.classList.contains('legal-required')) {
-                        input.required = true;
-                    }
-                });
-            } else {
-                legalFieldsSection.style.display = 'none';
-                // Disable and remove required from all legal fields
-                legalInputs.forEach(input => {
-                    input.disabled = true;
-                    input.required = false;
-                });
-            }
         }
         
         document.addEventListener('DOMContentLoaded', function() {
-            // Load project number on page load
-            getNextProjectNumber();
+            generateProjectNumber();
             
-            // Allow custom project number input
-            document.getElementById('customProjectNumber').addEventListener('input', function() {
-                const customNumber = this.value.trim();
-                if (customNumber) {
-                    document.getElementById('projectNumberDisplay').textContent = customNumber;
-                    document.getElementById('generatedProjectNumber').value = customNumber;
-                } else {
-                    getNextProjectNumber();
-                }
-            });
-            
-            // Option cards click handlers
-            document.querySelectorAll('.option-card').forEach(card => {
-                card.addEventListener('click', function() {
-                    const radioName = this.dataset.group;
-                    toggleSelection(this, radioName);
-                    if (radioName === 'legal') {
-                        toggleLegalFields();
-                    }
-                });
-            });
-            
-            // Set today's date as default for requested_review_date
+            // Set default dates
             const today = new Date().toISOString().split('T')[0];
-            const reviewDateField = document.getElementById('requested_review_date');
-            if (reviewDateField && !reviewDateField.value) {
-                reviewDateField.value = today;
-            }
+            document.getElementById('requested_review_date').value = today;
             
-            // Copy client info from proposal
-            const contractEntity = document.getElementById('contract_entity');
-            if (contractEntity) {
-                contractEntity.value = '{{ proposal.client }}';
-            }
-            
-            const clientName = document.getElementById('client_contact_name');
-            if (clientName) {
-                clientName.value = '{{ proposal.contact_first }} {{ proposal.contact_last }}';
-            }
-            
-            const clientEmail = document.getElementById('client_contact_email');
-            if (clientEmail) {
-                clientEmail.value = '{{ proposal.contact_email }}';
-            }
-            
-            const clientPhone = document.getElementById('client_contact_phone');
-            if (clientPhone) {
-                clientPhone.value = '{{ proposal.contact_phone }}';
-            }
-            
-            // Initial state - set to Yes by default and show legal fields
-            toggleLegalFields();
+            const nextWeek = new Date();
+            nextWeek.setDate(nextWeek.getDate() + 7);
+            document.getElementById('completion_date').value = nextWeek.toISOString().split('T')[0];
         });
+    </script>
+</head>
+<body>
+    <div class="header">
+        <h1>🏆 Mark Proposal as Won</h1>
+        <a href="/" class="back-link">← Back to Dashboard</a>
+    </div>
+    
+    <div class="container">
+        <div class="success-box">
+            <div class="success-icon">🎉</div>
+            <h2>Congratulations! Proposal Won!</h2>
+            <p>Please provide the following information to create the project.</p>
+        </div>
+        
+        <div class="proposal-info">
+            <h3>Proposal Details:</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">Proposal Number</div>
+                    <div class="info-value">{{ proposal.proposal_number }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Project Name</div>
+                    <div class="info-value">{{ proposal.project_name }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Client</div>
+                    <div class="info-value">{{ proposal.client }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Fee</div>
+                    <div class="info-value">${{ "{:,.2f}".format(proposal.fee|float) }}</div>
+                </div>
+            </div>
+        </div>
+        
+        <form method="POST" action="/mark_won/{{ proposal.proposal_number }}">
+            <div class="section-header">Project Setup</div>
+            
+            <div class="form-group">
+                <label for="project_number">Project Number</label>
+                <input type="text" id="project_number" name="project_number" readonly>
+                <div class="project-number-preview">
+                    Auto-generated: <span id="project-number-preview"></span>
+                </div>
+                <div class="help-text">This number will be automatically generated based on the team number</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="project_folder_path">Project Folder Path</label>
+                <input type="text" id="project_folder_path" name="project_folder_path" 
+                       placeholder="e.g., R:\GEOCON WORKING FILES\...">
+                <div class="help-text">Enter the network path to the project folder</div>
+            </div>
+            
+            <div class="form-group">
+                <label class="required">Does this project require legal review?</label>
+                <div class="radio-group">
+                    <div class="radio-item">
+                        <input type="radio" id="legal_yes" name="needs_legal_review" value="yes" 
+                               onchange="toggleLegalReview()" checked>
+                        <label for="legal_yes">Yes - Send to Legal</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" id="legal_no" name="needs_legal_review" value="no" 
+                               onchange="toggleLegalReview()">
+                        <label for="legal_no">No - Skip Legal Review</label>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Legal Review Section (shown when Yes) -->
+            <div id="legal-section" class="conditional-section active">
+                <div class="section-header">Legal Review Information</div>
+                
+                <div class="form-group">
+                    <label for="contract_type">Contract Type</label>
+                    <select id="contract_type" name="contract_type">
+                        <option value="">Select Type</option>
+                        <option value="Master Agreement">Master Agreement</option>
+                        <option value="Client Contract">Client Contract</option>
+                        <option value="Subconsultant Agreement">Subconsultant Agreement</option>
+                        <option value="Purchase Order">Purchase Order</option>
+                        <option value="Task Order">Task Order</option>
+                        <option value="Amendment">Amendment</option>
+                        <option value="NDA">NDA</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="requested_review_date">Requested Review By Date</label>
+                    <input type="date" id="requested_review_date" name="requested_review_date">
+                </div>
+                
+                <div class="form-group">
+                    <label for="contract_entity">Contract Entity (if different from client)</label>
+                    <input type="text" id="contract_entity" name="contract_entity" 
+                           value="{{ proposal.client }}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="client_contact_name">Client Contact Name</label>
+                    <input type="text" id="client_contact_name" name="client_contact_name" 
+                           value="{{ proposal.contact_first }} {{ proposal.contact_last }}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="client_contact_email">Client Contact Email</label>
+                    <input type="email" id="client_contact_email" name="client_contact_email"
+                           value="{{ proposal.contact_email }}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="client_contact_phone">Client Contact Phone</label>
+                    <input type="tel" id="client_contact_phone" name="client_contact_phone"
+                           value="{{ proposal.contact_phone }}">
+                </div>
+                
+                <div class="form-group">
+                    <label>Have we contracted with this client before?</label>
+                    <div class="radio-group">
+                        <div class="radio-item">
+                            <input type="radio" id="contracted_yes" name="contracted_before" value="yes">
+                            <label for="contracted_yes">Yes</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="contracted_no" name="contracted_before" value="no" checked>
+                            <label for="contracted_no">No</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="previous_project_number">If yes, previous project number</label>
+                    <input type="text" id="previous_project_number" name="previous_project_number">
+                </div>
+                
+                <div class="form-group">
+                    <label>Will you need subcontractors?</label>
+                    <div class="radio-group">
+                        <div class="radio-item">
+                            <input type="radio" id="subs_yes" name="need_subcontractors" value="yes">
+                            <label for="subs_yes">Yes</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="subs_no" name="need_subcontractors" value="no" checked>
+                            <label for="subs_no">No</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Can legal contact the client directly?</label>
+                    <div class="radio-group">
+                        <div class="radio-item">
+                            <input type="radio" id="contact_yes" name="legal_can_contact" value="yes" checked>
+                            <label for="contact_yes">Yes</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="contact_no" name="legal_can_contact" value="no">
+                            <label for="contact_no">No</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>File Preliminary Lien Notice?</label>
+                    <div class="radio-group">
+                        <div class="radio-item">
+                            <input type="radio" id="lien_yes" name="file_lien_notice" value="yes">
+                            <label for="lien_yes">Yes</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="lien_no" name="file_lien_notice" value="no" checked>
+                            <label for="lien_no">No</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="required">Is Certificate of Insurance (COI) needed?</label>
+                    <div class="radio-group">
+                        <div class="radio-item">
+                            <input type="radio" id="coi_yes" name="coi_needed" value="yes" onchange="toggleCOI()">
+                            <label for="coi_yes">Yes</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="coi_no" name="coi_needed" value="no" onchange="toggleCOI()" checked>
+                            <label for="coi_no">No</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="documents_location">Documents File Location</label>
+                    <textarea id="documents_location" name="documents_location" 
+                              placeholder="Enter the path to contract documents, proposals, etc."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="notes_comments">Notes/Comments for Legal</label>
+                    <textarea id="notes_comments" name="notes_comments" 
+                              placeholder="Any additional notes or special instructions for legal review..."></textarea>
+                </div>
+            </div>
+            
+            <!-- COI Section (shown when COI is needed) -->
+            <div id="coi-section" class="coi-section">
+                <div class="section-header">Certificate of Insurance Information</div>
+                
+                <div class="form-group">
+                    <label for="certificate_holder" class="required">Certificate Holder Name</label>
+                    <input type="text" id="certificate_holder" name="certificate_holder"
+                           placeholder="e.g., Transystems (not LA Metro)">
+                    <div class="help-text">Enter the exact name as it should appear on the certificate</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="completion_date">Insurance Requested Completion Date</label>
+                    <input type="date" id="completion_date" name="completion_date">
+                </div>
+                
+                <div class="form-group">
+                    <label for="insurance_documents_location">Insurance Documents Location</label>
+                    <textarea id="insurance_documents_location" name="insurance_documents_location" 
+                              placeholder="Executed Contract with Client and/or Client Insurance Requirements, Prime Agreement if applicable, Permit/Application if applicable, Client Email with Insurance Request"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="insurance_notes">Insurance Notes/Comments</label>
+                    <textarea id="insurance_notes" name="insurance_notes" 
+                              placeholder="Any special instructions for insurance processing..."></textarea>
+                </div>
+            </div>
+            
+            <!-- Contract Section (shown when no legal review) -->
+            <div id="contract-section" class="contract-section">
+                <div class="section-header">Fully Executed Contract Information</div>
+                
+                <div class="form-group">
+                    <label for="contract_type_executed">Contract Type</label>
+                    <select id="contract_type_executed" name="contract_type_executed">
+                        <option value="">Select Type</option>
+                        <option value="Master Agreement">Master Agreement</option>
+                        <option value="Client Contract">Client Contract</option>
+                        <option value="Subconsultant Agreement">Subconsultant Agreement</option>
+                        <option value="Purchase Order">Purchase Order</option>
+                        <option value="Task Order">Task Order</option>
+                        <option value="Amendment">Amendment</option>
+                        <option value="NDA">NDA</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="executed_documents_location" class="required">Documents File Location</label>
+                    <textarea id="executed_documents_location" name="executed_documents_location" 
+                              placeholder="Must Include: Fully Executed Contract, Geocon's Proposal/Schedule of Fees&#10;&#10;Example:&#10;R:\GEOCON WORKING FILES\S9850-S9899\S9850 DTSC\43_Benicia Arsenal Complex 50\_Admin\Contract"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="executed_notes">Notes/Comments</label>
+                    <textarea id="executed_notes" name="executed_notes" 
+                              placeholder="Any additional notes about the executed contract..."></textarea>
+                </div>
+            </div>
+            
+            <div class="button-group">
+                <button type="submit" class="submit-button">
+                    🚀 Create Project
+                </button>
+                <a href="/" class="cancel-button">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

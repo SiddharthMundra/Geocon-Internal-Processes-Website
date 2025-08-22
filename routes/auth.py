@@ -3,7 +3,7 @@ from models.database import log_activity
 from utils.helpers import is_authorized_email, get_system_setting
 from utils.decorators import login_required
 
-auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
+auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():

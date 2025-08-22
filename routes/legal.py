@@ -8,9 +8,9 @@ from utils.helpers import get_system_setting
 from utils.email_service import send_email
 from config import Config
 
-legal_bp = Blueprint('legal', __name__, url_prefix='/legal')
+legal_bp = Blueprint('legal', __name__)
 
-@legal_bp.route('/queue')
+@legal_bp.route('/legal_queue')  # Changed from '/queue'
 @legal_required
 def legal_queue():
     """View legal department tabs - review queue, executed contracts, insurance requests"""
@@ -73,7 +73,7 @@ def legal_queue():
                          project_managers=project_managers,
                          tab=tab)
 
-@legal_bp.route('/queue_detail/<project_number>')
+@legal_bp.route('/legal_queue_detail/<project_number>')  # Changed from '/queue_detail/<project_number>'
 @legal_required
 def legal_queue_detail(project_number):
     """View detailed legal queue information for a project"""
@@ -96,7 +96,7 @@ def legal_queue_detail(project_number):
     
     return render_template('legal_queue_detail.html', project=project)
 
-@legal_bp.route('/update_status/<project_number>', methods=['GET', 'POST'])
+@legal_bp.route('/update_legal_status/<project_number>', methods=['GET', 'POST'])  # Changed from '/update_status/<project_number>'
 @legal_required
 def update_legal_status(project_number):
     """Update the legal status of a project"""
@@ -297,7 +297,7 @@ def mark_insurance_issued(request_id):
     
     return redirect(url_for('legal.legal_queue', tab='insurance-requests'))
 
-@legal_bp.route('/action/<project_number>', methods=['GET', 'POST'])
+@legal_bp.route('/legal_action/<project_number>', methods=['GET', 'POST'])  # Changed from '/action/<project_number>'
 @legal_required
 def legal_action(project_number):
     """Legal team action on project - updated to require additional info after signing"""

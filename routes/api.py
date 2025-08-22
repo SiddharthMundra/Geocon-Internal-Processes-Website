@@ -9,7 +9,7 @@ from utils.decorators import login_required
 from utils.helpers import allowed_file
 from config import Config
 
-api_bp = Blueprint('api', __name__, url_prefix='/api')
+api_bp = Blueprint('api', __name__)
 
 @api_bp.route('/proposals', methods=['GET'])
 @login_required

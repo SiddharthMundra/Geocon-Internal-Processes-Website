@@ -1,15 +1,37 @@
 {
   "monthly_proposals": {
-    "2025-08": 1
+    "2025-08": 4
   },
-  "monthly_wins": {},
-  "monthly_revenue": {},
+  "monthly_wins": {
+    "2025-08": 3
+  },
+  "monthly_revenue": {
+    "2025-08": 0.0
+  },
   "office_performance": {
     "OC": {
       "proposals": {
-        "2025-08": 1
-      }
+        "2025-08": 2
+      },
+      "wins": 2,
+      "revenue": 0.0
+    },
+    "SD": {
+      "proposals": {
+        "2025-08": 2
+      },
+      "wins": 1,
+      "revenue": 0.0
     }
   },
-  "pm_performance": {}
+  "pm_performance": {
+    "Rebecca Silva": {
+      "wins": 2,
+      "revenue": 0.0
+    },
+    "Sarah Johnson": {
+      "wins": 1,
+      "revenue": 0.0
+    }
+  }
 }

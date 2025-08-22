@@ -11,7 +11,7 @@ from utils.helpers import (get_system_setting, get_next_proposal_number, allowed
 from utils.email_service import send_email
 from config import Config
 
-proposals_bp = Blueprint('proposals', __name__, url_prefix='/proposals')
+proposals_bp = Blueprint('proposals', __name__)
 
 @login_required
 def index():
@@ -135,7 +135,7 @@ def index():
                          analytics=analytics,
                          can_view_analytics=can_view_analytics)
 
-@proposals_bp.route('/new')
+@proposals_bp.route('/new_proposal')  # Changed from '/new'
 @login_required
 def new_proposal():
     """New proposal form with proposal number preview"""
@@ -161,7 +161,7 @@ def new_proposal():
                          team_assignments=get_system_setting('team_assignments', {}),
                          next_proposal_number=next_number)
 
-@proposals_bp.route('/submit', methods=['POST'])
+@proposals_bp.route('/submit_proposal', methods=['POST'])  # Changed from '/submit'
 @login_required
 def submit_proposal():
     """Submit new proposal - no permissions, anyone can create"""
@@ -260,7 +260,7 @@ def submit_proposal():
     flash(f'Proposal {proposal_number} created successfully!', 'success')
     return redirect(url_for('index'))
 
-@proposals_bp.route('/edit/<proposal_number>')
+@proposals_bp.route('/edit_proposal/<proposal_number>')  # Changed from '/edit/<proposal_number>'
 @login_required
 def edit_proposal(proposal_number):
     """Edit proposal form - anyone can edit"""
@@ -282,7 +282,7 @@ def edit_proposal(proposal_number):
                          project_managers=get_system_setting('project_managers', []),
                          project_directors=list(get_system_setting('team_assignments', {}).keys()))
 
-@proposals_bp.route('/update/<proposal_number>', methods=['POST'])
+@proposals_bp.route('/update_proposal/<proposal_number>', methods=['POST'])  # Changed from '/update/<proposal_number>'
 @login_required
 def update_proposal(proposal_number):
     """Update existing proposal - anyone can update"""
@@ -332,7 +332,7 @@ def update_proposal(proposal_number):
     flash(f'Proposal {proposal_number} updated successfully!', 'success')
     return redirect(url_for('proposals.view_proposal', proposal_number=proposal_number))
 
-@proposals_bp.route('/view/<proposal_number>')
+@proposals_bp.route('/proposal/<proposal_number>')  # Changed from '/view/<proposal_number>'
 @login_required
 def view_proposal(proposal_number):
     """View proposal details"""
@@ -415,7 +415,7 @@ def mark_sent(proposal_number):
     flash(f'Proposal {proposal_number} marked as sent to client.', 'success')
     return redirect(url_for('index'))
 
-@proposals_bp.route('/mark_lost/<proposal_number>', methods=['GET', 'POST'])
+@proposals_bp.route('/mark_proposal_lost/<proposal_number>', methods=['GET', 'POST'])  # Changed from '/mark_lost/<proposal_number>'
 @login_required
 def mark_proposal_lost(proposal_number):
     """Mark proposal as lost - anyone can do this"""
@@ -456,3 +456,6 @@ def mark_proposal_lost(proposal_number):
 def delete_proposal_route(proposal_number):
     from routes.delete import delete_proposal
     return delete_proposal(proposal_number)
+
+
+

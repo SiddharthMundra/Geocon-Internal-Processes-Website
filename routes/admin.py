@@ -8,9 +8,9 @@ from utils.decorators import login_required, admin_required
 from utils.helpers import get_system_setting, set_system_setting
 from config import Config
 
-admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
+admin_bp = Blueprint('admin', __name__)
 
-@admin_bp.route('/')
+@admin_bp.route('/admin')  # Changed from '/'
 @admin_required
 def admin_panel():
     """Admin configuration panel"""
@@ -18,7 +18,7 @@ def admin_panel():
     settings = load_json(Config.DATABASES['settings'])
     return render_template('admin_panel.html', settings=settings)
 
-@admin_bp.route('/update_setting', methods=['POST'])
+@admin_bp.route('/admin/update_setting', methods=['POST'])  # Changed from '/update_setting'
 @admin_required
 def update_setting():
     """Update system setting"""
@@ -62,7 +62,7 @@ def update_project_directors():
     flash(f'Updated {len(directors)} project directors with auto-assigned team numbers!', 'success')
     return redirect(url_for('admin.admin_panel'))
 
-@admin_bp.route('/analytics_users', methods=['POST'])
+@admin_bp.route('/admin/analytics')  # Changed from '/analytics'
 @admin_required
 def update_analytics_users():
     """Update list of users who can view analytics"""
