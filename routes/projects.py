@@ -3,7 +3,7 @@ from datetime import datetime
 import uuid
 from models.database import load_json, save_json, log_activity
 from models.analytics import update_analytics
-from utils.decorators import login_required, user_can_edit
+from utils.decorators import login_required
 from utils.helpers import get_system_setting, get_next_project_number
 from utils.email_service import send_email
 from config import Config, PROJECT_REVENUE_CODES, PROJECT_SCOPES_DETAILED, PROJECT_TYPES_DETAILED, PROJECT_TEAMS, US_STATES, CA_COUNTIES
@@ -222,10 +222,7 @@ def mark_won_form(proposal_number):
     
     proposal = proposals[proposal_number]
     
-    # Admin can mark any proposal as won
-    if not user_can_edit(proposal):
-        flash('Only the project manager or admin can mark this proposal as won.', 'error')
-        return redirect(url_for('index'))
+
     
     return render_template('mark_won_form.html', proposal=proposal)
 

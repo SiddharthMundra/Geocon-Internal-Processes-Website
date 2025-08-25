@@ -202,14 +202,14 @@
             <!-- Action Buttons -->
             {% if project.status != 'completed' %}
             <div class="action-buttons">
-                {% if project.status == 'pending_legal' and session.get('is_legal') %}
+                {% if project.status == 'pending_legal' %}
                 <a href="/legal_action/{{ project.project_number }}" 
                    class="legal-approve-button">
                     ⚖️ Legal Review
                 </a>
                 {% endif %}
                 
-                {% if project.status == 'active' and (project.project_manager == session.get('user_name') or session.get('is_admin')) %}
+                {% if project.status == 'active' %}
                 <a href="/mark_project_complete/{{ project.project_number }}" 
                    class="complete-button"
                    onclick="return confirm('Mark this project as complete? This will move it to Past Projects.')">
@@ -217,11 +217,9 @@
                 </a>
                 {% endif %}
                 
-                {% if project.project_manager == session.get('user_name') or session.get('is_admin') %}
                 <a href="/delete_project/{{ project.project_number }}" class="delete-button">
                     🗑️ Delete Project
                 </a>
-                {% endif %}
             </div>
             {% endif %}
             

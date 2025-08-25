@@ -79,13 +79,7 @@ def update_analytics_users():
 @admin_bp.route('/analytics')
 @login_required
 def analytics():
-    """View analytics dashboard - restricted access"""
-    # Check if user has analytics access
-    analytics_users = get_system_setting('analytics_users', [])
-    if (session.get('user_email') not in analytics_users and 
-        not session.get('is_admin')):
-        flash('You do not have permission to view analytics.', 'error')
-        return redirect(url_for('index'))
+    """View analytics dashboard - accessible to all logged in users"""
     
     log_activity('analytics_view', {})
     

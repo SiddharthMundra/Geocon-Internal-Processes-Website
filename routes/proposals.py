@@ -5,7 +5,7 @@ import os
 
 from models.database import load_json, save_json, log_activity
 from models.analytics import get_enhanced_analytics, update_analytics
-from utils.decorators import login_required, user_can_edit
+from utils.decorators import login_required
 from utils.helpers import (get_system_setting, get_next_proposal_number,
                           check_follow_up_reminders)
 from utils.email_service import send_email

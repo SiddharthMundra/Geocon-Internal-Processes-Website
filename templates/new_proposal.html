@@ -177,7 +177,7 @@
             <div id="proposalNumberDisplay" class="proposal-number-display">-</div>
         </div>
         
-        <form action="/submit_proposal" method="POST" enctype="multipart/form-data">
+        <form action="/submit_proposal" method="POST">
             <input type="hidden" id="generatedProposalNumber" name="proposal_number" value="">
             
             <div class="section-header">Proposal Information</div>
@@ -371,12 +371,7 @@
                           placeholder="Any additional information about this proposal..."></textarea>
             </div>
             
-            <div class="form-group">
-                <label for="proposal_file">Attach Proposal Document <span class="optional-label">(optional)</span></label>
-                <input type="file" id="proposal_file" name="proposal_file" 
-                       accept=".pdf,.doc,.docx,.xlsx,.xls">
-                <small style="color: #666;">Accepted formats: PDF, Word, Excel (Max 16MB)</small>
-            </div>
+
             
             <div style="margin-top: 30px; text-align: center;">
                 <button type="submit" class="button">Create Proposal</button>

@@ -495,9 +495,7 @@
             <a href="/analytics" class="button-secondary">📊 View Full Analytics</a>
             {% endif %}
             <a href="/past_projects" class="button-secondary">📁 Past Projects</a>
-            {% if session.get('is_legal') or session.get('is_admin') %}
             <a href="/legal_queue" class="button-secondary" style="background: linear-gradient(135deg, #9c27b0 0%, #ba68c8 100%);">⚖️ Legal Queue</a>
-            {% endif %}
         </div>
 
         <!-- Active Proposals -->
@@ -551,7 +549,6 @@
                                         👁️ View Details
                                     </a>
                                     {% if proposal.status == 'pending' %}
-                                        {% if session.get('is_admin') or proposal.project_manager == session.get('user_name') %}
                                         <a href="/mark_sent/{{ proposal.proposal_number }}" class="mark-sent"
                                            onclick="return confirm('Mark proposal as sent to client?')">
                                             📧 Mark as Sent
@@ -562,7 +559,6 @@
                                         <a href="/mark_proposal_lost/{{ proposal.proposal_number }}" class="mark-lost">
                                             ❌ Mark as Lost
                                         </a>
-                                        {% endif %}
                                     {% endif %}
                                 </div>
                             </div>

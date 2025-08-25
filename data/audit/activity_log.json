@@ -1845,5 +1845,35 @@
     "action": "legal_queue_view",
     "details": {},
     "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-25 14:02:15",
+    "user": "system",
+    "action": "server_startup",
+    "details": {
+      "version": "2.0.0",
+      "mode": "development"
+    },
+    "ip_address": null
+  },
+  {
+    "timestamp": "2025-08-25 14:02:16",
+    "user": "system",
+    "action": "server_startup",
+    "details": {
+      "version": "2.0.0",
+      "mode": "development"
+    },
+    "ip_address": null
+  },
+  {
+    "timestamp": "2025-08-25 14:10:44",
+    "user": "system",
+    "action": "server_startup",
+    "details": {
+      "version": "2.0.0",
+      "mode": "development"
+    },
+    "ip_address": null
   }
 ]

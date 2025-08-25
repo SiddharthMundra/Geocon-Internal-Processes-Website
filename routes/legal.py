@@ -3,7 +3,7 @@ from datetime import datetime
 import uuid
 
 from models.database import load_json, save_json, log_activity
-from utils.decorators import login_required, legal_required
+from utils.decorators import login_required
 from utils.helpers import get_system_setting
 from utils.email_service import send_email
 from config import Config
@@ -13,7 +13,7 @@ legal_bp = Blueprint('legal', __name__)
 
 
 @legal_bp.route('/add_sub_request', methods=['GET', 'POST'])
-@legal_required
+@login_required
 def add_sub_request():
     """Add a new sub request"""
     if request.method == 'POST':
@@ -50,7 +50,7 @@ def add_sub_request():
                          offices=get_system_setting('office_codes', {}))
 
 @legal_bp.route('/add_pw_dir_question', methods=['GET', 'POST'])
-@legal_required
+@login_required
 def add_pw_dir_question():
     """Add a new PW & DIR question"""
     if request.method == 'POST':
@@ -83,7 +83,7 @@ def add_pw_dir_question():
                          offices=get_system_setting('office_codes', {}))
 
 @legal_bp.route('/legal_queue')  # Changed from '/queue'
-@legal_required
+@login_required
 def legal_queue():
     """View legal department tabs"""
     log_activity('legal_queue_view', {})
@@ -150,7 +150,7 @@ def legal_queue():
                          tab=tab)
 
 @legal_bp.route('/legal_queue_detail/<project_number>')  # Changed from '/queue_detail/<project_number>'
-@legal_required
+@login_required
 def legal_queue_detail(project_number):
     """View detailed legal queue information for a project"""
     log_activity('legal_queue_detail_view', {'project_number': project_number})
@@ -173,7 +173,7 @@ def legal_queue_detail(project_number):
     return render_template('legal_queue_detail.html', project=project)
 
 @legal_bp.route('/update_legal_status/<project_number>', methods=['GET', 'POST'])  # Changed from '/update_status/<project_number>'
-@legal_required
+@login_required
 def update_legal_status(project_number):
     """Update the legal status of a project"""
     projects = load_json(Config.DATABASES['projects'])
@@ -291,7 +291,7 @@ def update_legal_status(project_number):
     return render_template('update_legal_status.html', project=project)
 
 @legal_bp.route('/add_executed_contract', methods=['GET', 'POST'])
-@legal_required
+@login_required
 def add_executed_contract():
     """Add a new executed contract record"""
     if request.method == 'POST':
@@ -319,7 +319,7 @@ def add_executed_contract():
     return render_template('add_executed_contract.html')
 
 @legal_bp.route('/add_insurance_request', methods=['GET', 'POST'])
-@legal_required
+@login_required
 def add_insurance_request():
     """Add a new insurance request"""
     if request.method == 'POST':
@@ -355,7 +355,7 @@ def add_insurance_request():
                          offices=get_system_setting('office_codes', {}))
 
 @legal_bp.route('/mark_insurance_issued/<request_id>')
-@legal_required
+@login_required
 def mark_insurance_issued(request_id):
     """Mark an insurance request as issued"""
     requests = load_json(Config.DATABASES['insurance_requests'])
@@ -372,7 +372,7 @@ def mark_insurance_issued(request_id):
     return redirect(url_for('legal.legal_queue', tab='insurance-requests'))
 
 @legal_bp.route('/legal_action/<project_number>', methods=['GET', 'POST'])  # Changed from '/action/<project_number>'
-@legal_required
+@login_required
 def legal_action(project_number):
     """Legal team action on project - updated to require additional info after signing"""
     projects = load_json(Config.DATABASES['projects'])

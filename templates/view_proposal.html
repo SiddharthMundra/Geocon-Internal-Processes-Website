@@ -210,13 +210,11 @@
             <!-- Action Buttons -->
             {% if proposal.status != 'converted_to_project' %}
             <div class="action-buttons">
-                {% if proposal.created_by == session.get('user_email') or proposal.project_manager == session.get('user_name') or session.get('is_admin') %}
                 <a href="/edit_proposal/{{ proposal.proposal_number }}" class="edit-button">
                     ✏️ Edit Proposal
                 </a>
-                {% endif %}
                 
-                {% if proposal.status == 'pending' and not proposal.get('proposal_sent') and (proposal.project_manager == session.get('user_name') or session.get('is_admin')) %}
+                {% if proposal.status == 'pending' and not proposal.get('proposal_sent') %}
                 <a href="/mark_sent/{{ proposal.proposal_number }}" 
                    class="mark-sent-button"
                    onclick="return confirm('Mark this proposal as sent to client?')">
@@ -224,7 +222,7 @@
                 </a>
                 {% endif %}
                 
-                {% if proposal.status == 'pending' and (proposal.project_manager == session.get('user_name') or session.get('is_admin')) %}
+                {% if proposal.status == 'pending' %}
                 <a href="/mark_won_form/{{ proposal.proposal_number }}" 
                    class="mark-won-button">
                     🏆 Mark as Won
@@ -235,11 +233,9 @@
                 </a>
                 {% endif %}
                 
-                {% if proposal.created_by == session.get('user_email') or proposal.project_manager == session.get('user_name') or session.get('is_admin') %}
                 <a href="/delete_proposal/{{ proposal.proposal_number }}" class="delete-button">
                     🗑️ Delete Proposal
                 </a>
-                {% endif %}
             </div>
             {% endif %}
             
