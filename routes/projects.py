@@ -96,7 +96,7 @@ def mark_won(proposal_number):
         request_id = str(uuid.uuid4())
         insurance_data = {
             'id': request_id,
-            'status': 'pending',
+            'dept_status': 'new_request',  # Default department status
             'date_requested': datetime.now().strftime('%Y-%m-%d'),
             'completion_date': request.form.get('completion_date', ''),
             'requested_by': proposal.get('project_manager', ''),
@@ -133,6 +133,7 @@ def mark_won(proposal_number):
         contract_id = str(uuid.uuid4())
         contract_data = {
             'id': contract_id,
+            'dept_status': 'unfiled',  # Default department status
             'date_added': datetime.now().strftime('%Y-%m-%d'),
             'project_number': project_number,
             'project_name': proposal.get('project_name', ''),
@@ -141,8 +142,7 @@ def mark_won(proposal_number):
             'documents_location': request.form.get('executed_documents_location', ''),
             'notes': request.form.get('executed_notes', ''),
             'added_by': session['user_email'],
-            'auto_generated': True,
-            'status': 'pending_filing'  # Can be changed to 'filed' by legal team
+            'auto_generated': True
         }
         
         executed_contracts[contract_id] = contract_data
