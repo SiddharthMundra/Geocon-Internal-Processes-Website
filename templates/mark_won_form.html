@@ -236,6 +236,17 @@
             }
         }
         
+        function toggleSubcontractorSection() {
+            const needSubcontractors = document.querySelector('input[name="need_subcontractors"]:checked').value;
+            const subcontractorSection = document.getElementById('subcontractor-section');
+            
+            if (needSubcontractors === 'yes') {
+                subcontractorSection.style.display = 'block';
+            } else {
+                subcontractorSection.style.display = 'none';
+            }
+        }
+        
         function generateProjectNumber() {
             const teamNumber = '{{ proposal.team_number|default("00") }}';
             fetch(`/get_next_project_number?team=${teamNumber}`)
@@ -266,13 +277,13 @@
 </head>
 <body>
     <div class="header">
-        <h1>🏆 Mark Proposal as Won</h1>
+        <h1>Mark Proposal as Won</h1>
         <a href="/" class="back-link">← Back to Dashboard</a>
     </div>
     
     <div class="container">
         <div class="success-box">
-            <div class="success-icon">🎉</div>
+            <div class="success-icon"></div>
             <h2>Congratulations! Proposal Won!</h2>
             <p>Please provide the following information to create the project.</p>
         </div>
@@ -405,11 +416,11 @@
                     <label>Will you need subcontractors?</label>
                     <div class="radio-group">
                         <div class="radio-item">
-                            <input type="radio" id="subs_yes" name="need_subcontractors" value="yes">
+                            <input type="radio" id="subs_yes" name="need_subcontractors" value="yes" onchange="toggleSubcontractorSection()">
                             <label for="subs_yes">Yes</label>
                         </div>
                         <div class="radio-item">
-                            <input type="radio" id="subs_no" name="need_subcontractors" value="no" checked>
+                            <input type="radio" id="subs_no" name="need_subcontractors" value="no" onchange="toggleSubcontractorSection()" checked>
                             <label for="subs_no">No</label>
                         </div>
                     </div>
@@ -520,6 +531,65 @@
                     <label for="executed_notes">Notes/Comments</label>
                     <textarea id="executed_notes" name="executed_notes" 
                               placeholder="Any additional notes about the executed contract..."></textarea>
+                </div>
+            </div>
+            
+            <!-- Subcontractor Section (shown when subcontractors are needed) -->
+            <div id="subcontractor-section" class="subcontractor-section" style="display: none;">
+                <div class="section-header">Subcontractor Information</div>
+                
+                <div class="form-group">
+                    <label for="subcontractor_name" class="required">Subcontractor Name</label>
+                    <input type="text" id="subcontractor_name" name="subcontractor_name" required
+                           placeholder="e.g., ABC Engineering Inc.">
+                </div>
+                
+                <div class="form-group">
+                    <label for="request_type" class="required">Request Type</label>
+                    <select id="request_type" name="request_type" required>
+                        <option value="">Select Request Type</option>
+                        <option value="New Agreement">New Agreement</option>
+                        <option value="Amendment">Amendment</option>
+                        <option value="Task Order">Task Order</option>
+                        <option value="Change Order">Change Order</option>
+                        <option value="Purchase Order">Purchase Order</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="required">Prevailing Wage</label>
+                        <div class="radio-group">
+                            <div class="radio-item">
+                                <input type="radio" id="pw_yes" name="prevailing_wage" value="Yes">
+                                <label for="pw_yes">Yes</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="pw_no" name="prevailing_wage" value="No" checked>
+                                <label for="pw_no">No</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="required">Skilled and Trained Workforce</label>
+                        <div class="radio-group">
+                            <div class="radio-item">
+                                <input type="radio" id="skilled_yes" name="skilled_trained" value="Yes">
+                                <label for="skilled_yes">Yes</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="skilled_no" name="skilled_trained" value="No" checked>
+                                <label for="skilled_no">No</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="subcontractor_notes">Subcontractor Notes/Comments</label>
+                    <textarea id="subcontractor_notes" name="subcontractor_notes" 
+                              placeholder="Any additional notes or special instructions for subcontractor processing..."></textarea>
                 </div>
             </div>
             

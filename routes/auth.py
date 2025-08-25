@@ -83,7 +83,7 @@ def login():
         session['is_legal'] = email in legal_team
         
         log_activity('user_login', {'pm_filter_name': pm_name}, email)
-        flash(f'Welcome {extracted_name}! Dashboard filtered for: {pm_name}', 'success')
+        # flash(f'Welcome {extracted_name}! Dashboard filtered for: {pm_name}', 'success')
         return redirect(url_for('index'))
     
     return render_template('login.html')

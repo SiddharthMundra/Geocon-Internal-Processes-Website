@@ -492,9 +492,9 @@
         <div class="actions">
             <a href="/new_proposal" class="button">+ New Proposal</a>
             {% if can_view_analytics %}
-            <a href="/analytics" class="button-secondary">📊 View Full Analytics</a>
+            <a href="/analytics" class="button-secondary">View Full Analytics</a>
             {% endif %}
-            <a href="/past_projects" class="button-secondary">📁 Past Projects</a>
+            <a href="/past_projects" class="button-secondary">Past Projects</a>
             <a href="/legal_queue" class="button-secondary" style="background: linear-gradient(135deg, #9c27b0 0%, #ba68c8 100%);">⚖️ Legal Queue</a>
         </div>
 
@@ -546,18 +546,18 @@
                                 </button>
                                 <div class="dropdown-content">
                                     <a href="/proposal/{{ proposal.proposal_number }}" class="view-details">
-                                        👁️ View Details
+                                        View Details
                                     </a>
                                     {% if proposal.status == 'pending' %}
                                         <a href="/mark_sent/{{ proposal.proposal_number }}" class="mark-sent"
                                            onclick="return confirm('Mark proposal as sent to client?')">
-                                            📧 Mark as Sent
+                                            Mark as Sent
                                         </a>
                                         <a href="/mark_won_form/{{ proposal.proposal_number }}" class="mark-won">
-                                            🏆 Mark as Won
+                                            Mark as Won
                                         </a>
                                         <a href="/mark_proposal_lost/{{ proposal.proposal_number }}" class="mark-lost">
-                                            ❌ Mark as Lost
+                                            Mark as Lost
                                         </a>
                                     {% endif %}
                                 </div>
@@ -647,7 +647,7 @@
                         </td>
                         <td>
                             <a href="/project_info_form/{{ project.project_number }}" class="additional-info-button">
-                                📝 Enter Info
+                                Enter Info
                             </a>
                         </td>
                     </tr>

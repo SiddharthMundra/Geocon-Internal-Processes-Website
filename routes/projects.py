@@ -121,6 +121,39 @@ def mark_won(proposal_number):
             'project_number': project_number
         })
     
+    # Handle subcontractors needed - auto-populate sub request
+    need_subcontractors = request.form.get('need_subcontractors') == 'yes'
+    if need_subcontractors:
+        sub_requests = load_json(Config.DATABASES['sub_requests'])
+        
+        sub_id = str(uuid.uuid4())
+        sub_data = {
+            'id': sub_id,
+            'dept_status': 'new_request',
+            'date_requested': datetime.now().strftime('%Y-%m-%d'),
+            'completion_date': '',  # Will be filled by legal team
+            'requested_by': proposal.get('project_manager', ''),
+            'office': proposal.get('office', ''),
+            'project_number': project_number,
+            'project_name': proposal.get('project_name', ''),
+            'subcontractor_name': request.form.get('subcontractor_name', ''),
+            'request_type': request.form.get('request_type', ''),
+            'prevailing_wage': request.form.get('prevailing_wage', 'No'),
+            'skilled_trained': request.form.get('skilled_trained', 'No'),
+            'reviewed_by': '',  # Will be filled by legal team
+            'notes': request.form.get('subcontractor_notes', ''),
+            'added_by': session['user_email'],
+            'auto_generated': True
+        }
+        
+        sub_requests[sub_id] = sub_data
+        save_json(Config.DATABASES['sub_requests'], sub_requests)
+        
+        log_activity('sub_request_auto_created', {
+            'sub_id': sub_id,
+            'project_number': project_number
+        })
+    
     # Handle projects that don't need legal review - auto-populate executed contracts
     if not needs_legal_review:
         project_data['legal_approved_date'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')

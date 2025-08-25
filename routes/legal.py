@@ -12,42 +12,7 @@ import uuid
 legal_bp = Blueprint('legal', __name__)
 
 
-@legal_bp.route('/add_sub_request', methods=['GET', 'POST'])
-@login_required
-def add_sub_request():
-    """Add a new sub request"""
-    if request.method == 'POST':
-        sub_requests = load_json(Config.DATABASES['sub_requests'])
-        
-        sub_id = str(uuid.uuid4())
-        sub_data = {
-            'id': sub_id,
-            'dept_status': 'new_request',
-            'date_requested': request.form.get('date_requested', datetime.now().strftime('%Y-%m-%d')),
-            'completion_date': request.form.get('completion_date', ''),
-            'requested_by': request.form.get('requested_by', ''),
-            'office': request.form.get('office', ''),
-            'project_number': request.form.get('project_number', ''),
-            'project_name': request.form.get('project_name', ''),
-            'subcontractor_name': request.form.get('subcontractor_name', ''),
-            'request_type': request.form.get('request_type', ''),
-            'prevailing_wage': request.form.get('prevailing_wage', 'No'),
-            'skilled_trained': request.form.get('skilled_trained', 'No'),
-            'reviewed_by': request.form.get('reviewed_by', ''),
-    
-            'notes': request.form.get('notes', ''),
-            'added_by': session['user_email']
-        }
-        
-        sub_requests[sub_id] = sub_data
-        save_json(Config.DATABASES['sub_requests'], sub_requests)
-        
-        log_activity('sub_request_added', {'sub_id': sub_id})
-        flash('Sub request added successfully!', 'success')
-        return redirect(url_for('legal.legal_queue', tab='sub-requests'))
-    
-    return render_template('add_sub_request.html',
-                         offices=get_system_setting('office_codes', {}))
+
 
 @legal_bp.route('/add_pw_dir_question', methods=['GET', 'POST'])
 @login_required
