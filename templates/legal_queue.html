@@ -66,9 +66,9 @@
         }
         
         .tab-button.active {
-            color: #9c27b0;
-            border-bottom-color: #9c27b0;
-            background: #faf5fb;
+            color: #008080;
+            border-bottom-color: #008080;
+            background: #f0f8f8;
         }
         
         .tab-count {
@@ -82,7 +82,7 @@
         }
         
         .tab-button.active .tab-count {
-            background: #9c27b0;
+            background: #008080;
             color: white;
         }
         
@@ -132,7 +132,7 @@
         
         h2 {
             color: #333;
-            border-bottom: 2px solid #9c27b0;
+            border-bottom: 2px solid #008080;
             padding-bottom: 10px;
             margin-top: 0;
         }
@@ -144,7 +144,7 @@
         }
         
         th {
-            background: #9c27b0;
+            background: #008080;
             color: white;
             padding: 10px 8px;
             text-align: left;
@@ -190,7 +190,7 @@
         
         .action-button {
             padding: 4px 8px;
-            background: #9c27b0;
+            background: #008080;
             color: white;
             text-decoration: none;
             border-radius: 3px;
@@ -198,7 +198,7 @@
             margin-right: 5px;
             display: inline-block;
         }
-        .action-button:hover { background: #7b1fa2; }
+        .action-button:hover { background: #005f5f; }
         
         .view-button {
             padding: 4px 8px;
@@ -272,15 +272,20 @@
         }
         
         .add-button {
-            background: #4CAF50;
+            background: linear-gradient(135deg, #008080 0%, #00a0a0 100%);
             color: white;
             padding: 10px 20px;
             text-decoration: none;
             border-radius: 4px;
             display: inline-block;
             margin-bottom: 20px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        .add-button:hover { background: #45a049; }
+        .add-button:hover { 
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
         
         .empty-state {
             text-align: center;

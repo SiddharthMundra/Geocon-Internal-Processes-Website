@@ -4,8 +4,8 @@
     <title>Login - Geocon Proposal System</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -48,11 +48,11 @@
         }
         input:focus {
             outline: none;
-            border-color: #4CAF50;
+            border-color: #008080;
         }
         .button {
             width: 100%;
-            background-color: #4CAF50;
+            background: linear-gradient(135deg, #008080 0%, #00a0a0 100%);
             color: white;
             padding: 12px;
             border: none;
@@ -60,9 +60,12 @@
             cursor: pointer;
             font-size: 16px;
             font-weight: bold;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .button:hover {
-            background-color: #45a049;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
         }
         .error {
             background-color: #f8d7da;
@@ -238,10 +241,10 @@
             background-color: #f8f9fa;
             padding: 15px;
             border-radius: 4px;
-            border-left: 4px solid #4CAF50;
+            border-left: 4px solid #008080;
         }
         .highlight {
-            color: #4CAF50;
+            color: #008080;
             font-weight: bold;
         }
         .password-info {
@@ -256,7 +259,8 @@
 <body>
     <div class="login-container">
         <div class="logo">
-            <h1>Geocon Proposal System</h1>
+            <img src="/static/logo.png" alt="Geocon Logo" style="height: 60px; margin-bottom: 20px;">
+            <h1>Proposal Management System</h1>
         </div>
         
         {% with messages = get_flashed_messages(with_categories=true) %}

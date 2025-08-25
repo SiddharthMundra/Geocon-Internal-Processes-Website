@@ -25,11 +25,12 @@
             color: white;
             text-decoration: none;
             padding: 8px 16px;
-            background-color: #7b1fa2;
+            background: rgba(255,255,255,0.2);
             border-radius: 4px;
+            transition: background 0.3s;
         }
         .back-link:hover {
-            background-color: #6a1b9a;
+            background: rgba(255,255,255,0.3);
         }
         .container {
             max-width: 800px;
@@ -67,7 +68,7 @@
         }
         input:focus, select:focus, textarea:focus {
             outline: none;
-            border-color: #9c27b0;
+            border-color: #008080;
         }
         textarea {
             min-height: 100px;
@@ -80,7 +81,7 @@
             margin-top: 30px;
         }
         .submit-button {
-            background-color: #9c27b0;
+            background: linear-gradient(135deg, #008080 0%, #00a0a0 100%);
             color: white;
             padding: 12px 30px;
             border: none;
@@ -88,9 +89,12 @@
             cursor: pointer;
             font-size: 16px;
             font-weight: bold;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .submit-button:hover {
-            background-color: #7b1fa2;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
         }
         .cancel-button {
             background-color: #6c757d;
