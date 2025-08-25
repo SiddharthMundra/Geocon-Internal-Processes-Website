@@ -67,6 +67,14 @@
         .status-pending_legal { background-color: #9c27b0; color: white; }
         .status-active { background-color: #4CAF50; color: white; }
         .status-completed { background-color: #28a745; color: white; }
+        .status-pending { 
+            background-color: #ff9800; 
+            color: white; 
+            padding: 2px 6px; 
+            border-radius: 3px; 
+            font-size: 12px; 
+            font-weight: bold; 
+        }
         .detail-section {
             margin-bottom: 25px;
         }
@@ -114,9 +122,20 @@
             margin-bottom: 10px;
             padding-bottom: 10px;
             border-bottom: 1px solid #e0e0e0;
+            position: relative;
         }
         .timeline-item:last-child {
             border-bottom: none;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -24px;
+            top: 5px;
+            width: 8px;
+            height: 8px;
+            background: #008080;
+            border-radius: 50%;
         }
         .checkmark {
             color: #4CAF50;
@@ -204,13 +223,6 @@
             <!-- Action Buttons -->
             {% if project.status != 'completed' %}
             <div class="action-buttons">
-                {% if project.status == 'pending_legal' %}
-                <a href="/legal_action/{{ project.project_number }}" 
-                   class="legal-approve-button">
-                    ⚖️ Legal Review
-                </a>
-                {% endif %}
-                
                 {% if project.status == 'active' %}
                 <a href="/mark_project_complete/{{ project.project_number }}" 
                    class="complete-button"
@@ -291,15 +303,28 @@
                 <div class="section-title">Project Timeline</div>
                 <div class="timeline-box">
                     <div class="timeline-item">
-                        <div class="detail-label">Created</div>
+                        <div class="detail-label">Project Created</div>
                         <div class="detail-value">{{ project.created_date }} <span class="checkmark">✓</span></div>
                     </div>
                     
-                    {% if project.status in ['active', 'completed'] %}
+                    {% if project.won_date %}
+                    <div class="timeline-item">
+                        <div class="detail-label">Proposal Won</div>
+                        <div class="detail-value">
+                            {{ project.won_date }}
+                            {% if project.won_by %}
+                                by {{ project.won_by }}
+                            {% endif %}
+                            <span class="checkmark">✓</span>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if project.legal_status == 'signed' %}
                     <div class="timeline-item">
                         <div class="detail-label">Legal Review Completed</div>
                         <div class="detail-value">
-                            {{ project.get('legal_approved_date', '-') }}
+                            {{ project.get('legal_approved_date', project.get('legal_signed_date', '-')) }}
                             {% if project.legal_approved_by %}
                                 by {{ project.legal_approved_by }}
                             {% endif %}
@@ -308,11 +333,89 @@
                     </div>
                     {% endif %}
                     
+                    {% if insurance_requests %}
+                    {% for request_id, request in insurance_requests.items() %}
+                    <div class="timeline-item">
+                        <div class="detail-label">Insurance Request</div>
+                        <div class="detail-value">
+                            Requested: {{ request.date_requested }}
+                            {% if request.dept_status == 'issued' %}
+                                <br>Issued: {{ request.get('issued_date', '-') }}
+                                {% if request.issued_by %}
+                                    by {{ request.issued_by }}
+                                {% endif %}
+                                <span class="checkmark">✓</span>
+                            {% else %}
+                                <span class="status-pending">Pending</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                    
+                    {% if sub_requests %}
+                    {% for request_id, request in sub_requests.items() %}
+                    <div class="timeline-item">
+                        <div class="detail-label">Subcontractor Request</div>
+                        <div class="detail-value">
+                            Requested: {{ request.date_requested }}
+                            {% if request.dept_status == 'complete' %}
+                                <br>Completed: {{ request.get('completion_date', '-') }}
+                                {% if request.reviewed_by %}
+                                    by {{ request.reviewed_by }}
+                                {% endif %}
+                                <span class="checkmark">✓</span>
+                            {% else %}
+                                <span class="status-pending">Pending</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                    
+                    {% if pw_dir_questions %}
+                    {% for question_id, question in pw_dir_questions.items() %}
+                    <div class="timeline-item">
+                        <div class="detail-label">PW & DIR Question</div>
+                        <div class="detail-value">
+                            Requested: {{ question.date_requested }}
+                            {% if question.dept_status == 'complete' %}
+                                <br>Completed: {{ question.get('completion_date', '-') }}
+                                {% if question.reviewed_by %}
+                                    by {{ question.reviewed_by }}
+                                {% endif %}
+                                <span class="checkmark">✓</span>
+                            {% else %}
+                                <span class="status-pending">Pending</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                    
+                    {% if executed_contracts %}
+                    {% for contract_id, contract in executed_contracts.items() %}
+                    <div class="timeline-item">
+                        <div class="detail-label">Executed Contract</div>
+                        <div class="detail-value">
+                            Added: {{ contract.date_added }}
+                            {% if contract.added_by %}
+                                by {{ contract.added_by }}
+                            {% endif %}
+                            <span class="checkmark">✓</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                    
                     {% if project.geocon_updated %}
                     <div class="timeline-item">
-                        <div class="detail-label">Geocon Updated</div>
+                        <div class="detail-label">Geocon System Updated</div>
                         <div class="detail-value">
                             {{ project.geocon_update_date }}
+                            {% if project.geocon_updated_by %}
+                                by {{ project.geocon_updated_by }}
+                            {% endif %}
                             <span class="checkmark">✓</span>
                         </div>
                     </div>

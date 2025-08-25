@@ -679,8 +679,6 @@
                             <td class="truncate" title="{{ request.notes }}">{{ request.notes|default('-') }}</td>
                             <td>
                                 <a href="/edit_sub_request/{{ request_id }}" class="view-button">Edit</a>
-                                <a href="/delete_sub_request/{{ request_id }}" class="action-button" 
-                                   onclick="return confirm('Delete this sub request?')">Delete</a>
                             </td>
                         </tr>
                     {% endfor %}
@@ -747,8 +745,9 @@
                             <td class="truncate" title="{{ question.notes }}">{{ question.notes|default('-') }}</td>
                             <td>
                                 <a href="/edit_pw_dir_question/{{ question_id }}" class="view-button">Edit</a>
-                                <a href="/delete_pw_dir_question/{{ question_id }}" class="action-button" 
-                                   onclick="return confirm('Delete this PW/DIR question?')">Delete</a>
+                                {% if question.dept_status != 'complete' %}
+                                <a href="/mark_pw_dir_complete/{{ question_id }}" class="action-button">Complete</a>
+                                {% endif %}
                             </td>
                         </tr>
                     {% endfor %}

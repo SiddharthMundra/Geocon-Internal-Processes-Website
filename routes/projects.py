@@ -275,11 +275,35 @@ def view_project(project_number):
     proposals = load_json(Config.DATABASES['proposals'])
     associated_proposal = proposals.get(project.get('proposal_number'))
     
+    # Get insurance requests for this project
+    insurance_requests = load_json(Config.DATABASES['insurance_requests'])
+    project_insurance = {k: v for k, v in insurance_requests.items() 
+                        if v.get('project_number') == project_number}
+    
+    # Get sub requests for this project
+    sub_requests = load_json(Config.DATABASES['sub_requests'])
+    project_sub_requests = {k: v for k, v in sub_requests.items() 
+                           if v.get('project_number') == project_number}
+    
+    # Get PW/DIR questions for this project
+    pw_dir_questions = load_json(Config.DATABASES['pw_dir_questions'])
+    project_pw_dir = {k: v for k, v in pw_dir_questions.items() 
+                      if v.get('project_number') == project_number}
+    
+    # Get executed contracts for this project
+    executed_contracts = load_json(Config.DATABASES['executed_contracts'])
+    project_contracts = {k: v for k, v in executed_contracts.items() 
+                        if v.get('project_number') == project_number}
+    
     log_activity('project_viewed', {'project_number': project_number})
     
     return render_template('view_project.html', 
                          project=project, 
-                         proposal=associated_proposal)
+                         proposal=associated_proposal,
+                         insurance_requests=project_insurance,
+                         sub_requests=project_sub_requests,
+                         pw_dir_questions=project_pw_dir,
+                         executed_contracts=project_contracts)
 
 @projects_bp.route('/project_info_form/<project_number>')
 @login_required

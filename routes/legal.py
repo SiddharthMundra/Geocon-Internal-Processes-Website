@@ -326,7 +326,7 @@ def mark_insurance_issued(request_id):
     requests = load_json(Config.DATABASES['insurance_requests'])
     
     if request_id in requests:
-        requests[request_id]['status'] = 'issued'
+        requests[request_id]['dept_status'] = 'issued'
         requests[request_id]['issued_date'] = datetime.now().strftime('%Y-%m-%d')
         requests[request_id]['issued_by'] = session['user_email']
         save_json(Config.DATABASES['insurance_requests'], requests)
@@ -466,3 +466,20 @@ def edit_pw_dir_question(question_id):
     return render_template('edit_pw_dir_question.html', 
                          question=question,
                          offices=get_system_setting('office_codes', {}))
+
+@legal_bp.route('/mark_pw_dir_complete/<question_id>')
+@login_required
+def mark_pw_dir_complete(question_id):
+    """Mark a PW & DIR question as complete"""
+    pw_dir_questions = load_json(Config.DATABASES['pw_dir_questions'])
+    
+    if question_id in pw_dir_questions:
+        pw_dir_questions[question_id]['dept_status'] = 'complete'
+        pw_dir_questions[question_id]['completion_date'] = datetime.now().strftime('%Y-%m-%d')
+        pw_dir_questions[question_id]['reviewed_by'] = session.get('user_name', session.get('user_email', ''))
+        save_json(Config.DATABASES['pw_dir_questions'], pw_dir_questions)
+        
+        log_activity('pw_dir_question_completed', {'question_id': question_id})
+        flash('PW & DIR question marked as complete!', 'success')
+    
+    return redirect(url_for('legal.legal_queue', tab='pw-dir-questions'))
