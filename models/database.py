@@ -70,8 +70,8 @@ def save_json(filename, data):
 def init_databases():
     """Initialize all database files"""
     # Create necessary directories
-    for folder in ['uploads', 'data', 'data/proposals', 'data/projects', 'data/users', 
-                   'data/system', 'data/analytics', 'data/audit', 'data/documents', 'data/legal']:
+    for folder in ['data', 'data/proposals', 'data/projects', 'data/users', 
+                   'data/system', 'data/analytics', 'data/audit', 'data/legal']:
         if not os.path.exists(folder):
             os.makedirs(folder)
     
@@ -121,30 +121,3 @@ def log_activity(action, details, user_email=None):
     
     save_json(Config.DATABASES['activity_log'], activity_log)
 
-def get_shared_documents(proposal_number, project_number=None):
-    """Get all documents for both proposal and associated project"""
-    proposals = load_json(Config.DATABASES['proposals'])
-    projects = load_json(Config.DATABASES['projects'])
-    
-    all_documents = []
-    
-    # Get proposal documents
-    if proposal_number in proposals:
-        proposal_docs = proposals[proposal_number].get('documents', [])
-        for doc in proposal_docs:
-            doc['source'] = 'proposal'
-            doc['source_number'] = proposal_number
-        all_documents.extend(proposal_docs)
-    
-    # Get project documents if project exists
-    if project_number and project_number in projects:
-        project_docs = projects[project_number].get('documents', [])
-        for doc in project_docs:
-            doc['source'] = 'project'
-            doc['source_number'] = project_number
-        all_documents.extend(project_docs)
-    
-    # Sort by upload date (newest first)
-    all_documents.sort(key=lambda x: x.get('uploaded_date', ''), reverse=True)
-    
-    return all_documents

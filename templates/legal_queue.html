@@ -491,7 +491,7 @@
                             <th>Project Name</th>
                             <th>Client</th>
                             <th>Contract Type</th>
-                            <th>Documents Location</th>
+    
                             <th>Notes/Comments</th>
                             <th>Added By</th>
                             <th>Actions</th>
@@ -519,7 +519,7 @@
                             <td class="truncate" title="{{ contract.project_name }}">{{ contract.project_name }}</td>
                             <td class="truncate" title="{{ contract.client }}">{{ contract.client }}</td>
                             <td>{{ contract.contract_type }}</td>
-                            <td class="truncate" title="{{ contract.documents_location }}">{{ contract.documents_location }}</td>
+
                             <td class="truncate" title="{{ contract.notes }}">{{ contract.notes|default('-') }}</td>
                             <td>{{ contract.added_by }}</td>
                             <td>
@@ -562,7 +562,6 @@
                             <th>Email</th>
                             <th>Can Contact?</th>
                             <th>Handled By</th>
-                            <th>Documents</th>
                             <th>Notes</th>
                             <th>Actions</th>
                         </tr>
@@ -595,7 +594,7 @@
                             <td class="truncate" title="{{ request.client_contact_email }}">{{ request.client_contact_email }}</td>
                             <td>{{ request.can_legal_contact|default('Yes') }}</td>
                             <td>{{ request.handled_by|default('-') }}</td>
-                            <td class="truncate" title="{{ request.documents_location }}">{{ request.documents_location|default('-') }}</td>
+
                             <td class="truncate" title="{{ request.notes }}">{{ request.notes|default('-') }}</td>
                             <td>
                                 <a href="/edit_insurance_request/{{ request_id }}" class="view-button">Edit</a>
@@ -639,7 +638,6 @@
                             <th>PW</th>
                             <th>S&T</th>
                             <th>Reviewed By</th>
-                            <th>Documents</th>
                             <th>Notes</th>
                             <th>Actions</th>
                         </tr>
@@ -672,7 +670,7 @@
                             <td>{{ request.prevailing_wage }}</td>
                             <td>{{ request.skilled_trained }}</td>
                             <td>{{ request.reviewed_by|default('-') }}</td>
-                            <td class="truncate" title="{{ request.documents_location }}">{{ request.documents_location }}</td>
+
                             <td class="truncate" title="{{ request.notes }}">{{ request.notes|default('-') }}</td>
                             <td>
                                 <a href="/edit_sub_request/{{ request_id }}" class="view-button">Edit</a>

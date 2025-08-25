@@ -5,17 +5,11 @@ load_dotenv()
 
 class Config:
     SECRET_KEY = os.getenv('SECRET_KEY', 'your-secret-key-here-change-this')
-    MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB max file size
-    UPLOAD_FOLDER = 'uploads'
-    
     # Email Configuration
     EMAIL_ADDRESS = os.getenv('EMAIL_ADDRESS')
     EMAIL_PASSWORD = os.getenv('EMAIL_PASSWORD')
     SMTP_SERVER = "smtp.office365.com"
     SMTP_PORT = 587
-    
-    # Allowed file extensions
-    ALLOWED_EXTENSIONS = {'pdf', 'doc', 'docx', 'xlsx', 'xls', 'png', 'jpg', 'jpeg'}
     
     # Database files - Modular structure for better scalability
     DATABASES = {
@@ -27,7 +21,6 @@ class Config:
         'settings': 'data/system/system_settings.json',
         'audit_log': 'data/audit/audit_log.json',
         'deletion_log': 'data/audit/deletion_log.json',
-        'documents': 'data/documents/documents_db.json',
         'email_log': 'data/system/email_log.json',
         'activity_log': 'data/audit/activity_log.json',
         'executed_contracts': 'data/legal/executed_contracts.json',

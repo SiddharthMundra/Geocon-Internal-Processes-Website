@@ -1602,5 +1602,241 @@
     "action": "legal_queue_view",
     "details": {},
     "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-25 12:08:17",
+    "user": "admin@geoconinc.com",
+    "action": "legal_queue_view",
+    "details": {},
+    "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-25 12:08:31",
+    "user": "admin@geoconinc.com",
+    "action": "legal_queue_view",
+    "details": {},
+    "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-25 12:08:37",
+    "user": "admin@geoconinc.com",
+    "action": "dashboard_view",
+    "details": {},
+    "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-25 12:08:39",
+    "user": "admin@geoconinc.com",
+    "action": "analytics_view",
+    "details": {},
+    "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-25 12:08:49",
+    "user": "admin@geoconinc.com",
+    "action": "dashboard_view",
+    "details": {},
+    "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-25 12:10:42",
+    "user": "admin@geoconinc.com",
+    "action": "legal_queue_view",
+    "details": {},
+    "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-25 12:12:19",
+    "user": "admin@geoconinc.com",
+    "action": "dashboard_view",
+    "details": {},
+    "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-25 12:12:21",
+    "user": "admin@geoconinc.com",
+    "action": "project_viewed",
+    "details": {
+      "project_number": "G-000001-02-01"
+    },
+    "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-25 12:12:32",
+    "user": "admin@geoconinc.com",
+    "action": "dashboard_view",
+    "details": {},
+    "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-25 12:12:37",
+    "user": "admin@geoconinc.com",
+    "action": "legal_queue_view",
+    "details": {},
+    "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-25 12:12:47",
+    "user": "admin@geoconinc.com",
+    "action": "dashboard_view",
+    "details": {},
+    "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-25 13:12:33",
+    "user": "admin@geoconinc.com",
+    "action": "legal_queue_view",
+    "details": {},
+    "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-25 13:12:40",
+    "user": "admin@geoconinc.com",
+    "action": "legal_queue_view",
+    "details": {},
+    "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-25 13:12:40",
+    "user": "admin@geoconinc.com",
+    "action": "legal_queue_view",
+    "details": {},
+    "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-25 13:12:41",
+    "user": "admin@geoconinc.com",
+    "action": "legal_queue_view",
+    "details": {},
+    "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-25 13:12:42",
+    "user": "admin@geoconinc.com",
+    "action": "legal_queue_view",
+    "details": {},
+    "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-25 13:12:43",
+    "user": "admin@geoconinc.com",
+    "action": "dashboard_view",
+    "details": {},
+    "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-25 13:15:46",
+    "user": "system",
+    "action": "server_startup",
+    "details": {
+      "version": "2.0.0",
+      "mode": "development"
+    },
+    "ip_address": null
+  },
+  {
+    "timestamp": "2025-08-25 13:15:55",
+    "user": "system",
+    "action": "server_startup",
+    "details": {
+      "version": "2.0.0",
+      "mode": "development"
+    },
+    "ip_address": null
+  },
+  {
+    "timestamp": "2025-08-25 13:16:18",
+    "user": "system",
+    "action": "server_startup",
+    "details": {
+      "version": "2.0.0",
+      "mode": "development"
+    },
+    "ip_address": null
+  },
+  {
+    "timestamp": "2025-08-25 13:16:19",
+    "user": "system",
+    "action": "server_startup",
+    "details": {
+      "version": "2.0.0",
+      "mode": "development"
+    },
+    "ip_address": null
+  },
+  {
+    "timestamp": "2025-08-25 13:16:27",
+    "user": "admin@geoconinc.com",
+    "action": "dashboard_view",
+    "details": {},
+    "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-25 13:16:28",
+    "user": "admin@geoconinc.com",
+    "action": "legal_queue_view",
+    "details": {},
+    "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-25 13:16:29",
+    "user": "admin@geoconinc.com",
+    "action": "dashboard_view",
+    "details": {},
+    "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-25 13:17:03",
+    "user": "system",
+    "action": "server_startup",
+    "details": {
+      "version": "2.0.0",
+      "mode": "development"
+    },
+    "ip_address": null
+  },
+  {
+    "timestamp": "2025-08-25 13:17:10",
+    "user": "system",
+    "action": "server_startup",
+    "details": {
+      "version": "2.0.0",
+      "mode": "development"
+    },
+    "ip_address": null
+  },
+  {
+    "timestamp": "2025-08-25 13:25:19",
+    "user": "system",
+    "action": "server_startup",
+    "details": {
+      "version": "2.0.0",
+      "mode": "development"
+    },
+    "ip_address": null
+  },
+  {
+    "timestamp": "2025-08-25 13:25:20",
+    "user": "system",
+    "action": "server_startup",
+    "details": {
+      "version": "2.0.0",
+      "mode": "development"
+    },
+    "ip_address": null
+  },
+  {
+    "timestamp": "2025-08-25 13:25:22",
+    "user": "admin@geoconinc.com",
+    "action": "dashboard_view",
+    "details": {},
+    "ip_address": "127.0.0.1"
+  },
+  {
+    "timestamp": "2025-08-25 13:25:24",
+    "user": "admin@geoconinc.com",
+    "action": "legal_queue_view",
+    "details": {},
+    "ip_address": "127.0.0.1"
   }
 ]

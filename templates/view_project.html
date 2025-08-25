@@ -361,51 +361,7 @@
             </div>
             {% endif %}
             
-            <!-- Documents (Shared between Proposal and Project) -->
-            <div class="detail-section">
-                <div class="section-title">Documents</div>
-                {% if all_documents %}
-                <div class="documents-list">
-                    {% for doc in all_documents %}
-                    <div style="margin-bottom: 10px; padding: 10px; background: #f9f9f9; border-radius: 4px;">
-                        <a href="/download_document/{{ doc.filename }}" class="proposal-link">
-                            📄 {{ doc.original_name }}
-                        </a>
-                        <span style="color: #666; font-size: 12px;">
-                            ({{ doc.type }} - uploaded {{ doc.uploaded_date.split(' ')[0] }} by {{ doc.uploaded_by }})
-                            {% if doc.source == 'project' %}
-                                <span style="color: #2196F3; font-weight: bold;">[From Project]</span>
-                            {% else %}
-                                <span style="color: #4CAF50; font-weight: bold;">[From Proposal]</span>
-                            {% endif %}
-                        </span>
-                    </div>
-                    {% endfor %}
-                </div>
-                {% else %}
-                <p style="color: #666;">No documents uploaded yet.</p>
-                {% endif %}
-                
-                <!-- Upload Document Form -->
-                {% if project.status != 'completed' %}
-                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e0e0e0;">
-                    <form action="/upload_document/project/{{ project.project_number }}" method="POST" enctype="multipart/form-data">
-                        <div style="display: flex; gap: 10px; align-items: center;">
-                            <input type="file" name="document" required accept=".pdf,.doc,.docx,.xlsx,.xls,.png,.jpg,.jpeg">
-                            <select name="doc_type" style="padding: 5px;">
-                                <option value="contract">Contract</option>
-                                <option value="amendment">Amendment</option>
-                                <option value="report">Report</option>
-                                <option value="other">Other</option>
-                            </select>
-                            <button type="submit" style="background: #4CAF50; color: white; padding: 5px 15px; border: none; border-radius: 4px; cursor: pointer;">
-                                Upload
-                            </button>
-                        </div>
-                    </form>
-                </div>
-                {% endif %}
-            </div>
+
         </div>
     </div>
 </body>

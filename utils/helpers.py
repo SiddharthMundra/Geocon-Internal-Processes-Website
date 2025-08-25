@@ -229,8 +229,7 @@ def set_system_setting(key, value):
         'new_value': str(value)[:100] if value else None
     })
 
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in Config.ALLOWED_EXTENSIONS
+
 
 def get_next_proposal_number(office, proposal_type, service_type):
     """Generate proposal number with proper counter management"""
@@ -313,7 +312,7 @@ def run_startup_tasks():
     print("  - System: data/system/")
     print("  - Analytics: data/analytics/")
     print("  - Audit Logs: data/audit/")
-    print("  - Documents: data/documents/")
+
     
     print("\n🔐 Login Credentials:")
     print("  - Regular Users: any@geoconinc.com / geocon123")

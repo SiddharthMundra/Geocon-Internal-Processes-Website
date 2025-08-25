@@ -34,7 +34,7 @@ def add_sub_request():
             'prevailing_wage': request.form.get('prevailing_wage', 'No'),
             'skilled_trained': request.form.get('skilled_trained', 'No'),
             'reviewed_by': request.form.get('reviewed_by', ''),
-            'documents_location': request.form.get('documents_location', ''),
+    
             'notes': request.form.get('notes', ''),
             'added_by': session['user_email']
         }
@@ -305,7 +305,6 @@ def add_executed_contract():
             'project_name': request.form.get('project_name', ''),
             'client': request.form.get('client', ''),
             'contract_type': request.form.get('contract_type', ''),
-            'documents_location': request.form.get('documents_location', ''),
             'notes': request.form.get('notes', ''),
             'added_by': session['user_email']
         }
@@ -341,7 +340,6 @@ def add_insurance_request():
             'client_contact_email': request.form.get('client_contact_email', ''),
             'can_legal_contact': request.form.get('can_legal_contact', 'Yes'),
             'handled_by': request.form.get('handled_by', ''),
-            'documents_location': request.form.get('documents_location', ''),
             'notes': request.form.get('notes', ''),
             'added_by': session['user_email']
         }

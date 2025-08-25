@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify
 from datetime import datetime
 import uuid
-from models.database import load_json, save_json, log_activity, get_shared_documents
+from models.database import load_json, save_json, log_activity
 from models.analytics import update_analytics
 from utils.decorators import login_required, user_can_edit
 from utils.helpers import get_system_setting, get_next_project_number
@@ -65,7 +65,6 @@ def mark_won(proposal_number):
         'needs_legal_review': needs_legal_review,
         'project_folder_path': project_folder_path,
         'created_date': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-        'documents': [],
         'email_history': [],
         'office': proposal.get('office', ''),
         'fee': proposal.get('fee', 0),
@@ -84,7 +83,7 @@ def mark_won(proposal_number):
         'legal_can_contact': request.form.get('legal_can_contact', 'yes'),
         'file_lien_notice': request.form.get('file_lien_notice', 'no'),
         'coi_needed': coi_needed,
-        'documents_location': request.form.get('documents_location', ''),
+
         'notes_comments': request.form.get('notes_comments', ''),
         'legal_status_history': []
     }
@@ -108,7 +107,7 @@ def mark_won(proposal_number):
             'client_contact_email': request.form.get('client_contact_email', ''),
             'can_legal_contact': request.form.get('legal_can_contact', 'yes'),
             'handled_by': '',  # To be filled by legal team
-            'documents_location': request.form.get('insurance_documents_location', ''),
+    
             'notes': request.form.get('insurance_notes', ''),
             'added_by': session['user_email'],
             'auto_generated': True
@@ -139,7 +138,7 @@ def mark_won(proposal_number):
             'project_name': proposal.get('project_name', ''),
             'client': proposal.get('client', ''),
             'contract_type': request.form.get('contract_type_executed', ''),
-            'documents_location': request.form.get('executed_documents_location', ''),
+    
             'notes': request.form.get('executed_notes', ''),
             'added_by': session['user_email'],
             'auto_generated': True
@@ -246,15 +245,11 @@ def view_project(project_number):
     proposals = load_json(Config.DATABASES['proposals'])
     associated_proposal = proposals.get(project.get('proposal_number'))
     
-    # Get all shared documents
-    all_documents = get_shared_documents(project.get('proposal_number'), project_number)
-    
     log_activity('project_viewed', {'project_number': project_number})
     
     return render_template('view_project.html', 
                          project=project, 
-                         proposal=associated_proposal,
-                         all_documents=all_documents)
+                         proposal=associated_proposal)
 
 @projects_bp.route('/project_info_form/<project_number>')
 @login_required

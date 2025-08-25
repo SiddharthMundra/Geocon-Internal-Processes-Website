@@ -3,10 +3,10 @@ from datetime import datetime, timedelta
 from werkzeug.utils import secure_filename
 import os
 
-from models.database import load_json, save_json, log_activity, get_shared_documents
+from models.database import load_json, save_json, log_activity
 from models.analytics import get_enhanced_analytics, update_analytics
 from utils.decorators import login_required, user_can_edit
-from utils.helpers import (get_system_setting, get_next_proposal_number, allowed_file,
+from utils.helpers import (get_system_setting, get_next_proposal_number,
                           check_follow_up_reminders)
 from utils.email_service import send_email
 from config import Config
@@ -15,16 +15,25 @@ proposals_bp = Blueprint('proposals', __name__)
 
 @login_required
 def index():
-    """Main dashboard with enhanced filters and analytics - FIXED VERSION"""
+    """Main dashboard with auto-filtering by logged-in user's PM name"""
     log_activity('dashboard_view', {})
     
     proposals = load_json(Config.DATABASES['proposals'])
     projects = load_json(Config.DATABASES['projects'])
     
-    # Filter active items
-    active_proposals = {k: v for k, v in proposals.items() if v.get('status') == 'pending'}
+    # Get the PM name for filtering from session
+    logged_in_pm = session.get('pm_filter_name', '')
+    is_admin = session.get('is_admin', False)
     
-    # Filter projects by different statuses
+    # Filter active items - Auto-filter by PM unless admin
+    active_proposals = {}
+    for k, v in proposals.items():
+        if v.get('status') == 'pending':
+            # Admin sees all, others see only their own
+            if is_admin or v.get('project_manager') == logged_in_pm:
+                active_proposals[k] = v
+    
+    # Filter projects by different statuses - Auto-filter by PM unless admin
     pending_legal_projects = {}
     pending_additional_info_projects = {}
     active_projects = {}
@@ -32,13 +41,12 @@ def index():
     for k, v in projects.items():
         # Projects pending legal review
         if v.get('status') == 'pending_legal':
-            # Show to admin or project manager
-            if session.get('is_admin') or v.get('project_manager') == session.get('user_name'):
+            if is_admin or v.get('project_manager') == logged_in_pm:
                 pending_legal_projects[k] = v
         
-        # Projects pending additional information - FIXED: Admin can see all
+        # Projects pending additional information
         elif v.get('status') == 'pending_additional_info':
-    # Calculate days pending
+            # Calculate days pending
             if v.get('legal_approved_date'):
                 try:
                     approved_date = datetime.strptime(v['legal_approved_date'].split(' ')[0], '%Y-%m-%d')
@@ -47,28 +55,27 @@ def index():
                 except:
                     v['days_pending'] = 0
             else:
-                # For projects that went straight to pending_additional_info without legal
                 v['days_pending'] = 0
             
             # Admin sees all, others see only their own
-            if session.get('is_admin') or v.get('project_manager') == session.get('user_name'):
+            if is_admin or v.get('project_manager') == logged_in_pm:
                 pending_additional_info_projects[k] = v
         
-        # Active projects (marked as won but no legal review needed) - FIXED
+        # Active projects
         elif v.get('status') == 'active' and not v.get('needs_legal_review'):
-            # Show active projects that went straight to active
-            if session.get('is_admin') or v.get('project_manager') == session.get('user_name'):
+            if is_admin or v.get('project_manager') == logged_in_pm:
                 active_projects[k] = v
     
-    # Get search and filter parameters
+    # Get search and filter parameters (but PM filter is auto-set)
     search_query = request.args.get('search', '').lower()
     status_filter = request.args.get('status', '')
     office_filter = request.args.get('office', '')
-    pm_filter = request.args.get('pm_filter', '')  # New PM/Director filter
+    # Force PM filter to logged-in user unless admin overrides
+    pm_filter = request.args.get('pm_filter', '') if is_admin else logged_in_pm
     date_from = request.args.get('date_from', '')
     date_to = request.args.get('date_to', '')
     
-    # Apply filters to proposals
+    # Apply additional filters to already-filtered proposals
     filtered_proposals = {}
     for prop_num, proposal in active_proposals.items():
         # Search filter
@@ -90,11 +97,10 @@ def index():
         if office_filter and proposal.get('office') != office_filter:
             continue
         
-        # PM/Director filter
-        if pm_filter:
-            if (proposal.get('project_manager') != pm_filter and 
-                proposal.get('project_director') != pm_filter):
-                continue
+        # PM filter (only applies if admin wants to override)
+        if is_admin and pm_filter and (proposal.get('project_manager') != pm_filter and 
+                                       proposal.get('project_director') != pm_filter):
+            continue
         
         # Date range filter
         if date_from and proposal.get('date', '') < date_from:
@@ -104,15 +110,14 @@ def index():
         
         filtered_proposals[prop_num] = proposal
     
-    # Get enhanced analytics
+    # Get enhanced analytics - but only for this user's data unless admin
     analytics = get_enhanced_analytics()
     
     # Check if user can view full analytics
     analytics_users = get_system_setting('analytics_users', [])
-    can_view_analytics = (session.get('user_email') in analytics_users or 
-                          session.get('is_admin'))
+    can_view_analytics = (session.get('user_email') in analytics_users or is_admin)
     
-    # Get project managers for filter
+    # Get project managers for filter dropdown (only show to admin)
     project_managers = get_system_setting('project_managers', [])
     
     # Check for follow-up reminders
@@ -124,6 +129,8 @@ def index():
                          pending_additional_info_projects=pending_additional_info_projects,
                          user_email=session.get('user_email'),
                          user_name=session.get('user_name'),
+                         logged_in_pm=logged_in_pm,
+                         is_admin=is_admin,
                          offices=get_system_setting('office_codes', {}),
                          project_managers=project_managers,
                          search_query=search_query,
@@ -135,10 +142,11 @@ def index():
                          analytics=analytics,
                          can_view_analytics=can_view_analytics)
 
-@proposals_bp.route('/new_proposal')  # Changed from '/new'
-@login_required
+# Remove permission restrictions from all other routes
+@proposals_bp.route('/new_proposal')
+@login_required  # Only login required, no other restrictions
 def new_proposal():
-    """New proposal form with proposal number preview"""
+    """New proposal form - accessible to all users"""
     counters = load_json(Config.DATABASES['counters'])
     
     # Get the next proposal number
@@ -161,10 +169,10 @@ def new_proposal():
                          team_assignments=get_system_setting('team_assignments', {}),
                          next_proposal_number=next_number)
 
-@proposals_bp.route('/submit_proposal', methods=['POST'])  # Changed from '/submit'
-@login_required
+@proposals_bp.route('/submit_proposal', methods=['POST'])
+@login_required  # No other restrictions
 def submit_proposal():
-    """Submit new proposal - no permissions, anyone can create"""
+    """Submit new proposal - accessible to all users"""
     # Get form data
     office = request.form.get('office', '')
     proposal_type = request.form.get('proposal_type', '')
@@ -224,25 +232,8 @@ def submit_proposal():
         'status': 'pending',
         'created_by': session['user_email'],
         'created_date': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-        'documents': [],
         'email_history': []
     }
-    
-    # Handle file upload
-    if 'proposal_file' in request.files:
-        file = request.files['proposal_file']
-        if file and file.filename and allowed_file(file.filename):
-            filename = secure_filename(f"{proposal_number}_{file.filename}")
-            filepath = os.path.join(Config.UPLOAD_FOLDER, filename)
-            file.save(filepath)
-            
-            proposal_data['documents'].append({
-                'filename': filename,
-                'original_name': file.filename,
-                'uploaded_date': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                'uploaded_by': session['user_email'],
-                'type': 'proposal'
-            })
     
     # Save proposal
     proposals = load_json(Config.DATABASES['proposals'])
@@ -260,10 +251,10 @@ def submit_proposal():
     flash(f'Proposal {proposal_number} created successfully!', 'success')
     return redirect(url_for('index'))
 
-@proposals_bp.route('/edit_proposal/<proposal_number>')  # Changed from '/edit/<proposal_number>'
-@login_required
+@proposals_bp.route('/edit_proposal/<proposal_number>')
+@login_required  # No other restrictions
 def edit_proposal(proposal_number):
-    """Edit proposal form - anyone can edit"""
+    """Edit proposal form - accessible to all users"""
     proposals = load_json(Config.DATABASES['proposals'])
     
     if proposal_number not in proposals:
@@ -282,10 +273,10 @@ def edit_proposal(proposal_number):
                          project_managers=get_system_setting('project_managers', []),
                          project_directors=list(get_system_setting('team_assignments', {}).keys()))
 
-@proposals_bp.route('/update_proposal/<proposal_number>', methods=['POST'])  # Changed from '/update/<proposal_number>'
-@login_required
+@proposals_bp.route('/update_proposal/<proposal_number>', methods=['POST'])
+@login_required  # No other restrictions
 def update_proposal(proposal_number):
-    """Update existing proposal - anyone can update"""
+    """Update existing proposal - accessible to all users"""
     proposals = load_json(Config.DATABASES['proposals'])
     
     if proposal_number not in proposals:
@@ -332,10 +323,11 @@ def update_proposal(proposal_number):
     flash(f'Proposal {proposal_number} updated successfully!', 'success')
     return redirect(url_for('proposals.view_proposal', proposal_number=proposal_number))
 
-@proposals_bp.route('/proposal/<proposal_number>')  # Changed from '/view/<proposal_number>'
+# Continue with all other routes - removing permission restrictions but keeping @login_required
+@proposals_bp.route('/proposal/<proposal_number>')
 @login_required
 def view_proposal(proposal_number):
-    """View proposal details"""
+    """View proposal details - accessible to all users"""
     proposals = load_json(Config.DATABASES['proposals'])
     
     if proposal_number not in proposals:
@@ -350,15 +342,11 @@ def view_proposal(proposal_number):
     if proposal.get('project_number'):
         associated_project = projects.get(proposal['project_number'])
     
-    # Get all shared documents
-    all_documents = get_shared_documents(proposal_number, proposal.get('project_number'))
-    
     log_activity('proposal_viewed', {'proposal_number': proposal_number})
     
     return render_template('view_proposal.html', 
                          proposal=proposal, 
-                         project=associated_project,
-                         all_documents=all_documents)
+                         project=associated_project)
 
 @proposals_bp.route('/get_next_number')
 @login_required
@@ -375,12 +363,10 @@ def get_next_proposal_number_ajax():
     
     return jsonify({'next_number': max_counter + 1})
 
-
-
 @proposals_bp.route('/mark_sent/<proposal_number>')
-@login_required
+@login_required  # No other restrictions
 def mark_sent(proposal_number):
-    """Mark proposal as sent to client - anyone can do this"""
+    """Mark proposal as sent to client - accessible to all users"""
     proposals = load_json(Config.DATABASES['proposals'])
     
     if proposal_number not in proposals:
@@ -390,7 +376,6 @@ def mark_sent(proposal_number):
     proposal = proposals[proposal_number]
     
     # Keep status as 'pending' but add sent flag
-    # Don't change the main status to 'sent' as that might break other logic
     proposal['proposal_sent'] = True
     proposal['proposal_sent_date'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     proposal['proposal_sent_by'] = session['user_email']
@@ -415,10 +400,10 @@ def mark_sent(proposal_number):
     flash(f'Proposal {proposal_number} marked as sent to client.', 'success')
     return redirect(url_for('index'))
 
-@proposals_bp.route('/mark_proposal_lost/<proposal_number>', methods=['GET', 'POST'])  # Changed from '/mark_lost/<proposal_number>'
-@login_required
+@proposals_bp.route('/mark_proposal_lost/<proposal_number>', methods=['GET', 'POST'])
+@login_required  # No other restrictions
 def mark_proposal_lost(proposal_number):
-    """Mark proposal as lost - anyone can do this"""
+    """Mark proposal as lost - accessible to all users"""
     proposals = load_json(Config.DATABASES['proposals'])
     
     if proposal_number not in proposals:
@@ -449,13 +434,8 @@ def mark_proposal_lost(proposal_number):
     
     return render_template('mark_lost.html', proposal=proposal)
 
-
-
 @proposals_bp.route('/delete/<proposal_number>', methods=['GET', 'POST'])
-@login_required
+@login_required  # No other restrictions
 def delete_proposal_route(proposal_number):
     from routes.delete import delete_proposal
     return delete_proposal(proposal_number)
-
-
-
