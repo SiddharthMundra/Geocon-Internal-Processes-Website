@@ -47,16 +47,18 @@
         }
         
         .tab-button {
-            padding: 15px 30px;
+            padding: 15px 20px;
             background: white;
             border: none;
             border-bottom: 3px solid transparent;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 14px;
             font-weight: bold;
             color: #666;
             transition: all 0.3s;
             position: relative;
+            flex: 1;
+            text-align: center;
         }
         
         .tab-button:hover {
@@ -181,6 +183,10 @@
         .status-rfp_reviewed { background: #00bcd4; color: white; }
         .status-not_signed { background: #795548; color: white; }
         .status-on_hold { background: #607d8b; color: white; }
+        .status-incomplete { background: #f44336; color: white; }
+        .status-complete { background: #4CAF50; color: white; }
+        .status-unfiled { background: #ff9800; color: white; }
+        .status-filed { background: #4CAF50; color: white; }
         
         .action-button {
             padding: 4px 8px;
@@ -311,12 +317,20 @@
                     <span class="tab-count">{{ review_queue|length }}</span>
                 </button>
                 <button class="tab-button" onclick="switchTab('executed-contracts')">
-                    Fully Executed Contracts
+                    Executed Contracts
                     <span class="tab-count">{{ executed_contracts|length }}</span>
                 </button>
                 <button class="tab-button" onclick="switchTab('insurance-requests')">
                     Insurance Requests
                     <span class="tab-count">{{ insurance_requests|length }}</span>
+                </button>
+                <button class="tab-button" onclick="switchTab('sub-requests')">
+                    Sub Requests
+                    <span class="tab-count">{{ sub_requests|length }}</span>
+                </button>
+                <button class="tab-button" onclick="switchTab('pw-dir-questions')">
+                    PW & DIR Questions
+                    <span class="tab-count">{{ pw_dir_questions|length }}</span>
                 </button>
             </div>
         </div>
@@ -465,13 +479,13 @@
         <div id="executed-contracts" class="tab-content">
             <div class="queue-table-container">
                 <h2>Fully Executed Contracts</h2>
-                <a href="/add_executed_contract" class="add-button">+ Add Executed Contract</a>
                 
                 {% if executed_contracts %}
                 <table>
                     <thead>
                         <tr>
                             <th>Queue #</th>
+                            <th>Status</th>
                             <th>Date Added</th>
                             <th>Project #</th>
                             <th>Project Name</th>
@@ -487,6 +501,11 @@
                     {% for contract_id, contract in executed_contracts.items() %}
                         <tr>
                             <td class="queue-number">{{ loop.index }}</td>
+                            <td>
+                                <span class="status-badge status-{{ contract.dept_status|default('unfiled')|replace(' ', '_') }}">
+                                    {{ contract.dept_status|default('Unfiled')|replace('_', ' ')|title }}
+                                </span>
+                            </td>
                             <td>{{ contract.date_added }}</td>
                             <td>
                                 {% if contract.project_number %}
@@ -515,7 +534,7 @@
                 {% else %}
                 <div class="empty-state">
                     <h3>No executed contracts recorded</h3>
-                    <p>Click "Add Executed Contract" to add a new record</p>
+                    <p>Executed contracts will appear here when added</p>
                 </div>
                 {% endif %}
             </div>
@@ -525,7 +544,6 @@
         <div id="insurance-requests" class="tab-content">
             <div class="queue-table-container">
                 <h2>Insurance Requests</h2>
-                <a href="/add_insurance_request" class="add-button">+ Add Insurance Request</a>
                 
                 {% if insurance_requests %}
                 <table>
@@ -554,8 +572,8 @@
                         <tr>
                             <td class="queue-number">{{ loop.index }}</td>
                             <td>
-                                <span class="status-badge status-{{ request.status|default('pending')|replace(' ', '_') }}">
-                                    {{ request.status|default('Pending')|title }}
+                                <span class="status-badge status-{{ request.dept_status|default('new_request')|replace(' ', '_') }}">
+                                    {{ request.dept_status|default('New Request')|replace('_', ' ')|title }}
                                 </span>
                             </td>
                             <td>{{ request.date_requested }}</td>
@@ -581,7 +599,7 @@
                             <td class="truncate" title="{{ request.notes }}">{{ request.notes|default('-') }}</td>
                             <td>
                                 <a href="/edit_insurance_request/{{ request_id }}" class="view-button">Edit</a>
-                                {% if request.status != 'issued' %}
+                                {% if request.dept_status != 'issued' %}
                                 <a href="/mark_insurance_issued/{{ request_id }}" class="action-button">Mark Issued</a>
                                 {% endif %}
                             </td>
@@ -592,7 +610,151 @@
                 {% else %}
                 <div class="empty-state">
                     <h3>No insurance requests</h3>
-                    <p>Click "Add Insurance Request" to add a new request</p>
+                    <p>Insurance requests will appear here when added</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Sub Requests Tab -->
+        <div id="sub-requests" class="tab-content">
+            <div class="queue-table-container">
+                <h2>Sub Requests</h2>
+                <a href="/add_sub_request" class="add-button">+ Add Sub Request</a>
+                
+                {% if sub_requests %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Queue #</th>
+                            <th>Status</th>
+                            <th>Date Requested</th>
+                            <th>Completion Date</th>
+                            <th>Requested By</th>
+                            <th>Office</th>
+                            <th>Project #</th>
+                            <th>Project Name</th>
+                            <th>Subcontractor</th>
+                            <th>Request Type</th>
+                            <th>PW</th>
+                            <th>S&T</th>
+                            <th>Reviewed By</th>
+                            <th>Documents</th>
+                            <th>Notes</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for request_id, request in sub_requests.items() %}
+                        <tr>
+                            <td class="queue-number">{{ loop.index }}</td>
+                            <td>
+                                <span class="status-badge status-{{ request.dept_status|default('new_request')|replace(' ', '_') }}">
+                                    {{ request.dept_status|default('New Request')|replace('_', ' ')|title }}
+                                </span>
+                            </td>
+                            <td>{{ request.date_requested }}</td>
+                            <td>{{ request.completion_date|default('-') }}</td>
+                            <td>{{ request.requested_by }}</td>
+                            <td>{{ request.office }}</td>
+                            <td>
+                                {% if request.project_number %}
+                                <a href="/project/{{ request.project_number }}" class="project-link">
+                                    {{ request.project_number }}
+                                </a>
+                                {% else %}
+                                -
+                                {% endif %}
+                            </td>
+                            <td class="truncate" title="{{ request.project_name }}">{{ request.project_name }}</td>
+                            <td class="truncate" title="{{ request.subcontractor_name }}">{{ request.subcontractor_name }}</td>
+                            <td>{{ request.request_type }}</td>
+                            <td>{{ request.prevailing_wage }}</td>
+                            <td>{{ request.skilled_trained }}</td>
+                            <td>{{ request.reviewed_by|default('-') }}</td>
+                            <td class="truncate" title="{{ request.documents_location }}">{{ request.documents_location }}</td>
+                            <td class="truncate" title="{{ request.notes }}">{{ request.notes|default('-') }}</td>
+                            <td>
+                                <a href="/edit_sub_request/{{ request_id }}" class="view-button">Edit</a>
+                                <a href="/delete_sub_request/{{ request_id }}" class="action-button" 
+                                   onclick="return confirm('Delete this sub request?')">Delete</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state">
+                    <h3>No sub requests</h3>
+                    <p>Sub requests will appear here when added</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- PW & DIR Questions Tab -->
+        <div id="pw-dir-questions" class="tab-content">
+            <div class="queue-table-container">
+                <h2>PW & DIR Questions</h2>
+                <a href="/add_pw_dir_question" class="add-button">+ Add PW & DIR Question</a>
+                
+                {% if pw_dir_questions %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Queue #</th>
+                            <th>Status</th>
+                            <th>Date Requested</th>
+                            <th>Completion Date</th>
+                            <th>Requested By</th>
+                            <th>Office</th>
+                            <th>Project #</th>
+                            <th>Project Name</th>
+                            <th>Question Topic</th>
+                            <th>Reviewed By</th>
+                            <th>Notes</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for question_id, question in pw_dir_questions.items() %}
+                        <tr>
+                            <td class="queue-number">{{ loop.index }}</td>
+                            <td>
+                                <span class="status-badge status-{{ question.dept_status|default('incomplete')|replace(' ', '_') }}">
+                                    {{ question.dept_status|default('Incomplete')|replace('_', ' ')|title }}
+                                </span>
+                            </td>
+                            <td>{{ question.date_requested }}</td>
+                            <td>{{ question.completion_date|default('-') }}</td>
+                            <td>{{ question.requested_by }}</td>
+                            <td>{{ question.office }}</td>
+                            <td>
+                                {% if question.project_number %}
+                                <a href="/project/{{ question.project_number }}" class="project-link">
+                                    {{ question.project_number }}
+                                </a>
+                                {% else %}
+                                -
+                                {% endif %}
+                            </td>
+                            <td class="truncate" title="{{ question.project_name }}">{{ question.project_name }}</td>
+                            <td>{{ question.question_topic }}</td>
+                            <td>{{ question.reviewed_by|default('-') }}</td>
+                            <td class="truncate" title="{{ question.notes }}">{{ question.notes|default('-') }}</td>
+                            <td>
+                                <a href="/edit_pw_dir_question/{{ question_id }}" class="view-button">Edit</a>
+                                <a href="/delete_pw_dir_question/{{ question_id }}" class="action-button" 
+                                   onclick="return confirm('Delete this PW/DIR question?')">Delete</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state">
+                    <h3>No PW & DIR questions</h3>
+                    <p>PW & DIR questions will appear here when added</p>
                 </div>
                 {% endif %}
             </div>
