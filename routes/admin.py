@@ -77,9 +77,9 @@ def update_analytics_users():
     return redirect(url_for('admin.admin_panel'))
 
 @admin_bp.route('/analytics')
-@login_required
+@admin_required
 def analytics():
-    """View analytics dashboard - accessible to all logged in users"""
+    """View analytics dashboard - accessible only to admins"""
     
     log_activity('analytics_view', {})
     

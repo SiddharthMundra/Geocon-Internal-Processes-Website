@@ -241,8 +241,13 @@
             fetch(`/get_next_project_number?team=${teamNumber}`)
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById('project_number').value = data.next_number;
-                    document.getElementById('project-number-preview').textContent = data.next_number;
+                    const projectNumberInput = document.getElementById('project_number');
+                    const projectNumberPreview = document.getElementById('project-number-preview');
+                    
+                    // Set the input field value
+                    projectNumberInput.value = data.next_number;
+                    // Set the preview text
+                    projectNumberPreview.textContent = data.next_number;
                 });
         }
         
@@ -299,11 +304,11 @@
             
             <div class="form-group">
                 <label for="project_number">Project Number</label>
-                <input type="text" id="project_number" name="project_number" readonly>
+                <input type="text" id="project_number" name="project_number" placeholder="Auto-generated project number">
                 <div class="project-number-preview">
                     Auto-generated: <span id="project-number-preview"></span>
                 </div>
-                <div class="help-text">This number will be automatically generated based on the team number</div>
+                <div class="help-text">This number will be automatically generated based on the team number, but you can edit it if needed</div>
             </div>
             
             <div class="form-group">

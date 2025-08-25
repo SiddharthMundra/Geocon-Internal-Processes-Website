@@ -113,9 +113,8 @@ def index():
     # Get enhanced analytics - but only for this user's data unless admin
     analytics = get_enhanced_analytics()
     
-    # Check if user can view full analytics
-    analytics_users = get_system_setting('analytics_users', [])
-    can_view_analytics = (session.get('user_email') in analytics_users or is_admin)
+    # Check if user can view full analytics - only admins can view analytics
+    can_view_analytics = is_admin
     
     # Get project managers for filter dropdown (only show to admin)
     project_managers = get_system_setting('project_managers', [])
