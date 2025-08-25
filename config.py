@@ -31,6 +31,8 @@ class Config:
         'email_log': 'data/system/email_log.json',
         'activity_log': 'data/audit/activity_log.json',
         'executed_contracts': 'data/legal/executed_contracts.json',
+        'sub_requests': 'data/sub_requests.json',
+        'pw_dir_questions': 'data/pw_dir_questions.json',
         'insurance_requests': 'data/legal/insurance_requests.json'
     }
 

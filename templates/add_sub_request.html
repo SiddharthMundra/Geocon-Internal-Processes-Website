@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Sub Request - Geocon Legal</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            background-color: #f5f7fa;
+        }
+        .header {
+            background: linear-gradient(135deg, #005f5f 0%, #008080 100%);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .back-link {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            background-color: #7b1fa2;
+            border-radius: 4px;
+        }
+        .back-link:hover {
+            background-color: #6a1b9a;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        .required::after {
+            content: " *";
+            color: red;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #9c27b0;
+        }
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        .submit-button {
+            background-color: #9c27b0;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .submit-button:hover {
+            background-color: #7b1fa2;
+        }
+        .cancel-button {
+            background-color: #6c757d;
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 4px;
+            display: inline-block;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .cancel-button:hover {
+            background-color: #5a6268;
+        }
+        .section-header {
+            font-size: 18px;
+            font-weight: bold;
+            color: #9c27b0;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 5px;
+        }
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+        }
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .help-text {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('date_requested').value = today;
+        });
+    </script>
+</head>
+<body>
+    <div class="header">
+        <h1>📋 Add Sub Request</h1>
+        <a href="/legal_queue?tab=sub-requests" class="back-link">← Back to Legal Queue</a>
+    </div>
+    
+    <div class="container">
+        <form method="POST">
+            <div class="section-header">Request Information</div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="date_requested" class="required">Date Requested</label>
+                    <input type="date" id="date_requested" name="date_requested" required>
+                </div>
+                <div class="form-group">
+                    <label for="completion_date" class="required">Requested Completion Date</label>
+                    <input type="date" id="completion_date" name="completion_date" required>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="requested_by" class="required">Requested By</label>
+                    <input type="text" id="requested_by" name="requested_by" required
+                           placeholder="Name of person requesting">
+                </div>
+                <div class="form-group">
+                    <label for="office" class="required">Office</label>
+                    <select id="office" name="office" required>
+                        <option value="">Select Office</option>
+                        {% for code, name in offices.items() %}
+                        <option value="{{ code }}">{{ code }} - {{ name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            
+            <div class="section-header">Project Information</div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="project_number">Project Number</label>
+                    <input type="text" id="project_number" name="project_number"
+                           placeholder="e.g., W1890-77-03">
+                </div>
+                <div class="form-group">
+                    <label for="project_name" class="required">Project Name</label>
+                    <input type="text" id="project_name" name="project_name" required
+                           placeholder="e.g., Downtown Office Complex">
+                </div>
+            </div>
+            
+            <div class="section-header">Subcontractor Information</div>
+            
+            <div class="form-group">
+                <label for="subcontractor_name" class="required">Subcontractor Name</label>
+                <input type="text" id="subcontractor_name" name="subcontractor_name" required
+                       placeholder="e.g., ABC Engineering Inc.">
+            </div>
+            
+            <div class="form-group">
+                <label for="request_type" class="required">Request Type</label>
+                <select id="request_type" name="request_type" required>
+                    <option value="">Select Request Type</option>
+                    <option value="New Agreement">New Agreement</option>
+                    <option value="Amendment">Amendment</option>
+                    <option value="Task Order">Task Order</option>
+                    <option value="Change Order">Change Order</option>
+                    <option value="Purchase Order">Purchase Order</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="required">Prevailing Wage</label>
+                    <div class="radio-group">
+                        <div class="radio-item">
+                            <input type="radio" id="pw_yes" name="prevailing_wage" value="Yes">
+                            <label for="pw_yes">Yes</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="pw_no" name="prevailing_wage" value="No" checked>
+                            <label for="pw_no">No</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="required">Skilled and Trained Workforce</label>
+                    <div class="radio-group">
+                        <div class="radio-item">
+                            <input type="radio" id="skilled_yes" name="skilled_trained" value="Yes">
+                            <label for="skilled_yes">Yes</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="skilled_no" name="skilled_trained" value="No" checked>
+                            <label for="skilled_no">No</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="reviewed_by">Reviewed By</label>
+                <input type="text" id="reviewed_by" name="reviewed_by"
+                       placeholder="Name of reviewer (optional)">
+            </div>
+            
+            <div class="section-header">Documentation</div>
+            
+            <div class="form-group">
+                <label for="documents_location" class="required">Documents File Location</label>
+                <textarea id="documents_location" name="documents_location" required
+                          placeholder="Must Include: Completed MSA & Work Order Request Form, Written Confirmation from Client of No DIR # if one is not assigned to a PW Project&#10;&#10;Optional: Sub's Proposal/Estimate/Quote, if provided&#10;&#10;Example:&#10;R:\GEOCON WORKING FILES\..."></textarea>
+                <div class="help-text">Include the full path to all required documents</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="notes">Notes/Comments</label>
+                <textarea id="notes" name="notes" 
+                          placeholder="Any additional notes or special instructions..."></textarea>
+            </div>
+            
+            <div class="button-group">
+                <button type="submit" class="submit-button">
+                    ✅ Add Sub Request
+                </button>
+                <a href="/legal_queue?tab=sub-requests" class="cancel-button">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
