@@ -435,3 +435,69 @@ def legal_action(project_number):
         return redirect(url_for('index'))
     
     return render_template('legal_action.html', project=project)
+
+@legal_bp.route('/edit_sub_request/<request_id>', methods=['GET', 'POST'])
+@login_required
+def edit_sub_request(request_id):
+    """Edit a sub request - legal department can update status and reviewed_by"""
+    sub_requests = load_json(Config.DATABASES['sub_requests'])
+    
+    if request_id not in sub_requests:
+        flash('Sub request not found.', 'error')
+        return redirect(url_for('legal.legal_queue', tab='sub-requests'))
+    
+    sub_request = sub_requests[request_id]
+    
+    if request.method == 'POST':
+        # Update the sub request
+        sub_request.update({
+            'dept_status': request.form.get('dept_status', sub_request.get('dept_status')),
+            'reviewed_by': request.form.get('reviewed_by', sub_request.get('reviewed_by')),
+            'notes': request.form.get('notes', sub_request.get('notes')),
+            'last_modified': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'last_modified_by': session['user_email']
+        })
+        
+        sub_requests[request_id] = sub_request
+        save_json(Config.DATABASES['sub_requests'], sub_requests)
+        
+        log_activity('sub_request_updated', {'request_id': request_id})
+        flash('Sub request updated successfully!', 'success')
+        return redirect(url_for('legal.legal_queue', tab='sub-requests'))
+    
+    return render_template('edit_sub_request.html', 
+                         sub_request=sub_request,
+                         offices=get_system_setting('office_codes', {}))
+
+@legal_bp.route('/edit_pw_dir_question/<question_id>', methods=['GET', 'POST'])
+@login_required
+def edit_pw_dir_question(question_id):
+    """Edit a PW & DIR question - legal department can update status and reviewed_by"""
+    pw_dir_questions = load_json(Config.DATABASES['pw_dir_questions'])
+    
+    if question_id not in pw_dir_questions:
+        flash('PW & DIR question not found.', 'error')
+        return redirect(url_for('legal.legal_queue', tab='pw-dir-questions'))
+    
+    question = pw_dir_questions[question_id]
+    
+    if request.method == 'POST':
+        # Update the question
+        question.update({
+            'dept_status': request.form.get('dept_status', question.get('dept_status')),
+            'reviewed_by': request.form.get('reviewed_by', question.get('reviewed_by')),
+            'notes': request.form.get('notes', question.get('notes')),
+            'last_modified': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'last_modified_by': session['user_email']
+        })
+        
+        pw_dir_questions[question_id] = question
+        save_json(Config.DATABASES['pw_dir_questions'], pw_dir_questions)
+        
+        log_activity('pw_dir_question_updated', {'question_id': question_id})
+        flash('PW & DIR question updated successfully!', 'success')
+        return redirect(url_for('legal.legal_queue', tab='pw-dir-questions'))
+    
+    return render_template('edit_pw_dir_question.html', 
+                         question=question,
+                         offices=get_system_setting('office_codes', {}))

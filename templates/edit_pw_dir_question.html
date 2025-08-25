@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Add PW & DIR Question - Geocon Legal</title>
+    <title>Edit PW & DIR Question - Geocon Legal</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -32,7 +32,7 @@
             background-color: #6a1b9a;
         }
         .container {
-            max-width: 700px;
+            max-width: 800px;
             margin: 20px auto;
             background-color: white;
             padding: 30px;
@@ -114,107 +114,104 @@
             border-bottom: 1px solid #e0e0e0;
             padding-bottom: 5px;
         }
+        .readonly-field {
+            background-color: #f8f9fa;
+            color: #6c757d;
+        }
         .help-text {
             font-size: 12px;
             color: #6c757d;
             margin-top: 5px;
         }
     </style>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('date_requested').value = today;
-        });
-    </script>
 </head>
 <body>
     <div class="header">
-        <h1>❓ Add PW & DIR Question</h1>
+        <h1>📝 Edit PW & DIR Question</h1>
         <a href="/legal_queue?tab=pw-dir-questions" class="back-link">← Back to Legal Queue</a>
     </div>
     
     <div class="container">
         <form method="POST">
-            <div class="section-header">Request Information</div>
+            <div class="section-header">Request Information (Read-only)</div>
             
             <div class="form-row">
                 <div class="form-group">
-                    <label for="date_requested" class="required">Date Requested</label>
-                    <input type="date" id="date_requested" name="date_requested" required>
+                    <label>Date Requested</label>
+                    <input type="date" value="{{ question.date_requested }}" readonly class="readonly-field">
                 </div>
                 <div class="form-group">
-                    <label for="completion_date" class="required">Requested Completion Date</label>
-                    <input type="date" id="completion_date" name="completion_date" required>
+                    <label>Requested Completion Date</label>
+                    <input type="date" value="{{ question.completion_date }}" readonly class="readonly-field">
                 </div>
             </div>
             
             <div class="form-row">
                 <div class="form-group">
-                    <label for="requested_by" class="required">Requested By</label>
-                    <input type="text" id="requested_by" name="requested_by" required
-                           placeholder="Name of person requesting">
+                    <label>Requested By</label>
+                    <input type="text" value="{{ question.requested_by }}" readonly class="readonly-field">
                 </div>
                 <div class="form-group">
-                    <label for="office" class="required">Office</label>
-                    <select id="office" name="office" required>
-                        <option value="">Select Office</option>
-                        {% for code, name in offices.items() %}
-                        <option value="{{ code }}">{{ code }} - {{ name }}</option>
-                        {% endfor %}
+                    <label>Office</label>
+                    <input type="text" value="{{ question.office }}" readonly class="readonly-field">
+                </div>
+            </div>
+            
+            <div class="section-header">Project Information (Read-only)</div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Project Number</label>
+                    <input type="text" value="{{ question.project_number }}" readonly class="readonly-field">
+                </div>
+                <div class="form-group">
+                    <label>Project Name</label>
+                    <input type="text" value="{{ question.project_name }}" readonly class="readonly-field">
+                </div>
+            </div>
+            
+            <div class="section-header">Question Details (Read-only)</div>
+            
+            <div class="form-group">
+                <label>Question Topic</label>
+                <input type="text" value="{{ question.question_topic }}" readonly class="readonly-field">
+            </div>
+            
+            <div class="form-group">
+                <label>Original Notes/Comments</label>
+                <textarea readonly class="readonly-field">{{ question.notes }}</textarea>
+            </div>
+            
+            <div class="section-header">Legal Department Updates</div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="dept_status" class="required">Department Status</label>
+                    <select id="dept_status" name="dept_status" required>
+                        <option value="incomplete" {% if question.dept_status == 'incomplete' %}selected{% endif %}>Incomplete</option>
+                        <option value="in_review" {% if question.dept_status == 'in_review' %}selected{% endif %}>In Review</option>
+                        <option value="pending_info" {% if question.dept_status == 'pending_info' %}selected{% endif %}>Pending Information</option>
+                        <option value="completed" {% if question.dept_status == 'completed' %}selected{% endif %}>Completed</option>
+                        <option value="cancelled" {% if question.dept_status == 'cancelled' %}selected{% endif %}>Cancelled</option>
                     </select>
                 </div>
-            </div>
-            
-            <div class="section-header">Project Information</div>
-            
-            <div class="form-row">
                 <div class="form-group">
-                    <label for="project_number">Project Number</label>
-                    <input type="text" id="project_number" name="project_number"
-                           placeholder="e.g., W1890-77-03">
-                </div>
-                <div class="form-group">
-                    <label for="project_name" class="required">Project Name</label>
-                    <input type="text" id="project_name" name="project_name" required
-                           placeholder="e.g., Highway 101 Improvement">
+                    <label for="reviewed_by">Reviewed By</label>
+                    <input type="text" id="reviewed_by" name="reviewed_by" 
+                           value="{{ question.reviewed_by }}"
+                           placeholder="Enter reviewer name">
                 </div>
             </div>
             
-            <div class="section-header">Question Details</div>
-            
             <div class="form-group">
-                <label for="question_topic" class="required">Question Topic</label>
-                <select id="question_topic" name="question_topic" required>
-                    <option value="">Select Topic</option>
-                    <option value="Prevailing Wage Requirements">Prevailing Wage Requirements</option>
-                    <option value="DIR Registration">DIR Registration</option>
-                    <option value="Certified Payroll">Certified Payroll</option>
-                    <option value="Labor Compliance">Labor Compliance</option>
-                    <option value="Skilled and Trained Workforce">Skilled and Trained Workforce</option>
-                    <option value="Apprenticeship Requirements">Apprenticeship Requirements</option>
-                    <option value="Public Works Determination">Public Works Determination</option>
-                    <option value="DIR Penalties">DIR Penalties</option>
-                    <option value="Other">Other</option>
-                </select>
-            </div>
-            
-            <div class="form-group">
-                <label for="reviewed_by">Reviewed By</label>
-                <input type="text" id="reviewed_by" name="reviewed_by" readonly
-                       placeholder="Will be filled by legal department when processing">
-                <div class="help-text">This field will be editable by legal department when processing the request</div>
-            </div>
-            
-            <div class="form-group">
-                <label for="notes" class="required">Notes/Comments</label>
-                <textarea id="notes" name="notes" required
-                          placeholder="Please describe the specific question or issue regarding prevailing wage or DIR requirements..."></textarea>
-                <div class="help-text">Provide detailed information about the question or issue</div>
+                <label for="notes">Updated Notes/Comments</label>
+                <textarea id="notes" name="notes" 
+                          placeholder="Legal department response or additional notes...">{{ question.notes }}</textarea>
             </div>
             
             <div class="button-group">
                 <button type="submit" class="submit-button">
-                    ✅ Add PW/DIR Question
+                    ✅ Update PW/DIR Question
                 </button>
                 <a href="/legal_queue?tab=pw-dir-questions" class="cancel-button">
                     Cancel
