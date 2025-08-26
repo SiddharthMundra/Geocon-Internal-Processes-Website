@@ -359,6 +359,11 @@ def submit_project_info(project_number):
     project = projects[project_number]
     action = request.form.get('action')
     
+    # Debug logging
+    print(f"DEBUG: submit_project_info called for project {project_number}")
+    print(f"DEBUG: Current project status: {project.get('status')}")
+    print(f"DEBUG: Action received: {action}")
+    
     # Collect all form data
     project_data_update = {
         'client_id': request.form.get('client_id', ''),
@@ -466,9 +471,13 @@ def submit_project_info(project_number):
         save_json(Config.DATABASES['projects'], projects)
         return redirect(url_for('projects.project_info_form', project_number=project_number))
     
-    # Save project
+    # Save project (for both submit and other cases)
     projects[project_number] = project
     save_json(Config.DATABASES['projects'], projects)
+    
+    # Debug logging
+    print(f"DEBUG: Project {project_number} saved with status: {project.get('status')}")
+    print(f"DEBUG: Project saved successfully")
     
     return redirect(url_for('index'))
 
