@@ -456,20 +456,6 @@ def submit_project_info(project_number):
         })
         
         flash(f'Project {project_number} information submitted successfully! Project moved to Past Projects.', 'success')
-        
-    elif action == 'save_draft':
-        # Save as draft
-        project['info_draft_saved'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        project['info_draft_saved_by'] = session['user_email']
-        
-        log_activity('project_info_draft_saved', {
-            'project_number': project_number
-        })
-        
-        flash(f'Draft saved for project {project_number}.', 'success')
-        projects[project_number] = project
-        save_json(Config.DATABASES['projects'], projects)
-        return redirect(url_for('projects.project_info_form', project_number=project_number))
     
     # Save project (for both submit and other cases)
     projects[project_number] = project
