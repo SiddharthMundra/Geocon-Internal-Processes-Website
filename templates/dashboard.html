@@ -384,7 +384,7 @@
         <div class="user-info">
             <span>Logged in as: {{ user_email }}</span>
             {% if session.get('is_admin') %}
-            <a href="/admin" style="color: #ffeb3b;">⚙️ Admin</a>
+            <a href="/admin" style="color: #ffeb3b;">Admin Settings</a>
             {% endif %}
             <a href="/logout" class="logout">Logout</a>
         </div>
@@ -483,7 +483,7 @@
             <a href="/analytics" class="button-secondary">View Full Analytics</a>
             {% endif %}
             <a href="/past_projects" class="button-secondary">Past Projects</a>
-            <a href="/legal_queue" class="button-secondary" style="background: linear-gradient(135deg, #9c27b0 0%, #ba68c8 100%);">⚖️ Legal Queue</a>
+            <a href="/legal_queue" class="button-secondary" style="background: linear-gradient(135deg, #9c27b0 0%, #ba68c8 100%);">Legal Queue</a>
         </div>
 
         <!-- Active Proposals -->
