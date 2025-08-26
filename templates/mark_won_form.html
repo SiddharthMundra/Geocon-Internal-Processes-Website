@@ -233,22 +233,36 @@
         function toggleCOI() {
             const coiNeeded = document.querySelector('input[name="coi_needed"]:checked').value;
             const coiSection = document.getElementById('coi-section');
+            const certificateHolderInput = document.getElementById('certificate_holder');
             
             if (coiNeeded === 'yes') {
                 coiSection.classList.add('active');
+                certificateHolderInput.required = true;
             } else {
                 coiSection.classList.remove('active');
+                certificateHolderInput.required = false;
+                // Clear the value when hiding
+                certificateHolderInput.value = '';
             }
         }
         
         function toggleSubcontractorSection() {
             const needSubcontractors = document.querySelector('input[name="need_subcontractors"]:checked').value;
             const subcontractorSection = document.getElementById('subcontractor-section');
+            const subcontractorNameInput = document.getElementById('subcontractor_name');
+            const requestTypeSelect = document.getElementById('request_type');
             
             if (needSubcontractors === 'yes') {
                 subcontractorSection.style.display = 'block';
+                subcontractorNameInput.required = true;
+                requestTypeSelect.required = true;
             } else {
                 subcontractorSection.style.display = 'none';
+                subcontractorNameInput.required = false;
+                requestTypeSelect.required = false;
+                // Clear the values when hiding
+                subcontractorNameInput.value = '';
+                requestTypeSelect.value = '';
             }
         }
         
@@ -267,6 +281,28 @@
                 });
         }
         
+        function validateForm() {
+            const needsLegalReview = document.querySelector('input[name="needs_legal_review"]:checked').value;
+            const needSubcontractors = document.querySelector('input[name="need_subcontractors"]:checked').value;
+            const coiNeeded = document.querySelector('input[name="coi_needed"]:checked').value;
+            
+            // If no legal review needed, ensure subcontractor fields are not required
+            if (needsLegalReview === 'no') {
+                const subcontractorNameInput = document.getElementById('subcontractor_name');
+                const requestTypeSelect = document.getElementById('request_type');
+                subcontractorNameInput.required = false;
+                requestTypeSelect.required = false;
+            }
+            
+            // If COI not needed, ensure certificate holder is not required
+            if (coiNeeded === 'no') {
+                const certificateHolderInput = document.getElementById('certificate_holder');
+                certificateHolderInput.required = false;
+            }
+            
+            return true;
+        }
+        
         document.addEventListener('DOMContentLoaded', function() {
             generateProjectNumber();
             
@@ -277,6 +313,10 @@
             const nextWeek = new Date();
             nextWeek.setDate(nextWeek.getDate() + 7);
             document.getElementById('completion_date').value = nextWeek.toISOString().split('T')[0];
+            
+            // Initialize form state
+            toggleSubcontractorSection();
+            toggleCOI();
         });
     </script>
 </head>
@@ -315,7 +355,7 @@
             </div>
         </div>
         
-        <form method="POST" action="/mark_won/{{ proposal.proposal_number }}">
+        <form method="POST" action="/mark_won/{{ proposal.proposal_number }}" onsubmit="return validateForm()">
             <div class="section-header">Project Setup</div>
             
             <div class="form-group">
