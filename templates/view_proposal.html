@@ -213,7 +213,7 @@
             {% if proposal.status != 'converted_to_project' %}
             <div class="action-buttons">
                 <a href="/edit_proposal/{{ proposal.proposal_number }}" class="edit-button">
-                    ✏️ Edit Proposal
+                    Edit Proposal
                 </a>
                 
                 {% if proposal.status == 'pending' and not proposal.get('proposal_sent') %}
@@ -227,16 +227,16 @@
                 {% if proposal.status == 'pending' %}
                 <a href="/mark_won_form/{{ proposal.proposal_number }}" 
                    class="mark-won-button">
-                    🏆 Mark as Won
+                    Mark as Won
                 </a>
                 <a href="/mark_proposal_lost/{{ proposal.proposal_number }}" 
                    class="mark-lost-button">
-                    📉 Mark as Lost
+                    Mark as Lost
                 </a>
                 {% endif %}
                 
                 <a href="/delete_proposal/{{ proposal.proposal_number }}" class="delete-button">
-                    🗑️ Delete Proposal
+                    Delete Proposal
                 </a>
             </div>
             {% endif %}

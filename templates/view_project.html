@@ -214,7 +214,7 @@
             
             {% if project.status == 'completed' %}
             <div class="completed-notice">
-                <strong>✅ This project has been completed!</strong><br>
+                <strong>This project has been completed!</strong><br>
                 Completed on: {{ project.get('completion_date', '').split(' ')[0] }}
                 {% if project.get('completed_by') %}by {{ project.completed_by }}{% endif %}
             </div>
@@ -227,7 +227,7 @@
                 <a href="/mark_project_complete/{{ project.project_number }}" 
                    class="complete-button"
                    onclick="return confirm('Mark this project as complete? This will move it to Past Projects.')">
-                    ✅ Mark Complete
+                    Mark Complete
                 </a>
                 {% endif %}
                 
