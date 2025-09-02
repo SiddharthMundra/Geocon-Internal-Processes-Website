@@ -235,7 +235,7 @@
             const coiSection = document.getElementById('coi-section');
             const certificateHolderInput = document.getElementById('certificate_holder');
             
-            if (coiNeeded === 'yes') {
+            if (coiNeeded === 'yes' || coiNeeded === 'check') {
                 coiSection.classList.add('active');
                 certificateHolderInput.required = true;
             } else {
@@ -368,10 +368,10 @@
             </div>
             
             <div class="form-group">
-                <label for="project_folder_path">Project Folder Path</label>
+                <label for="project_folder_path">Revised Project Folder Path</label>
                 <input type="text" id="project_folder_path" name="project_folder_path" 
                        placeholder="e.g., R:\GEOCON WORKING FILES\...">
-                <div class="help-text">Enter the network path to the project folder</div>
+                <div class="help-text">Please move the information from the Proposals folder to the Project Folder</div>
             </div>
             
             <div class="form-group">
@@ -510,6 +510,10 @@
                             <input type="radio" id="coi_no" name="coi_needed" value="no" onchange="toggleCOI()" checked>
                             <label for="coi_no">No</label>
                         </div>
+                        <div class="radio-item">
+                            <input type="radio" id="coi_check" name="coi_needed" value="check" onchange="toggleCOI()">
+                            <label for="coi_check">Check Contract</label>
+                        </div>
                     </div>
                 </div>
                 
@@ -531,8 +535,9 @@
                 <div class="form-group">
                     <label for="certificate_holder" class="required">Certificate Holder Name</label>
                     <input type="text" id="certificate_holder" name="certificate_holder"
+                           value="{{ proposal.client }}"
                            placeholder="e.g., Transystems (not LA Metro)">
-                    <div class="help-text">Enter the exact name as it should appear on the certificate</div>
+                    <div class="help-text">Auto-populated with client firm name, but can be edited. Enter the exact name as it should appear on the certificate</div>
                 </div>
                 
                 <div class="form-group">
