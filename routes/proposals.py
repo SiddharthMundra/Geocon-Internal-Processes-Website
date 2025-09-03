@@ -110,6 +110,78 @@ def index():
         
         filtered_proposals[prop_num] = proposal
     
+    # Initialize filtered project collections
+    filtered_pending_legal = {}
+    filtered_pending_additional_info = {}
+    
+    # Apply filters to pending legal projects
+    for proj_num, project in pending_legal_projects.items():
+        # Search filter
+        if search_query:
+            search_fields = [
+                project.get('project_number', '').lower(),
+                project.get('client', '').lower(),
+                project.get('project_manager', '').lower(),
+                project.get('project_name', '').lower()
+            ]
+            if not any(search_query in field for field in search_fields):
+                continue
+        
+        # Status filter - only show if status filter matches or is empty
+        if status_filter and status_filter != 'pending_legal':
+            continue
+        
+        # Office filter
+        if office_filter and project.get('office') != office_filter:
+            continue
+        
+        # PM filter (only applies if admin wants to override)
+        if is_admin and pm_filter and (project.get('project_manager') != pm_filter and 
+                                       project.get('project_director') != pm_filter):
+            continue
+        
+        # Date range filter
+        if date_from and project.get('date', '') < date_from:
+            continue
+        if date_to and project.get('date', '') > date_to:
+            continue
+        
+        filtered_pending_legal[proj_num] = project
+    
+    # Apply filters to pending additional info projects
+    for proj_num, project in pending_additional_info_projects.items():
+        # Search filter
+        if search_query:
+            search_fields = [
+                project.get('project_number', '').lower(),
+                project.get('client', '').lower(),
+                project.get('project_manager', '').lower(),
+                project.get('project_name', '').lower()
+            ]
+            if not any(search_query in field for field in search_fields):
+                continue
+        
+        # Status filter - only show if status filter matches or is empty
+        if status_filter and status_filter != 'pending_additional_info':
+            continue
+        
+        # Office filter
+        if office_filter and project.get('office') != office_filter:
+            continue
+        
+        # PM filter (only applies if admin wants to override)
+        if is_admin and pm_filter and (project.get('project_manager') != pm_filter and 
+                                       project.get('project_director') != pm_filter):
+            continue
+        
+        # Date range filter
+        if date_from and project.get('date', '') < date_from:
+            continue
+        if date_to and project.get('date', '') > date_to:
+            continue
+        
+        filtered_pending_additional_info[proj_num] = project
+    
     # Get enhanced analytics - but only for this user's data unless admin
     analytics = get_enhanced_analytics()
     
@@ -124,8 +196,8 @@ def index():
     
     return render_template('dashboard.html', 
                          proposals=filtered_proposals, 
-                         pending_legal_projects=pending_legal_projects,
-                         pending_additional_info_projects=pending_additional_info_projects,
+                         pending_legal_projects=filtered_pending_legal,
+                         pending_additional_info_projects=filtered_pending_additional_info,
                          user_email=session.get('user_email'),
                          user_name=session.get('user_name'),
                          logged_in_pm=logged_in_pm,
