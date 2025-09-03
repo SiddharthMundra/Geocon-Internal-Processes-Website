@@ -235,7 +235,7 @@
             const coiSection = document.getElementById('coi-section');
             const certificateHolderInput = document.getElementById('certificate_holder');
             
-            if (coiNeeded === 'yes' || coiNeeded === 'check') {
+            if (coiNeeded === 'yes') {
                 coiSection.classList.add('active');
                 certificateHolderInput.required = true;
             } else {
@@ -510,11 +510,8 @@
                             <input type="radio" id="coi_no" name="coi_needed" value="no" onchange="toggleCOI()" checked>
                             <label for="coi_no">No</label>
                         </div>
-                        <div class="radio-item">
-                            <input type="radio" id="coi_check" name="coi_needed" value="check" onchange="toggleCOI()">
-                            <label for="coi_check">Check Contract</label>
-                        </div>
                     </div>
+                    <div class="help-text">Note: Check the contract to determine if COI is required</div>
                 </div>
                 
                 <div class="form-group">
@@ -564,14 +561,18 @@
                     <label for="contract_type_executed">Contract Type</label>
                     <select id="contract_type_executed" name="contract_type_executed">
                         <option value="">Select Type</option>
-                        <option value="Master Agreement">Master Agreement</option>
                         <option value="Client Contract">Client Contract</option>
-                        <option value="Subconsultant Agreement">Subconsultant Agreement</option>
-                        <option value="Purchase Order">Purchase Order</option>
-                        <option value="Task Order">Task Order</option>
+                        <option value="TCPS (Geocon)">TCPS (Geocon)</option>
+                        <option value="Acknowledgement">Acknowledgement</option>
+                        <option value="Change Order">Change Order</option>
                         <option value="Amendment">Amendment</option>
+                        <option value="Assignment">Assignment</option>
+                        <option value="RFP/RFQ">RFP/RFQ</option>
+                        <option value="Reliance Letter">Reliance Letter</option>
+                        <option value="Prime Agreement">Prime Agreement</option>
                         <option value="NDA">NDA</option>
-                        <option value="Other">Other</option>
+                        <option value="PLA/CWA">PLA/CWA</option>
+                        <option value="Other">Other (add notes)</option>
                     </select>
                 </div>
                 
@@ -598,12 +599,9 @@
                     <label for="request_type" class="required">Request Type</label>
                     <select id="request_type" name="request_type" required>
                         <option value="">Select Request Type</option>
-                        <option value="New Agreement">New Agreement</option>
-                        <option value="Amendment">Amendment</option>
-                        <option value="Task Order">Task Order</option>
-                        <option value="Change Order">Change Order</option>
-                        <option value="Purchase Order">Purchase Order</option>
-                        <option value="Other">Other</option>
+                        <option value="MSA Only">MSA Only</option>
+                        <option value="MSA and WO">MSA and WO</option>
+                        <option value="WO Only">WO Only</option>
                     </select>
                 </div>
                 
