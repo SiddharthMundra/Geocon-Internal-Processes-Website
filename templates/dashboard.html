@@ -312,6 +312,20 @@
             font-style: italic;
         }
 
+        .info-message {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border: 1px solid #2196f3;
+            color: #1565c0;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .info-message p {
+            margin: 0;
+            font-size: 14px;
+        }
+
         /* Action Dropdown Styles */
         .action-dropdown {
             position: relative;
@@ -503,6 +517,13 @@
             <a href="/legal_queue" class="button-secondary" style="background: linear-gradient(135deg, #9c27b0 0%, #ba68c8 100%);">Legal Queue</a>
         </div>
 
+        <!-- Show message when all items are displayed -->
+        {% if not search_query and not status_filter and not office_filter and not pm_filter and not date_from and not date_to %}
+        <div class="info-message">
+            <p>📋 <strong>Showing all items</strong> - No filters applied. Use the filters above to narrow down results.</p>
+        </div>
+        {% endif %}
+
         <!-- Active Proposals -->
         {% if not status_filter or status_filter == 'pending' %}
         <div class="section">
@@ -680,6 +701,7 @@
             </div>
             {% endif %}
         </div>
+        {% endif %}
         {% endif %}
     </div>
 

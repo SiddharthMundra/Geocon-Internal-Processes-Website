@@ -25,15 +25,38 @@ def index():
     logged_in_pm = session.get('pm_filter_name', '')
     is_admin = session.get('is_admin', False)
     
-    # Filter active items - Auto-filter by PM unless admin
+    # Check if all filters are set to "All" (no specific filters)
+    search_query = request.args.get('search', '').lower()
+    status_filter = request.args.get('status', '')
+    office_filter = request.args.get('office', '')
+    pm_filter = request.args.get('pm_filter', '') if is_admin else logged_in_pm
+    date_from = request.args.get('date_from', '')
+    date_to = request.args.get('date_to', '')
+    
+    # Determine if we should show all items (when no filters are applied)
+    show_all_items = not any([search_query, status_filter, office_filter, 
+                              (pm_filter if is_admin else False), date_from, date_to])
+    
+    # Debug logging
+    print(f"DEBUG: show_all_items = {show_all_items}")
+    print(f"DEBUG: search_query = '{search_query}'")
+    print(f"DEBUG: status_filter = '{status_filter}'")
+    print(f"DEBUG: office_filter = '{office_filter}'")
+    print(f"DEBUG: pm_filter = '{pm_filter}'")
+    print(f"DEBUG: date_from = '{date_from}'")
+    print(f"DEBUG: date_to = '{date_to}'")
+    print(f"DEBUG: is_admin = {is_admin}")
+    print(f"DEBUG: logged_in_pm = '{logged_in_pm}'")
+    
+    # Filter active items - Show all when no filters, otherwise filter by PM
     active_proposals = {}
     for k, v in proposals.items():
         if v.get('status') == 'pending':
-            # Admin sees all, others see only their own
-            if is_admin or v.get('project_manager') == logged_in_pm:
+            # Show all if no filters applied, otherwise filter by PM
+            if show_all_items or is_admin or v.get('project_manager') == logged_in_pm:
                 active_proposals[k] = v
     
-    # Filter projects by different statuses - Auto-filter by PM unless admin
+    # Filter projects by different statuses - Show all when no filters, otherwise filter by PM
     pending_legal_projects = {}
     pending_additional_info_projects = {}
     active_projects = {}
@@ -41,7 +64,8 @@ def index():
     for k, v in projects.items():
         # Projects pending legal review
         if v.get('status') == 'pending_legal':
-            if is_admin or v.get('project_manager') == logged_in_pm:
+            # Show all if no filters applied, otherwise filter by PM
+            if show_all_items or is_admin or v.get('project_manager') == logged_in_pm:
                 pending_legal_projects[k] = v
         
         # Projects pending additional information
@@ -57,23 +81,17 @@ def index():
             else:
                 v['days_pending'] = 0
             
-            # Admin sees all, others see only their own
-            if is_admin or v.get('project_manager') == logged_in_pm:
+            # Show all if no filters applied, otherwise filter by PM
+            if show_all_items or is_admin or v.get('project_manager') == logged_in_pm:
                 pending_additional_info_projects[k] = v
         
         # Active projects
         elif v.get('status') == 'active' and not v.get('needs_legal_review'):
-            if is_admin or v.get('project_manager') == logged_in_pm:
+            # Show all if no filters applied, otherwise filter by PM
+            if show_all_items or is_admin or v.get('project_manager') == logged_in_pm:
                 active_projects[k] = v
     
-    # Get search and filter parameters (but PM filter is auto-set)
-    search_query = request.args.get('search', '').lower()
-    status_filter = request.args.get('status', '')
-    office_filter = request.args.get('office', '')
-    # Force PM filter to logged-in user unless admin overrides
-    pm_filter = request.args.get('pm_filter', '') if is_admin else logged_in_pm
-    date_from = request.args.get('date_from', '')
-    date_to = request.args.get('date_to', '')
+    # Filter parameters are now declared above
     
     # Apply additional filters to already-filtered proposals
     filtered_proposals = {}
@@ -97,8 +115,8 @@ def index():
         if office_filter and proposal.get('office') != office_filter:
             continue
         
-        # PM filter (only applies if admin wants to override)
-        if is_admin and pm_filter and (proposal.get('project_manager') != pm_filter and 
+        # PM filter (only applies if admin wants to override and not showing all items)
+        if not show_all_items and is_admin and pm_filter and (proposal.get('project_manager') != pm_filter and 
                                        proposal.get('project_director') != pm_filter):
             continue
         
@@ -135,8 +153,8 @@ def index():
         if office_filter and project.get('office') != office_filter:
             continue
         
-        # PM filter (only applies if admin wants to override)
-        if is_admin and pm_filter and (project.get('project_manager') != pm_filter and 
+        # PM filter (only applies if admin wants to override and not showing all items)
+        if not show_all_items and is_admin and pm_filter and (project.get('project_manager') != pm_filter and 
                                        project.get('project_director') != pm_filter):
             continue
         
@@ -169,8 +187,8 @@ def index():
         if office_filter and project.get('office') != office_filter:
             continue
         
-        # PM filter (only applies if admin wants to override)
-        if is_admin and pm_filter and (project.get('project_manager') != pm_filter and 
+        # PM filter (only applies if admin wants to override and not showing all items)
+        if not show_all_items and is_admin and pm_filter and (project.get('project_manager') != pm_filter and 
                                        project.get('project_director') != pm_filter):
             continue
         
@@ -187,6 +205,14 @@ def index():
     
     # Check if user can view full analytics - only admins can view analytics
     can_view_analytics = is_admin
+    
+    # Debug logging for counts
+    print(f"DEBUG: Total active_proposals = {len(active_proposals)}")
+    print(f"DEBUG: Total pending_legal_projects = {len(pending_legal_projects)}")
+    print(f"DEBUG: Total pending_additional_info_projects = {len(pending_additional_info_projects)}")
+    print(f"DEBUG: Filtered proposals = {len(filtered_proposals)}")
+    print(f"DEBUG: Filtered pending_legal = {len(filtered_pending_legal)}")
+    print(f"DEBUG: Filtered pending_additional_info = {len(filtered_pending_additional_info)}")
     
     # Get project managers for filter dropdown (only show to admin)
     project_managers = get_system_setting('project_managers', [])
