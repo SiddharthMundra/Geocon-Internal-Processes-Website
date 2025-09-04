@@ -62,13 +62,14 @@ def get_analytics():
     # Calculate different categories
     active_proposals = {k: v for k, v in proposals.items() if v.get('status') == 'pending'}
     pending_legal_projects = {k: v for k, v in projects.items() if v.get('status') == 'pending_legal'}
+    pending_additional_info_projects = {k: v for k, v in projects.items() if v.get('status') == 'pending_additional_info'}
     active_projects = {k: v for k, v in projects.items() if v.get('status') == 'active'}
     completed_projects = {k: v for k, v in projects.items() if v.get('status') == 'completed'}
     lost_proposals = {k: v for k, v in proposals.items() if v.get('status') == 'lost'}
     dead_jobs = {k: v for k, v in projects.items() if v.get('status') == 'dead'}
     
     # Total counts
-    total_active_items = len(active_proposals) + len(pending_legal_projects) + len(active_projects)
+    total_active_items = len(active_proposals) + len(pending_legal_projects) + len(pending_additional_info_projects) + len(active_projects)
     total_completed_items = len(completed_projects) + len(lost_proposals) + len(dead_jobs)
     
     # Win rate calculation - based on proposals that have been decided
@@ -87,6 +88,76 @@ def get_analytics():
             total_revenue += fee
             revenue_by_office[office] = revenue_by_office.get(office, 0) + fee
     
+    # Client performance analytics
+    client_performance = {}
+    for proposal in proposals.values():
+        client = proposal.get('client', 'Unknown')
+        if client not in client_performance:
+            client_performance[client] = {'total': 0, 'won': 0, 'revenue': 0, 'fees': []}
+        
+        client_performance[client]['total'] += 1
+        fee = float(proposal.get('fee', 0))
+        client_performance[client]['fees'].append(fee)
+        
+        if proposal.get('status') == 'converted_to_project':
+            client_performance[client]['won'] += 1
+            client_performance[client]['revenue'] += fee
+    
+    # Calculate client win rates and average fees
+    for client, stats in client_performance.items():
+        stats['win_rate'] = (stats['won'] / stats['total'] * 100) if stats['total'] > 0 else 0
+        stats['avg_fee'] = sum(stats['fees']) / len(stats['fees']) if stats['fees'] else 0
+        del stats['fees']  # Remove raw fees list to keep data clean
+    
+    # Project type and service type performance
+    project_type_performance = {}
+    service_type_performance = {}
+    
+    for proposal in proposals.values():
+        project_type = proposal.get('project_type', 'Unknown')
+        service_type = proposal.get('service_type', 'Unknown')
+        
+        # Project type performance
+        if project_type not in project_type_performance:
+            project_type_performance[project_type] = {'total': 0, 'won': 0, 'revenue': 0}
+        project_type_performance[project_type]['total'] += 1
+        if proposal.get('status') == 'converted_to_project':
+            project_type_performance[project_type]['won'] += 1
+            project_type_performance[project_type]['revenue'] += float(proposal.get('fee', 0))
+        
+        # Service type performance
+        if service_type not in service_type_performance:
+            service_type_performance[service_type] = {'total': 0, 'won': 0, 'revenue': 0}
+        service_type_performance[service_type]['total'] += 1
+        if proposal.get('status') == 'converted_to_project':
+            service_type_performance[service_type]['won'] += 1
+            service_type_performance[service_type]['revenue'] += float(proposal.get('fee', 0))
+    
+    # Calculate win rates for project and service types
+    for perf_dict in [project_type_performance, service_type_performance]:
+        for key, stats in perf_dict.items():
+            stats['win_rate'] = (stats['won'] / stats['total'] * 100) if stats['total'] > 0 else 0
+    
+    # Fee range analysis
+    all_fees = [float(p.get('fee', 0)) for p in proposals.values() if p.get('fee', 0)]
+    won_fees = [float(p.get('fee', 0)) for p in won_proposals.values() if p.get('fee', 0)]
+    
+    fee_ranges = {
+        'under_10k': len([f for f in all_fees if f < 10000]),
+        '10k_50k': len([f for f in all_fees if 10000 <= f < 50000]),
+        '50k_100k': len([f for f in all_fees if 50000 <= f < 100000]),
+        '100k_500k': len([f for f in all_fees if 100000 <= f < 500000]),
+        'over_500k': len([f for f in all_fees if f >= 500000])
+    }
+    
+    won_fee_ranges = {
+        'under_10k': len([f for f in won_fees if f < 10000]),
+        '10k_50k': len([f for f in won_fees if 10000 <= f < 50000]),
+        '50k_100k': len([f for f in won_fees if 50000 <= f < 100000]),
+        '100k_500k': len([f for f in won_fees if 100000 <= f < 500000]),
+        'over_500k': len([f for f in won_fees if f >= 500000])
+    }
+    
     # Project manager performance
     pm_performance = {}
     for proposal in proposals.values():
@@ -99,6 +170,10 @@ def get_analytics():
         if proposal.get('status') == 'converted_to_project':
             pm_performance[pm]['won'] += 1
             pm_performance[pm]['revenue'] += float(proposal.get('fee', 0))
+    
+    # Calculate PM win rates
+    for pm, stats in pm_performance.items():
+        stats['win_rate'] = (stats['won'] / stats['total'] * 100) if stats['total'] > 0 else 0
     
     # Average time to win
     win_times = []
@@ -115,12 +190,27 @@ def get_analytics():
     
     avg_time_to_win = sum(win_times) / len(win_times) if win_times else 0
     
+    # Legal queue performance
+    legal_queue_analytics = {
+        'total_pending': len(pending_legal_projects),
+        'avg_processing_time': 0,  # Will be calculated if we have processing time data
+        'bottlenecks': []
+    }
+    
+    # Proposal lifecycle analytics
+    lifecycle_analytics = {
+        'avg_proposal_to_sent': 0,
+        'avg_sent_to_won': 0,
+        'avg_sent_to_lost': 0
+    }
+    
     return {
         'win_rate': round(win_rate, 1),
         'won_proposals': len(won_proposals),
         'total_proposals': total_decided,
         'active_proposals': len(active_proposals),
         'pending_legal_projects': len(pending_legal_projects),
+        'pending_additional_info_projects': len(pending_additional_info_projects),
         'active_projects': len(active_projects),
         'completed_projects': len(completed_projects),
         'lost_proposals': len(lost_proposals),
@@ -130,7 +220,14 @@ def get_analytics():
         'total_revenue': total_revenue,
         'revenue_by_office': revenue_by_office,
         'pm_performance': pm_performance,
+        'client_performance': client_performance,
+        'project_type_performance': project_type_performance,
+        'service_type_performance': service_type_performance,
+        'fee_ranges': fee_ranges,
+        'won_fee_ranges': won_fee_ranges,
         'avg_time_to_win': round(avg_time_to_win, 1),
+        'legal_queue_analytics': legal_queue_analytics,
+        'lifecycle_analytics': lifecycle_analytics,
         'monthly_data': analytics
     }
 

@@ -113,4 +113,4 @@ def analytics():
                          proposals_data=proposals_data,
                          completed_data=completed_data,
                          revenue_data=revenue_data,
-                         total_revenue=total_revenue)
+                         total_revenue=analytics_data.get('total_revenue', 0))

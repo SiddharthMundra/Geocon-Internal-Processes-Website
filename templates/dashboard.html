@@ -517,12 +517,6 @@
             <a href="/legal_queue" class="button-secondary" style="background: linear-gradient(135deg, #9c27b0 0%, #ba68c8 100%);">Legal Queue</a>
         </div>
 
-        <!-- Show message when all items are displayed -->
-        {% if not search_query and not status_filter and not office_filter and not pm_filter and not date_from and not date_to %}
-        <div class="info-message">
-            <p>📋 <strong>Showing all items</strong> - No filters applied. Use the filters above to narrow down results.</p>
-        </div>
-        {% endif %}
 
         <!-- Active Proposals -->
         {% if not status_filter or status_filter == 'pending' %}
